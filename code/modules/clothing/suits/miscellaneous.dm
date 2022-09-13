@@ -915,6 +915,22 @@
 		"Grey" = 'icons/mob/clothing/species/grey/suit.dmi'
 		)
 
+/obj/item/clothing/suit/jacket/devjacket
+	name = "Devan's leather motorcycle jacket"
+	desc = "A vintage bababooey, loved by rockers, rebels, and punks alike."
+	icon_state = "motojacket_open"
+	item_state = "motojacket_open"
+	ignore_suitadjust = FALSE
+	suit_adjusted = TRUE
+	actions_types = list(/datum/action/item_action/zipper)
+	adjust_flavour = "unzip"
+
+	sprite_sheets = list(
+		"Vox" = 'icons/mob/clothing/species/vox/suit.dmi',
+		"Drask" = 'icons/mob/clothing/species/drask/suit.dmi',
+		"Grey" = 'icons/mob/clothing/species/grey/suit.dmi'
+		)
+
 /obj/item/clothing/suit/jacket/leather/overcoat
 	name = "leather overcoat"
 	desc = "That's a damn fine coat."
