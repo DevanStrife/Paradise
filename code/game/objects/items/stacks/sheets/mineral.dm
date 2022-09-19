@@ -319,6 +319,7 @@ GLOBAL_LIST_INIT(sandbag_recipes, list ( \
 /obj/item/stack/sheet/mineral/wood/New(loc, amount=null)
 	..()
 	recipes = GLOB.wood_recipes
+
 /obj/item/stack/sheet/mineral/tranquillite
 	name = "tranquillite"
 	icon_state = "sheet-mime"
