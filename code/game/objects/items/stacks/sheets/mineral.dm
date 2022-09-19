@@ -300,6 +300,25 @@ GLOBAL_LIST_INIT(sandbag_recipes, list ( \
 	..()
 	recipes = GLOB.bananium_recipes
 
+/obj/item/stack/sheet/mineral/wood
+	name = "wooden planks"
+	icon_state = "sheet-wood"
+	item_state = "sheet-wood"
+	singular_name = "wooden plank"
+	origin_tech = "materials=1;biotech=1"
+	resistance_flags = FLAMMABLE
+	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 0, RAD = 0, FIRE = 50, ACID = 0)
+	sheettype = "wood"
+	merge_type = /obj/item/stack/sheet/mineral/wood
+	materials = list(MAT_WOOD=MINERAL_MATERIAL_AMOUNT)
+	point_value = 5
+
+/obj/item/stack/sheet/mineral/wood/fifty
+	amount = 50
+
+/obj/item/stack/sheet/mineral/wood/New(loc, amount=null)
+	..()
+	recipes = GLOB.wood_recipes
 /obj/item/stack/sheet/mineral/tranquillite
 	name = "tranquillite"
 	icon_state = "sheet-mime"
