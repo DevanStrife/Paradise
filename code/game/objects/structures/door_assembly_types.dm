@@ -273,3 +273,4 @@
 	airlock_type = /obj/machinery/door/airlock/wood
 	mineral = "wood"
 	glass_type = /obj/machinery/door/airlock/wood/glass
+	material_type = /obj/item/stack/sheet/mineral/wood
