@@ -8,6 +8,10 @@
 	name = "electrically-charged arm"
 	icon_state = "elecarm"
 	var/charge_cost = 30
+	var/cooldown = 3.5 SECONDS
+	var/stam_damage = 60
+	var/knockdown_duration = 10 SECONDS
+	var/knockdown_delay = 2.5 SECONDS
 
 /obj/item/borg/stun/attack(mob/living/M, mob/living/silicon/robot/user)
 	if(ishuman(M))
@@ -20,15 +24,56 @@
 		if(!user.cell.use(charge_cost))
 			return
 
-	user.do_attack_animation(M)
-	M.Weaken(10 SECONDS)
-	M.apply_effect(STUTTER, 10 SECONDS)
+	if(issilicon(M))
+		return ..()
 
-	M.visible_message("<span class='danger'>[user] has prodded [M] with [src]!</span>", \
-					"<span class='userdanger'>[user] has prodded you with [src]!</span>")
+	if(!isliving(M))
+		return
+	var/mob/living/L = M
 
-	playsound(loc, 'sound/weapons/egloves.ogg', 50, 1, -1)
-	add_attack_logs(user, M, "Stunned with [src] ([uppertext(user.a_intent)])")
+	if(user.a_intent == INTENT_HARM)
+		borg_stun(L, user)
+		return ..()
+
+	if(borg_stun(L, user))
+		user.do_attack_animation(L)
+
+/obj/item/borg/stun/proc/borg_stun(mob/living/L, mob/living/silicon/robot/user, skip_cooldown = FALSE)
+	if(cooldown > world.time && !skip_cooldown)
+		return FALSE
+
+	var/user_UID = user.UID()
+	if(HAS_TRAIT_FROM(L, TRAIT_WAS_BATONNED, user_UID)) // prevents double baton cheese.
+		return FALSE
+
+	cooldown = world.time + initial(cooldown) // tracks the world.time when hitting will be next available.
+	if(ishuman(L))
+		var/mob/living/carbon/human/H = L
+		if(H.check_shields(src, 0, "[user]'s [name]", MELEE_ATTACK)) //No message; check_shields() handles that
+			playsound(L, 'sound/weapons/genhit.ogg', 50, TRUE)
+			return FALSE
+		H.forcesay(GLOB.hit_appends)
+		H.Confused(10 SECONDS)
+		H.Jitter(10 SECONDS)
+		H.adjustStaminaLoss(stam_damage)
+
+	ADD_TRAIT(L, TRAIT_WAS_BATONNED, user_UID) // so one person cannot hit the same person with two separate batons
+	addtimer(CALLBACK(src, .proc/baton_knockdown, L, user_UID, knockdown_duration), knockdown_delay)
+
+	SEND_SIGNAL(L, COMSIG_LIVING_MINOR_SHOCK, 33)
+
+	if(user)
+		L.lastattacker = user.real_name
+		L.lastattackerckey = user.ckey
+		L.visible_message("<span class='danger'>[user] has stunned [L] with [src]!</span>",
+			"<span class='userdanger'>[L == user ? "You stun yourself" : "[user] has stunned you"] with [src]!</span>")
+		add_attack_logs(user, L, "stunned")
+	playsound(src, 'sound/weapons/egloves.ogg', 50, TRUE, -1)
+	return TRUE
+
+/obj/item/borg/stun/proc/baton_knockdown(mob/living/target, user_UID, knockdown_duration)
+	target.KnockDown(knockdown_duration)
+	REMOVE_TRAIT(target, TRAIT_WAS_BATONNED, user_UID)
 
 #define CYBORG_HUGS 0
 #define CYBORG_HUG 1
