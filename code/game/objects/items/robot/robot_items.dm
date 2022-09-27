@@ -8,6 +8,10 @@
 	name = "electrically-charged arm"
 	icon_state = "elecarm"
 	var/charge_cost = 30
+	var/cooldown = 3.5 SECONDS
+	var/stam_damage = 60
+	var/knockdown_duration = 10 SECONDS
+	var/knockdown_delay = 2.5 SECONDS
 
 /obj/item/borg/stun/attack(mob/living/M, mob/living/silicon/robot/user)
 	if(ishuman(M))
