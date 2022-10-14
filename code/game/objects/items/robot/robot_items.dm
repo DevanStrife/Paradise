@@ -68,6 +68,14 @@
 		percentage_reduction = (100 - armour) / 100 // converts the % into a decimal
 	target.adjustStaminaLoss(stamina_damage * percentage_reduction)
 
+// CC stun arm for the CC combat implant
+/obj/item/borg/stun/centcom
+	stamina_damage = 100
+	stamina_armour_pen = 100
+	cooldown = 2 SECONDS
+	knockdown_duration = 5 SECONDS
+	charge_cost = 0
+
 #define CYBORG_HUGS 0
 #define CYBORG_HUG 1
 #define CYBORG_SHOCK 2
