@@ -118,7 +118,8 @@
 		//20% chance to actually hit the sensors
 		if(prob(effectchance * diode.rating))
 			S.flash_eyes(affect_silicon = 1)
-			S.Weaken(rand(10 SECONDS, 20 SECONDS))
+			S.Confused(rand(5 SECONDS, 20 SECONDS))
+			S.Jitter(5 SECONDS)
 			to_chat(S, "<span class='warning'>Your sensors were overloaded by a laser!</span>")
 			outmsg = "<span class='notice'>You overload [S] by shining [src] at [S.p_their()] sensors.</span>"
 
