@@ -76,6 +76,7 @@
 	cooldown = 2 SECONDS
 	knockdown_duration = 5 SECONDS
 	charge_cost = 0
+	force = 15
 
 #define CYBORG_HUGS 0
 #define CYBORG_HUG 1
