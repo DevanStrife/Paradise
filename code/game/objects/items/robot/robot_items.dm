@@ -4,31 +4,69 @@
 /obj/item/borg
 	icon = 'icons/mob/robot_items.dmi'
 
+// borg stun is similar to contractor baton
 /obj/item/borg/stun
 	name = "electrically-charged arm"
 	icon_state = "elecarm"
 	var/charge_cost = 30
+	var/knockdown_duration = 4 SECONDS
+	var/cooldown = 2.5 SECONDS
+	var/stamina_damage = 70
+	var/stamina_armour_pen = 100
+	var/on_cooldown = FALSE
+	var/jitter_amount = 5 SECONDS
+	var/stutter_amount = 10 SECONDS
 
-/obj/item/borg/stun/attack(mob/living/M, mob/living/silicon/robot/user)
-	if(ishuman(M))
-		var/mob/living/carbon/human/H = M
-		if(H.check_shields(src, 0, "[M]'s [name]", MELEE_ATTACK))
-			playsound(M, 'sound/weapons/genhit.ogg', 50, 1)
+/obj/item/borg/stun/attack(mob/living/target, mob/living/silicon/robot/user)
+	if(ishuman(target))
+		var/mob/living/carbon/human/H = target
+		if(H.check_shields(src, 0, "[target]'s [name]", MELEE_ATTACK))
+			playsound(target, 'sound/weapons/genhit.ogg', 50, 1)
 			return 0
 
 	if(isrobot(user))
 		if(!user.cell.use(charge_cost))
 			return
 
-	user.do_attack_animation(M)
-	M.Weaken(10 SECONDS)
-	M.apply_effect(STUTTER, 10 SECONDS)
+	if(user.a_intent == INTENT_HARM)
+		return ..()
+	if(on_cooldown)
+		return
+	if(issilicon(target))
+		return ..()
+	else
+		borg_knockdown(target, user)
 
-	M.visible_message("<span class='danger'>[user] has prodded [M] with [src]!</span>", \
+/obj/item/borg/stun/proc/borg_knockdown(mob/living/target, mob/living/silicon/robot/user)
+	// Check for shield/countering
+	if(ishuman(target))
+		var/mob/living/carbon/human/H = target
+		if(H.check_shields(src, 0, "[user]'s [name]", MELEE_ATTACK))
+			return FALSE
+	user.visible_message("<span class='danger'>[user] has prodded [target] with [src]!</span>", \
 					"<span class='userdanger'>[user] has prodded you with [src]!</span>")
+	on_non_silicon_stun(target, user)
+	// Visuals and sound
+	user.do_attack_animation(target)
+	playsound(target, 'sound/weapons/egloves.ogg', 50, 1, -1)
+	add_attack_logs(user, target, "Stunned with [src] ([uppertext(user.a_intent)])")
+	// Hit 'em
+	target.LAssailant = iscarbon(user) ? user : null
+	target.KnockDown(knockdown_duration)
+	target.Jitter(jitter_amount)
+	target.AdjustStuttering(stutter_amount)
+	on_cooldown = TRUE
+	addtimer(VARSET_CALLBACK(src, on_cooldown, FALSE), cooldown)
+	return TRUE
 
-	playsound(loc, 'sound/weapons/egloves.ogg', 50, 1, -1)
-	add_attack_logs(user, M, "Stunned with [src] ([uppertext(user.a_intent)])")
+/obj/item/borg/stun/proc/on_non_silicon_stun(mob/living/target, mob/living/user)
+	var/armour = target.run_armor_check("chest", armour_penetration_percentage = stamina_armour_pen) // returns their chest melee armour
+	var/percentage_reduction = 0
+	if(ishuman(target))
+		percentage_reduction = (100 - ARMOUR_VALUE_TO_PERCENTAGE(armour)) / 100
+	else
+		percentage_reduction = (100 - armour) / 100 // converts the % into a decimal
+	target.adjustStaminaLoss(stamina_damage * percentage_reduction)
 
 #define CYBORG_HUGS 0
 #define CYBORG_HUG 1
