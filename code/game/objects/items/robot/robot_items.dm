@@ -16,6 +16,7 @@
 	var/on_cooldown = FALSE
 	var/jitter_amount = 5 SECONDS
 	var/stutter_amount = 10 SECONDS
+	force = 10
 
 /obj/item/borg/stun/attack(mob/living/target, mob/living/silicon/robot/user)
 	if(ishuman(target))
