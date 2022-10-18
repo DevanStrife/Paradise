@@ -1303,11 +1303,13 @@ GLOBAL_LIST_INIT(robot_verbs_default, list(
 		if(1)
 			disable_component("comms", 160)
 			disable_component("radio", 30)
-			Slowed(15 SECONDS, 1)
+			Slowed(15 SECONDS, 2)
 		if(2)
 			disable_component("comms", 80)
 			disable_component("radio", 15)
 			Slowed(5 SECONDS, 1)
+
+
 
 /mob/living/silicon/robot/deathsquad
 	base_icon = "nano_bloodhound"

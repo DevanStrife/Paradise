@@ -131,8 +131,10 @@
 		return 1
 	else if(issilicon(M))
 		add_attack_logs(user, M, "Flashed with [src]")
-		if(M.flash_eyes(affect_silicon = 1))
-			M.Weaken(rand(8 SECONDS, 12 SECONDS))
+		if(M.flash_eyes(affect_silicon = 1, intensity = 2))
+			M.Confused(15 SECONDS)
+			M.Dizzy(15 SECONDS)
+			M.Slowed(10 SECONDS, 2)
 			user.visible_message("<span class='disarm'>[user] overloads [M]'s sensors with [src]!</span>", "<span class='danger'>You overload [M]'s sensors with [src]!</span>")
 		return 1
 	user.visible_message("<span class='disarm'>[user] fails to blind [M] with [src]!</span>", "<span class='warning'>You fail to blind [M] with [src]!</span>")

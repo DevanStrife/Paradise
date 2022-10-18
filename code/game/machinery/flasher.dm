@@ -12,7 +12,6 @@
 	var/range = 2 //this is roughly the size of brig cell
 	var/disable = FALSE
 	var/last_flash = 0 //Don't want it getting spammed like regular flashes
-	var/strength = 10 SECONDS //How weakened targets are when flashed.
 	var/base_state = "mflash"
 	anchored = TRUE
 
@@ -24,7 +23,6 @@
 	name = "portable flasher"
 	desc = "A portable flashing device. Wrench to activate and deactivate. Cannot detect slow movements."
 	icon_state = "pflash1"
-	strength = 4
 	anchored = FALSE
 	base_state = "pflash"
 	density = TRUE
@@ -89,8 +87,10 @@
 		if(get_dist(src, L) > range)
 			continue
 
-		if(L.flash_eyes(affect_silicon = 1))
-			L.Weaken(strength)
+		if(L.flash_eyes(affect_silicon = 1, intensity = 2))
+			L.Confused(15 SECONDS)
+			L.Dizzy(15 SECONDS)
+			L.Slowed(10 SECONDS, 2)
 
 /obj/machinery/flasher/emp_act(severity)
 	if(stat & (BROKEN|NOPOWER))
