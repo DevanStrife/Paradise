@@ -799,3 +799,15 @@
 
 /datum/status_effect/transient/drugged/on_remove()
 	owner.update_druggy_effects()
+
+// used to track borgs being flashed and emp'd
+/datum/status_effect/borg_flashed
+	id = "borg_flashed"
+	duration = 7 SECONDS
+
+/datum/status_effect/borg_flashed/proc/trigger()
+	owner.Confused(7 SECONDS)
+	owner.Dizzy(7 SECONDS)
+	owner.Slowed(7 SECONDS, 2)
+	owner.Silence(7 SECONDS)
+	qdel(src)
