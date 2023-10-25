@@ -12,7 +12,7 @@
 	clawfootstep = FOOTSTEP_HARD_CLAW
 	heavyfootstep = FOOTSTEP_GENERIC_HEAVY
 	smoothing_groups = list(SMOOTH_GROUP_TURF)
-	layer = PLATING_LAYER
+	real_layer = PLATING_LAYER
 
 /turf/simulated/floor/plating/Initialize(mapload)
 	. = ..()
@@ -26,6 +26,16 @@
 /turf/simulated/floor/plating/burnt/Initialize(mapload)
 	. = ..()
 	burn_tile()
+
+/turf/simulated/floor/plating/damaged/airless
+	oxygen = 0
+	nitrogen = 0
+	temperature = TCMB
+
+/turf/simulated/floor/plating/burnt/airless
+	oxygen = 0
+	nitrogen = 0
+	temperature = TCMB
 
 /turf/simulated/floor/plating/update_icon_state()
 	if(!broken && !burnt)
@@ -64,7 +74,7 @@
 			var/obj/item/stack/tile/W = C
 			if(!W.use(1))
 				return
-			ChangeTurf(W.turf_type)
+			ChangeTurf(W.turf_type, keep_icon = FALSE)
 			playsound(src, 'sound/weapons/genhit.ogg', 50, 1)
 		else
 			to_chat(user, "<span class='warning'>This section is too damaged to support a tile! Use a welder to fix the damage.</span>")
@@ -158,6 +168,11 @@
 	. = ..()
 	name = "plating"
 
+/turf/simulated/floor/plating/lavaland_air
+	temperature = 300
+	oxygen = 14
+	nitrogen = 23
+
 /turf/simulated/floor/engine
 	name = "reinforced floor"
 	icon_state = "engine"
@@ -226,11 +241,16 @@
 /turf/simulated/floor/engine/cult/narsie_act()
 	return
 
+/turf/simulated/floor/engine/cult/lavaland_air
+	nitrogen = 23
+	oxygen = 14
+	temperature = 300
+
 //air filled floors; used in atmos pressure chambers
 
 /turf/simulated/floor/engine/n20
 	name = "\improper N2O floor"
-	sleeping_agent = 6000
+	sleeping_agent = 60000
 	oxygen = 0
 	nitrogen = 0
 
@@ -261,6 +281,15 @@
 	oxygen = 2644
 	nitrogen = 10580
 
+/turf/simulated/floor/engine/xenobio
+	oxygen = 0
+	temperature = 80
+	nitrogen = 100
+
+/turf/simulated/floor/engine/airless
+	oxygen = 0
+	nitrogen = 0
+	temperature = TCMB
 
 /turf/simulated/floor/engine/singularity_pull(S, current_size)
 	..()

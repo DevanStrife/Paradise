@@ -41,6 +41,11 @@
 	name = "meat product"
 	desc = "A slab of reclaimed and chemically processed meat product."
 
+/obj/item/reagent_containers/food/snacks/meat/slab/gorilla
+	name = "gorilla meat"
+	desc = "Much meatier than monkey meat."
+	list_reagents = list("nutriment" = 5, "vitamin" = 1)
+
 /obj/item/reagent_containers/food/snacks/meat/monkey
 	//same as plain meat
 
@@ -65,6 +70,15 @@
 	icon_state = "meatwheat_clump"
 	bitesize = 4
 
+/obj/item/reagent_containers/food/snacks/meat/tomatomeat
+	name = "tomato slice"
+	desc = "A slice from a huge tomato."
+	icon_state = "tomatomeat"
+	filling_color = "#DB0000"
+	bitesize = 6
+	list_reagents = list("protein" = 2)
+	tastes = list("tomato" = 1)
+
 /obj/item/reagent_containers/food/snacks/rawcutlet
 	name = "raw cutlet"
 	desc = "A thin strip of raw meat."
@@ -79,8 +93,13 @@
 			"<span class ='notice'>[user] cuts the raw cutlet with [W]!</span>", \
 			"<span class ='notice'>You cut the raw cutlet with [W]!</span>" \
 			)
-		new /obj/item/reagent_containers/food/snacks/raw_bacon(loc)
-		qdel(src)
+		var/obj/item/reagent_containers/food/snacks/raw_bacon/bacon = new(get_turf(src))
+		if(ishuman(loc))
+			var/mob/living/carbon/human/H = loc
+			qdel(src)
+			H.put_in_hands(bacon)
+		else
+			qdel(src)
 
 //////////////////////////
 //		Monster Meat	//
@@ -523,3 +542,11 @@
 	desc = "An appendix which appears to be inflamed."
 	icon_state = "appendixinflamed"
 	filling_color = "#E00D7A"
+
+/obj/item/reagent_containers/food/snacks/bbqribs
+	name = "BBQ ribs"
+	desc = "Sweet, smokey, savory, and gets everywhere. Perfect for Grilling."
+	list_reagents = list("nutriment" = 3, "protein" = 10, "bbqsauce" = 10)
+	filling_color = "#FF1C1C"
+	bitesize = 3
+	icon_state = "bbqribs"

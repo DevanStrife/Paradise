@@ -1,10 +1,10 @@
 /obj/item/autopsy_scanner
 	name = "autopsy scanner"
 	desc = "Extracts information on wounds."
-	icon = 'icons/obj/autopsy_scanner.dmi'
-	icon_state = ""
+	icon = 'icons/obj/surgery.dmi'
+	icon_state = "autopsy_scanner"
 	flags = CONDUCT
-	slot_flags = SLOT_BELT
+	slot_flags = SLOT_FLAG_BELT
 	w_class = WEIGHT_CLASS_SMALL
 	origin_tech = "magnets=1;biotech=1"
 	var/list/datum/autopsy_data_scanner/wdata = list()

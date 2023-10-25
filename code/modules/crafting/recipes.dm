@@ -42,6 +42,7 @@
 	result = list(/obj/item/reagent_containers/food/drinks/bottle/molotov)
 	reqs = list(/obj/item/reagent_containers/glass/rag = 1,
 				/obj/item/reagent_containers/food/drinks/bottle = 1)
+	blacklist = list(/obj/item/reagent_containers/food/drinks/bottle/molotov)
 	parts = list(/obj/item/reagent_containers/food/drinks/bottle = 1)
 	time = 40
 	category = CAT_WEAPONRY
@@ -57,6 +58,16 @@
 	category = CAT_WEAPONRY
 	subcategory = CAT_WEAPON
 
+/datum/crafting_recipe/shiv
+	name = "Shiv"
+	result = list(/obj/item/kitchen/knife/shiv)
+	reqs = list(/obj/item/stack/cable_coil = 5,
+				/obj/item/shard = 1,
+				/obj/item/stack/sheet/cloth = 1)
+	time = 2 SECONDS
+	category = CAT_WEAPONRY
+	subcategory = CAT_WEAPON
+
 /datum/crafting_recipe/bola
 	name = "Bola"
 	result = list(/obj/item/restraints/legcuffs/bola)
@@ -65,6 +76,17 @@
 	time = 20//15 faster than crafting them by hand!
 	category = CAT_WEAPONRY
 	subcategory = CAT_WEAPON
+
+/datum/crafting_recipe/throwing_croissant
+	name = "Throwing croissant"
+	reqs = list(
+		/obj/item/reagent_containers/food/snacks/croissant = 1,
+		/obj/item/stack/rods = 1
+	)
+	result = list(/obj/item/reagent_containers/food/snacks/croissant)
+	category = CAT_WEAPONRY
+	subcategory = CAT_WEAPON
+	always_availible = FALSE
 
 /datum/crafting_recipe/advancedegun
 	name = "Advanced Energy Gun"
@@ -222,12 +244,16 @@
 	name = "LWAP Laser Sniper"
 	tools = list(TOOL_SCREWDRIVER, TOOL_WIRECUTTER)
 	result = list(/obj/item/gun/energy/lwap)
-	reqs = list(/obj/item/gun/energy/lasercannon = 1,
+	reqs = list(/obj/item/gun/energy/laser = 1,
 				/obj/item/stack/cable_coil = 5,
 				/obj/item/weaponcrafting/gunkit/lwap = 1)
 	time = 10 SECONDS
 	category = CAT_WEAPONRY
 	subcategory = CAT_WEAPON
+
+/datum/crafting_recipe/lwap/New()
+	..()
+	blacklist += subtypesof(/obj/item/gun/energy/laser)
 
 /datum/crafting_recipe/silencer
 	name = "u-ION Silencer"
@@ -418,6 +444,16 @@
 	category = CAT_WEAPONRY
 	subcategory = CAT_AMMO
 
+/datum/crafting_recipe/confettishot
+	name = "Confetti Shot"
+	result = list(/obj/item/ammo_casing/shotgun/confetti)
+	reqs = list(/obj/item/ammo_casing/shotgun/techshell = 1,
+				/datum/reagent/confetti = 10)
+	tools = list(TOOL_SCREWDRIVER)
+	time = 5
+	category = CAT_WEAPONRY
+	subcategory = CAT_AMMO
+
 /datum/crafting_recipe/ishotgun
 	name = "Improvised Shotgun"
 	result = list(/obj/item/gun/projectile/revolver/doublebarrel/improvised)
@@ -429,10 +465,11 @@
 	time = 100
 	category = CAT_WEAPONRY
 	subcategory = CAT_WEAPON
+	alert_admins_on_craft = TRUE
 
 /datum/crafting_recipe/chainsaw
 	name = "Chainsaw"
-	result = list(/obj/item/twohanded/required/chainsaw)
+	result = list(/obj/item/chainsaw)
 	reqs = list(/obj/item/circular_saw = 1,
 				/obj/item/stack/cable_coil = 1,
 				/obj/item/stack/sheet/plasteel = 1)
@@ -444,7 +481,7 @@
 
 /datum/crafting_recipe/spear
 	name = "Spear"
-	result = list(/obj/item/twohanded/spear)
+	result = list(/obj/item/spear)
 	reqs = list(/obj/item/restraints/handcuffs/cable = 1,
 				/obj/item/shard = 1,
 				/obj/item/stack/rods = 1)
@@ -503,7 +540,7 @@
 
 /datum/crafting_recipe/garrote
 	name = "Makeshift Garrote"
-	result = list(/obj/item/twohanded/garrote/improvised)
+	result = list(/obj/item/garrote/improvised)
 	time = 15
 	reqs = list(/obj/item/stack/sheet/wood = 1,
 				/obj/item/stack/cable_coil = 5)
@@ -655,7 +692,7 @@
 	result = list(/obj/item/bombcore/chemical)
 	reqs = list(
 		/obj/item/stock_parts/matter_bin = 1,
-		/obj/item/twohanded/required/gibtonite = 1,
+		/obj/item/gibtonite = 1,
 		/obj/item/grenade/chem_grenade = 2
 	)
 	parts = list(/obj/item/stock_parts/matter_bin = 1, /obj/item/grenade/chem_grenade = 2)
@@ -755,7 +792,7 @@
 
 /datum/crafting_recipe/bonespear
 	name = "Bone Spear"
-	result = list(/obj/item/twohanded/spear/bonespear)
+	result = list(/obj/item/spear/bonespear)
 	time = 30
 	reqs = list(/obj/item/stack/sheet/bone = 4,
 				/obj/item/stack/sheet/sinew = 1)
@@ -779,7 +816,7 @@
 
 /datum/crafting_recipe/boneaxe
 	name = "Bone Axe"
-	result = list(/obj/item/twohanded/fireaxe/boneaxe)
+	result = list(/obj/item/fireaxe/boneaxe)
 	time = 50
 	reqs = list(/obj/item/stack/sheet/bone = 6,
 				/obj/item/stack/sheet/sinew = 3)

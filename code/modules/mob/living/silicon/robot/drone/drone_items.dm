@@ -32,7 +32,9 @@
 		/obj/item/tank,
 		/obj/item/circuitboard,
 		/obj/item/stack/tile/light,
-		/obj/item/stack/ore/bluespace_crystal
+		/obj/item/stack/ore/bluespace_crystal,
+		/obj/item/assembly/igniter,
+		/obj/item/light
 	)
 
 	//Item currently being held.
@@ -136,17 +138,30 @@
 				A.update_icon()
 
 				user.visible_message("<span class='warning'>[user] removes the power cell from [A]!</span>", "You remove the power cell.")
+
+	else if(istype(target, /obj/machinery/cell_charger))
+		var/obj/machinery/cell_charger/cell_charger = target
+		if(cell_charger.charging)
+			gripped_item = cell_charger.charging
+			cell_charger.charging.add_fingerprint(user)
+			cell_charger.charging.forceMove(src)
+			cell_charger.removecell()
+
+	else if(istype(target, /obj/machinery/light))
+		var/obj/machinery/light/light = target
+		var/obj/item/light/L = light.drop_light_tube()
+		L.forceMove(src)
+		gripped_item = L
+		user.visible_message("<span class='notice'>[user] removes the light from the fixture.</span>", "<span class='notice'>You dislodge the light from the fixture.</span>")
+
 	return TRUE
 
-//TODO: Matter decompiler.
 /obj/item/matter_decompiler
-
 	name = "matter decompiler"
 	desc = "Eating trash, bits of glass, or other debris will replenish your stores."
 	icon = 'icons/obj/toy.dmi'
 	icon_state = "minigibber"
-
-	//Metal, glass, wood, plastic.
+	/// Metal, glass, wood, plastic.
 	var/list/stored_comms = list(
 		"metal" = 0,
 		"glass" = 0,
@@ -157,14 +172,15 @@
 	return
 
 /obj/item/matter_decompiler/afterattack(atom/target, mob/living/user, proximity, params)
-	if(!proximity) return //Not adjacent.
+	if(!proximity)
+		return // Not adjacent.
 
-	//We only want to deal with using this on turfs. Specific items aren't important.
+	// We only want to deal with using this on turfs. Specific items aren't important.
 	var/turf/T = get_turf(target)
 	if(!istype(T))
 		return
 
-	//Used to give the right message.
+	// Used to give the right message.
 	var/grabbed_something = FALSE
 
 	for(var/atom/movable/A in T)
@@ -177,14 +193,13 @@
 		to_chat(user, "<span class='warning'>Nothing on \the [T] is useful to you.</span>")
 	return
 
-//Putting the decompiler here to avoid doing list checks every tick.
+// Putting the decompiler here to avoid doing list checks every tick.
 /mob/living/silicon/robot/drone/use_power()
-
 	..()
 	if(low_power_mode || !decompiler)
 		return
 
-	//The decompiler replenishes drone stores from hoovered-up junk each tick.
+	// The decompiler replenishes drone stores from hoovered-up junk each tick.
 	for(var/type in decompiler.stored_comms)
 		if(decompiler.stored_comms[type] > 0)
 			var/obj/item/stack/sheet/stack

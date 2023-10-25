@@ -11,7 +11,7 @@
 	icon_state = "geiger_off"
 	item_state = "multitool"
 	w_class = WEIGHT_CLASS_SMALL
-	slot_flags = SLOT_BELT
+	slot_flags = SLOT_FLAG_BELT
 	flags = NOBLUDGEON
 	materials = list(MAT_METAL = 210, MAT_GLASS = 150)
 
@@ -140,10 +140,10 @@
 		if(!M.radiation)
 			to_chat(user, "<span class='notice'>[bicon(src)] Radiation levels within normal boundaries.</span>")
 		else
-			to_chat(user, "<span class='boldannounce'>[bicon(src)] Subject is irradiated. Radiation levels: [M.radiation].</span>")
+			to_chat(user, "<span class='boldannounce'>[bicon(src)] Subject is irradiated. Radiation levels: [M.radiation] rads.</span>")
 
 	if(rad_strength)
-		to_chat(user, "<span class='boldannounce'>[bicon(src)] Target contains radioactive contamination. Radioactive strength: [rad_strength]</span>")
+		to_chat(user, "<span class='boldannounce'>[bicon(src)] Target contains radioactive contamination. Radioactive strength: [rad_strength] rads.</span>")
 	else
 		to_chat(user, "<span class='notice'>[bicon(src)] Target is free of radioactive contamination.</span>")
 

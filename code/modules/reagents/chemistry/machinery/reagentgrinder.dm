@@ -42,6 +42,8 @@
 		/obj/item/reagent_containers/food/snacks/grown/bluecherries = list("bluecherryjelly" = 0),
 		/obj/item/reagent_containers/food/snacks/egg = list("egg" = -5),
 		/obj/item/reagent_containers/food/snacks/grown/rice = list("rice" = -5),
+		/obj/item/reagent_containers/food/snacks/grown/olive = list("olivepaste" = 0, "sodiumchloride" = 0),
+		/obj/item/reagent_containers/food/snacks/grown/peanuts = list("peanutbutter" = 0),
 
 		//Grinder stuff, but only if dry
 		/obj/item/reagent_containers/food/snacks/grown/coffee/robusta = list("coffeepowder" = 0, "morphine" = 0),
@@ -70,11 +72,10 @@
 		/obj/item/reagent_containers/food/snacks/grown/watermelon = list("watermelonjuice" = 0),
 		/obj/item/reagent_containers/food/snacks/watermelonslice = list("watermelonjuice" = 0),
 		/obj/item/reagent_containers/food/snacks/grown/berries/poison = list("poisonberryjuice" = 0),
+		/obj/item/reagent_containers/food/snacks/grown/pumpkin/blumpkin = list("blumpkinjuice" = 0), //order is important here as blumpkin is a subtype of pumpkin, if switched blumpkins will produce pumpkin juice
 		/obj/item/reagent_containers/food/snacks/grown/pumpkin = list("pumpkinjuice" = 0),
-		/obj/item/reagent_containers/food/snacks/grown/pumpkin/blumpkin = list("blumpkinjuice" = 0),
 		/obj/item/reagent_containers/food/snacks/grown/apple = list("applejuice" = 0),
 		/obj/item/reagent_containers/food/snacks/grown/grapes = list("grapejuice" = 0),
-		/obj/item/reagent_containers/food/snacks/grown/grapes/green = list("grapejuice" = 0),
 		/obj/item/reagent_containers/food/snacks/grown/pineapple = list("pineapplejuice" = 0)
 	)
 

@@ -159,10 +159,13 @@
 	icon_state = "camera"
 	item_state = "electropack"
 	w_class = WEIGHT_CLASS_SMALL
-	slot_flags = SLOT_BELT
+	slot_flags = SLOT_FLAG_BELT
 	var/list/matter = list("metal" = 2000)
 	var/pictures_max = 10
-	var/pictures_left = 10
+	// cameras historically were varedited to start with 30 shots despite
+	// cartridges only being 10 extra shots, hency why pictures_left >
+	// pictures_max, at least to start
+	var/pictures_left = 30
 	var/on = TRUE
 	var/on_cooldown = FALSE
 	var/blueprints = 0
@@ -172,6 +175,12 @@
 	var/see_ghosts = FALSE //for the spoop of it
 	var/current_photo_num = 1
 	var/digital = FALSE
+
+/obj/item/camera/autopsy
+	name = "autopsy camera"
+
+/obj/item/camera/detective
+	name = "detective's camera"
 
 /obj/item/camera/examine(mob/user)
 	. = ..()
@@ -616,7 +625,7 @@ GLOBAL_LIST_INIT(SpookyGhosts, list("ghost","shade","shade2","ghost-narsie","hor
 /obj/item/videocam/advanced
 	name = "advanced video camera"
 	desc = "This video camera allows you to send live feeds even when attached to a belt."
-	slot_flags = SLOT_BELT
+	slot_flags = SLOT_FLAG_BELT
 
 #undef CAMERA_STATE_COOLDOWN
 
@@ -629,3 +638,30 @@ GLOBAL_LIST_INIT(SpookyGhosts, list("ghost","shade","shade2","ghost-narsie","hor
 						'sound/hallucinations/look_up1.ogg', 'sound/hallucinations/look_up2.ogg', 'sound/hallucinations/over_here1.ogg', 'sound/hallucinations/over_here2.ogg', 'sound/hallucinations/over_here3.ogg',\
 						'sound/hallucinations/turn_around1.ogg', 'sound/hallucinations/turn_around2.ogg', 'sound/hallucinations/veryfar_noise.ogg', 'sound/hallucinations/wail.ogg')
 			user << pick(creepyasssounds)
+
+
+/obj/item/camera/proc/build_composite_icon(atom/A)
+	var/icon/composite = icon(A.icon, A.icon_state, A.dir, 1)
+	for(var/O in A.overlays)
+		var/image/I = O
+		composite.Blend(icon(I.icon, I.icon_state, I.dir, 1), ICON_OVERLAY)
+	return composite
+
+/obj/item/camera/proc/sort_atoms_by_layer(list/atoms)
+	// Comb sort icons based on levels
+	var/list/result = atoms.Copy()
+	var/gap = result.len
+	var/swapped = 1
+	while(gap > 1 || swapped)
+		swapped = 0
+		if(gap > 1)
+			gap = round(gap / 1.3) // 1.3 is the emperic comb sort coefficient
+		if(gap < 1)
+			gap = 1
+		for(var/i = 1; gap + i <= result.len; i++)
+			var/atom/l = result[i]		//Fucking hate
+			var/atom/r = result[gap+i]	//how lists work here
+			if(l.layer > r.layer)		//no "result[i].layer" for me
+				result.Swap(i, gap + i)
+				swapped = 1
+	return result

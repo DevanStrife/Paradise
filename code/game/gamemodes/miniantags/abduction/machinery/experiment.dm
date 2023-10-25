@@ -30,18 +30,19 @@
 		return
 	if(occupant)
 		to_chat(user, "<span class='notice'>[src] is already occupied.</span>")
-		return //occupied
+		return TRUE
 	if(target.buckled)
 		return
 	if(target.has_buckled_mobs()) //mob attached to us
 		to_chat(user, "<span class='warning'>[target] will not fit into [src] because [target.p_they()] [target.p_have()] a slime latched onto [target.p_their()] head.</span>")
-		return
+		return TRUE
 	visible_message("<span class='notice'>[user] puts [target] into [src].</span>")
 
 	target.forceMove(src)
 	occupant = target
 	update_icon(UPDATE_ICON_STATE)
 	add_fingerprint(user)
+	return TRUE
 
 /obj/machinery/abductor/experiment/attack_hand(mob/user)
 	if(..())
@@ -143,15 +144,13 @@
 		sleep(5)
 		to_chat(H, "<span class='warning'><b>Your mind snaps!</b></span>")
 		to_chat(H, "<big><span class='warning'><b>You can't remember how you got here...</b></span></big>")
+		SSticker.mode.abductees += H.mind
+
 		var/objtype = pick(subtypesof(/datum/objective/abductee/))
 		var/datum/objective/abductee/O = new objtype()
-		SSticker.mode.abductees += H.mind
-		H.mind.objectives += O
-		var/obj_count = 1
-		to_chat(H, "<span class='notice'>Your current objectives:</span>")
-		for(var/datum/objective/objective in H.mind.objectives)
-			to_chat(H, "<B>Objective #[obj_count]</B>: [objective.explanation_text]")
-			obj_count++
+		H.mind.add_mind_objective(O)
+		var/list/messages = H.mind.prepare_announce_objectives()
+		to_chat(H, chat_box_red(messages.Join("<br>"))) // let the player know they have a new objective
 		SSticker.mode.update_abductor_icons_added(H.mind)
 
 		for(var/obj/item/organ/internal/heart/gland/G in H.internal_organs)
@@ -168,7 +167,7 @@
 			playsound(src.loc, 'sound/machines/buzz-sigh.ogg', 50, 1)
 			return "<span class='bad'>Experiment failed! No replacement organ detected.</span>"
 	else
-		atom_say("Brain activity nonexistant - disposing sample...")
+		atom_say("Brain activity nonexistent - disposing sample...")
 		eject_abductee()
 		SendBack(H)
 		return "<span class='bad'>Specimen braindead - disposed.</span>"
@@ -226,3 +225,9 @@
 	occupant.forceMove(get_turf(src))
 	occupant = null
 	update_icon(UPDATE_ICON_STATE)
+
+/obj/machinery/abductor/experiment/broken
+	stat = BROKEN
+
+/obj/machinery/abductor/experiment/broken/MouseDrop_T(mob/living/carbon/human/target, mob/user)
+	return

@@ -267,14 +267,16 @@ Turf and target are seperate in case you want to teleport some distance from a t
 		var/n2_concentration = air_contents.nitrogen/total_moles
 		var/co2_concentration = air_contents.carbon_dioxide/total_moles
 		var/plasma_concentration = air_contents.toxins/total_moles
+		var/n2o_concentration = air_contents.sleeping_agent/total_moles
 
-		var/unknown_concentration =  1-(o2_concentration+n2_concentration+co2_concentration+plasma_concentration)
+		var/unknown_concentration =  1-(o2_concentration+n2_concentration+co2_concentration+plasma_concentration+n2o_concentration)
 
 		user.show_message("<span class='notice'>Pressure: [round(pressure,0.1)] kPa</span>", 1)
 		user.show_message("<span class='notice'>Nitrogen: [round(n2_concentration*100)] % ([round(air_contents.nitrogen,0.01)] moles)</span>", 1)
 		user.show_message("<span class='notice'>Oxygen: [round(o2_concentration*100)] % ([round(air_contents.oxygen,0.01)] moles)</span>", 1)
 		user.show_message("<span class='notice'>CO2: [round(co2_concentration*100)] % ([round(air_contents.carbon_dioxide,0.01)] moles)</span>", 1)
 		user.show_message("<span class='notice'>Plasma: [round(plasma_concentration*100)] % ([round(air_contents.toxins,0.01)] moles)</span>", 1)
+		user.show_message("<span class='notice'>Nitrous Oxide: [round(n2o_concentration*100)] % ([round(air_contents.sleeping_agent,0.01)] moles)</span>", 1)
 		if(unknown_concentration>0.01)
 			user.show_message("<span class='danger'>Unknown: [round(unknown_concentration*100)] % ([round(unknown_concentration*total_moles,0.01)] moles)</span>", 1)
 		user.show_message("<span class='notice'>Total: [round(total_moles,0.01)] moles</span>", 1)
@@ -536,6 +538,29 @@ Returns 1 if the chain up to the area contains the given typepath
 
 	return locate(x,y,A.z)
 
+/**
+ * Get ranged target turf, but with direct targets as opposed to directions
+ *
+ * Starts at atom starting_atom and gets the exact angle between starting_atom and target
+ * Moves from starting_atom with that angle, Range amount of times, until it stops, bound to map size
+ * Arguments:
+ * * starting_atom - Initial Firer / Position
+ * * target - Target to aim towards
+ * * range - Distance of returned target turf from starting_atom
+ * * offset - Angle offset, 180 input would make the returned target turf be in the opposite direction
+ */
+/proc/get_ranged_target_turf_direct(atom/starting_atom, atom/target, range, offset)
+	var/angle = ATAN2(target.x - starting_atom.x, target.y - starting_atom.y)
+	if(offset)
+		angle += offset
+	var/turf/starting_turf = get_turf(starting_atom)
+	for(var/i in 1 to range)
+		var/turf/check = locate(starting_atom.x + cos(angle) * i, starting_atom.y + sin(angle) * i, starting_atom.z)
+		if(!check)
+			break
+		starting_turf = check
+
+	return starting_turf
 
 // returns turf relative to A offset in dx and dy tiles
 // bound to map limits
@@ -1568,17 +1593,21 @@ GLOBAL_DATUM_INIT(dview_mob, /mob/dview, new)
 
 		y = t_center.y + c_dist - 1
 		x = t_center.x + c_dist
+		var/list/temp_list_one = list()
 		for(y in t_center.y-c_dist to y)
 			T = locate(x,y,t_center.z)
 			if(T)
-				L += T
+				temp_list_one += T
+		L += reverselist(temp_list_one)
 
 		y = t_center.y - c_dist
 		x = t_center.x + c_dist - 1
+		var/list/temp_list_two = list()
 		for(x in t_center.x-c_dist to x)
 			T = locate(x,y,t_center.z)
 			if(T)
-				L += T
+				temp_list_two += T
+		L += reverselist(temp_list_two)
 
 		y = t_center.y - c_dist + 1
 		x = t_center.x - c_dist
@@ -2027,33 +2056,37 @@ GLOBAL_DATUM_INIT(dview_mob, /mob/dview, new)
 			return "Fire Alarms"
 		if(CHANNEL_ASH_STORM)
 			return "Ash Storms"
+		if(CHANNEL_RADIO_NOISE)
+			return "Radio Noise"
+		if(CHANNEL_BOSS_MUSIC)
+			return "Boss Music"
 
 /proc/slot_bitfield_to_slot(input_slot_flags) // Kill off this garbage ASAP; slot flags and clothing flags should be IDENTICAL. GOSH DARN IT. Doesn't work with ears or pockets, either.
 	switch(input_slot_flags)
-		if(SLOT_OCLOTHING)
-			return slot_wear_suit
-		if(SLOT_ICLOTHING)
-			return slot_w_uniform
-		if(SLOT_GLOVES)
-			return slot_gloves
-		if(SLOT_EYES)
-			return slot_glasses
-		if(SLOT_MASK)
-			return slot_wear_mask
-		if(SLOT_HEAD)
-			return slot_head
-		if(SLOT_FEET)
-			return slot_shoes
-		if(SLOT_ID)
-			return slot_wear_id
-		if(SLOT_BELT)
-			return slot_belt
-		if(SLOT_BACK)
-			return slot_back
-		if(SLOT_PDA)
-			return slot_wear_pda
-		if(SLOT_TIE)
-			return slot_tie
+		if(SLOT_FLAG_OCLOTHING)
+			return SLOT_HUD_OUTER_SUIT
+		if(SLOT_FLAG_ICLOTHING)
+			return SLOT_HUD_JUMPSUIT
+		if(SLOT_FLAG_GLOVES)
+			return SLOT_HUD_GLOVES
+		if(SLOT_FLAG_EYES)
+			return SLOT_HUD_GLASSES
+		if(SLOT_FLAG_MASK)
+			return SLOT_HUD_WEAR_MASK
+		if(SLOT_FLAG_HEAD)
+			return SLOT_HUD_HEAD
+		if(SLOT_FLAG_FEET)
+			return SLOT_HUD_SHOES
+		if(SLOT_FLAG_ID)
+			return SLOT_HUD_WEAR_ID
+		if(SLOT_FLAG_BELT)
+			return SLOT_HUD_BELT
+		if(SLOT_FLAG_BACK)
+			return SLOT_HUD_BACK
+		if(SLOT_FLAG_PDA)
+			return SLOT_HUD_WEAR_PDA
+		if(SLOT_FLAG_TIE)
+			return SLOT_HUD_TIE
 
 
 /**
@@ -2089,3 +2122,8 @@ GLOBAL_DATUM_INIT(dview_mob, /mob/dview, new)
 	output["CONTENT"] = content
 
 	return output
+
+/// Given a color in the format of "#RRGGBB", will return if the color is dark.
+/proc/is_color_dark(color, threshold = 25)
+	var/hsl = rgb2num(color, COLORSPACE_HSL)
+	return hsl[3] < threshold

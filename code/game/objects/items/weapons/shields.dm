@@ -1,6 +1,8 @@
 /obj/item/shield
 	name = "shield"
-	armor = list(MELEE = 50, BULLET = 50, LASER = 50, ENERGY = 0, BOMB = 30, BIO = 0, RAD = 0, FIRE = 80, ACID = 70)
+	lefthand_file = 'icons/mob/inhands/weapons_lefthand.dmi'
+	righthand_file = 'icons/mob/inhands/weapons_righthand.dmi'
+	armor = list(MELEE = 50, BULLET = 50, LASER = 50, ENERGY = 0, BOMB = 30, RAD = 0, FIRE = 80, ACID = 70)
 
 /obj/item/shield/proc/add_parry_component()
 	AddComponent(/datum/component/parry, _stamina_constant = 2, _stamina_coefficient = 0.5, _parryable_attack_types = ALL_ATTACK_TYPES)
@@ -18,7 +20,7 @@
 	name = "riot shield"
 	desc = "A shield adept at blocking blunt objects from connecting with the torso of the shield wielder."
 	icon_state = "riot"
-	slot_flags = SLOT_BACK
+	slot_flags = SLOT_FLAG_BACK
 	force = 10
 	throwforce = 5
 	throw_speed = 2
@@ -28,9 +30,10 @@
 	origin_tech = "materials=3;combat=4"
 	attack_verb = list("shoved", "bashed")
 	var/cooldown = 0 //shield bash cooldown. based on world.time
+	var/list/allowed_bashers = list(/obj/item/melee/baton, /obj/item/kitchen/knife/combat)
 
 /obj/item/shield/riot/attackby(obj/item/W, mob/user, params)
-	if(istype(W, /obj/item/melee/baton))
+	if(is_type_in_list(W, allowed_bashers))
 		if(cooldown < world.time - 2.5 SECONDS)
 			user.visible_message("<span class='warning'>[user] bashes [src] with [W]!</span>")
 			playsound(user.loc, 'sound/effects/shieldbash.ogg', 50, 1)
@@ -47,7 +50,7 @@
 
 /obj/item/shield/riot/roman/fake
 	desc = "Bears an inscription on the inside: <i>\"Romanes venio domus\"</i>. It appears to be a bit flimsy."
-	armor = list(melee = 0, bullet = 0, laser = 0, energy = 0, bomb = 0, bio = 0, rad = 0, fire = 0, acid = 0)
+	armor = list(melee = 0, bullet = 0, laser = 0, energy = 0, bomb = 0, rad = 0, fire = 0, acid = 0)
 
 /obj/item/shield/riot/roman/fake/add_parry_component()
 	return
@@ -152,7 +155,7 @@
 		throwforce = 5
 		throw_speed = 2
 		w_class = WEIGHT_CLASS_BULKY
-		slot_flags = SLOT_BACK
+		slot_flags = SLOT_FLAG_BACK
 		to_chat(user, "<span class='notice'>You extend \the [src].</span>")
 	else
 		force = 3

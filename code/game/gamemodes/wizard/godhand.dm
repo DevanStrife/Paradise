@@ -17,6 +17,18 @@
 	attached_spell = spell
 	..()
 
+/obj/item/melee/touch_attack/Destroy()
+	if(attached_spell)
+		attached_spell.attached_hand = null
+		attached_spell.UnregisterSignal(attached_spell.action.owner, COMSIG_MOB_WILLINGLY_DROP)
+	return ..()
+
+/obj/item/melee/touch_attack/customised_abstract_text()
+	if(!ishuman(loc))
+		return
+	var/mob/living/carbon/human/owner = loc
+	return "<span class='warning'>[owner.p_their(TRUE)] [owner.l_hand == src ? "left hand" : "right hand"] is burning in magic fire.</span>"
+
 /obj/item/melee/touch_attack/attack(mob/target, mob/living/carbon/user)
 	if(!iscarbon(user)) //Look ma, no hands
 		return
@@ -28,14 +40,10 @@
 /obj/item/melee/touch_attack/afterattack(atom/target, mob/user, proximity)
 	if(catchphrase)
 		user.say(catchphrase)
-	playsound(get_turf(user), on_use_sound,50,1)
-	attached_spell.attached_hand = null
-	qdel(src)
-
-/obj/item/melee/touch_attack/Destroy()
+	playsound(get_turf(user), on_use_sound, 50, 1)
 	if(attached_spell)
-		attached_spell.attached_hand = null
-	return ..()
+		attached_spell.perform(list())
+	qdel(src)
 
 /obj/item/melee/touch_attack/disintegrate
 	name = "disintegrating touch"

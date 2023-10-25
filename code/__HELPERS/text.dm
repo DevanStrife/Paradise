@@ -462,6 +462,10 @@
 	text = replacetext(text, "\[/i\]",		"</I>")
 	text = replacetext(text, "\[u\]",		"<U>")
 	text = replacetext(text, "\[/u\]",		"</U>")
+	if(findtext(text, "\[signfont\]") || findtext(text, "\[/signfont\]")) // Make sure the text is there before giving off an error
+		if(check_rights(R_EVENT))
+			text = replacetext(text, "\[signfont\]",		"<font face=\"[signfont]\"><i>")
+			text = replacetext(text, "\[/signfont\]",		"</i></font>")
 	if(sign)
 		text = replacetext(text, "\[sign\]",	"<font face=\"[signfont]\"><i>[user ? user.real_name : "Anonymous"]</i></font>")
 	if(fields)
@@ -734,3 +738,40 @@
 /proc/strip_html_tags(the_text)
 	var/static/regex/html_replacer = regex("<\[^>]*>", "g")
 	return html_replacer.Replace(the_text, "")
+
+/proc/starts_with_vowel(text)
+	var/start_char = copytext(text, 1, 2)
+	switch(lowertext(start_char))
+		if("a", "e", "i", "o", "u")
+			return TRUE
+		else
+			return FALSE
+
+/**
+  * Formats num with an SI prefix.
+  *
+  * Returns a string formatted with a multiple of num and an SI prefix corresponding to an exponent of 10.
+  * Only considers exponents that are multiples of 3 (deca, deci, hecto, and centi are not included).
+  * A unit is not included in the string, the prefix is placed after the number with no spacing added anywhere.
+  * Listing of prefixes: https://en.wikipedia.org/wiki/Metric_prefix#List_of_SI_prefixes
+  */
+/proc/format_si_suffix(num)
+	if(num == 0)
+		return "[num]"
+
+	var/exponent = round_down(log(10, abs(num)))
+	var/ofthree = exponent / 3
+	if(exponent < 0)
+		ofthree = round(ofthree)
+	else
+		ofthree = round_down(ofthree)
+	if(ofthree == 0)
+		return "[num]"
+	return "[num / (10 ** (ofthree * 3))][GLOB.si_suffixes[round(length(GLOB.si_suffixes) / 2) + ofthree + 1]]"
+
+/**
+ * Creates a hyperlink for a specified wiki article.
+ */
+/proc/wiki_link(article_name, link_text = null)
+	var/url = "[GLOB.configuration.url.wiki_url]/index.php?title=[article_name]"
+	return "<a href=\"[url]\">[link_text ? link_text : url]</a>"

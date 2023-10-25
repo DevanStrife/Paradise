@@ -1,6 +1,7 @@
 /datum/species/machine
 	name = "Machine"
 	name_plural = "Machines"
+	max_age = 60 // the first posibrains were created in 2510, they can't be much older than this limit, giving some leeway for sounds sake
 
 	blurb = "Positronic intelligence really took off in the 26th century, and it is not uncommon to see independent, free-willed \
 	robots on many human stations, particularly in fringe systems where standards are slightly lax and public opinion less relevant \
@@ -57,17 +58,17 @@
 		)
 	mutantears = /obj/item/organ/internal/ears/microphone
 	has_limbs = list(
-		"chest" =  list("path" = /obj/item/organ/external/chest/ipc),
-		"groin" =  list("path" = /obj/item/organ/external/groin/ipc),
-		"head" =   list("path" = /obj/item/organ/external/head/ipc),
-		"l_arm" =  list("path" = /obj/item/organ/external/arm/ipc),
-		"r_arm" =  list("path" = /obj/item/organ/external/arm/right/ipc),
-		"l_leg" =  list("path" = /obj/item/organ/external/leg/ipc),
-		"r_leg" =  list("path" = /obj/item/organ/external/leg/right/ipc),
-		"l_hand" = list("path" = /obj/item/organ/external/hand/ipc),
-		"r_hand" = list("path" = /obj/item/organ/external/hand/right/ipc),
-		"l_foot" = list("path" = /obj/item/organ/external/foot/ipc),
-		"r_foot" = list("path" = /obj/item/organ/external/foot/right/ipc)
+		"chest" =  list("path" = /obj/item/organ/external/chest/ipc, "descriptor" = "chest"),
+		"groin" =  list("path" = /obj/item/organ/external/groin/ipc, "descriptor" = "groin"),
+		"head" =   list("path" = /obj/item/organ/external/head/ipc, "descriptor" = "head"),
+		"l_arm" =  list("path" = /obj/item/organ/external/arm/ipc, "descriptor" = "left arm"),
+		"r_arm" =  list("path" = /obj/item/organ/external/arm/right/ipc, "descriptor" = "right arm"),
+		"l_leg" =  list("path" = /obj/item/organ/external/leg/ipc, "descriptor" = "left leg"),
+		"r_leg" =  list("path" = /obj/item/organ/external/leg/right/ipc, "descriptor" = "right leg"),
+		"l_hand" = list("path" = /obj/item/organ/external/hand/ipc, "descriptor" = "left hand"),
+		"r_hand" = list("path" = /obj/item/organ/external/hand/right/ipc, "descriptor" = "right hand"),
+		"l_foot" = list("path" = /obj/item/organ/external/foot/ipc, "descriptor" = "left foot"),
+		"r_foot" = list("path" = /obj/item/organ/external/foot/right/ipc, "descriptor" = "right foot")
 		)
 
 	suicide_messages = list(
@@ -87,6 +88,13 @@
 		medhud.remove_from_hud(H)
 	for(var/datum/atom_hud/data/diagnostic/diag_hud in GLOB.huds)
 		diag_hud.add_to_hud(H)
+
+	// i love snowflake code
+	var/image/health_bar = H.hud_list[DIAG_HUD]
+	health_bar.icon = 'icons/mob/hud/medhud.dmi'
+	var/image/status_box = H.hud_list[DIAG_STAT_HUD]
+	status_box.icon = 'icons/mob/hud/medhud.dmi'
+
 	H.med_hud_set_health()
 	H.med_hud_set_status()
 
@@ -98,6 +106,13 @@
 		diag_hud.remove_from_hud(H)
 	for(var/datum/atom_hud/data/human/medical/medhud in GLOB.huds)
 		medhud.add_to_hud(H)
+
+	// i love snowflake code
+	var/image/health_bar = H.hud_list[DIAG_HUD]
+	health_bar.icon = 'icons/mob/hud/diaghud.dmi'
+	var/image/status_box = H.hud_list[DIAG_STAT_HUD]
+	status_box.icon = 'icons/mob/hud/diaghud.dmi'
+
 	H.med_hud_set_health()
 	H.med_hud_set_status()
 
@@ -111,6 +126,28 @@
 		if(H && head_organ)
 			H.update_hair()
 			H.update_fhair()
+
+/datum/species/machine/handle_life(mob/living/carbon/human/H) // Handles IPC starvation
+	if(isLivingSSD(H)) // We don't want AFK people dying from this
+		return
+	if(H.nutrition >= NUTRITION_LEVEL_HYPOGLYCEMIA)
+		return
+
+	var/obj/item/organ/internal/cell/microbattery = H.get_organ_slot("heart")
+	if(!istype(microbattery)) //Maybe they're powered by an abductor gland or sheer force of will
+		return
+	if(prob(6))
+		to_chat(H, "<span class='warning'>Error 74: Microbattery critical malfunction, likely cause: Extended strain.</span>")
+		microbattery.receive_damage(4, TRUE)
+	else if(prob(4))
+		H.Weaken(6 SECONDS)
+		H.Stuttering(20 SECONDS)
+		to_chat(H, "<span class='warning'>Power critical, shutting down superfluous functions.</span>")
+		H.emote("collapse")
+		microbattery.receive_damage(2, TRUE)
+	else if(prob(4))
+		to_chat(H, "<span class='warning'>Redirecting excess power from servos to vital components.</span>")
+		H.Slowed(rand(15 SECONDS, 32 SECONDS))
 
 // Allows IPC's to change their monitor display
 /datum/action/innate/change_monitor

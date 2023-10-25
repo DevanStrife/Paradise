@@ -197,8 +197,6 @@
 	DA = new /obj/structure/door_assembly(loc)
 	if(glass)
 		DA.glass = TRUE
-	if(heat_proof)
-		DA.heat_proof_finished = TRUE
 	DA.update_icon()
 	DA.update_name()
 	qdel(src)
@@ -211,9 +209,6 @@
 		ignite(is_hot(C))
 	else
 		return ..()
-
-/obj/machinery/door/airlock/plasma/BlockSuperconductivity() //we don't stop the heat~
-	return 0
 
 /obj/machinery/door/airlock/plasma/glass
 	opacity = FALSE
@@ -307,6 +302,18 @@
 /obj/machinery/door/airlock/external/glass
 	opacity = FALSE
 	glass = TRUE
+
+/obj/machinery/door/airlock/external_no_weld
+	name = "external airlock"
+	icon = 'icons/obj/doors/airlocks/external/external.dmi'
+	overlays_file = 'icons/obj/doors/airlocks/external/overlays.dmi'
+	note_overlay_file = 'icons/obj/doors/airlocks/external/overlays.dmi'
+	assemblytype = /obj/structure/door_assembly/door_assembly_ext
+	doorOpen = 'sound/machines/airlock_ext_open.ogg'
+	doorClose = 'sound/machines/airlock_ext_close.ogg'
+
+/obj/machinery/door/airlock/external_no_weld/welder_act(mob/user, obj/item/I)
+	return
 
 //////////////////////////////////
 /*
@@ -411,6 +418,19 @@
 	name = "secure armory airlock"
 	hackProof = TRUE
 	aiControlDisabled = AICONTROLDISABLED_ON
+
+/obj/machinery/door/airlock/highsecurity/red/Initialize(mapload)
+	. = ..()
+	if(is_station_level(z))
+		RegisterSignal(SSsecurity_level, COMSIG_SECURITY_LEVEL_CHANGED, PROC_REF(on_security_level_update))
+
+/obj/machinery/door/airlock/highsecurity/red/proc/on_security_level_update(datum/source, previous_level_number, new_level_number)
+	SIGNAL_HANDLER
+
+	if(new_level_number >= SEC_LEVEL_RED)
+		unlock(TRUE)
+	else
+		lock(TRUE)
 
 /obj/machinery/door/airlock/highsecurity/red/attackby(obj/C, mob/user, params)
 	if(!issilicon(user))
@@ -583,7 +603,7 @@
 	desc = "An airlock hastily corrupted by blood magic, it is unusually brittle in this state."
 	normal_integrity = 150
 	damage_deflection = 5
-	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 0, RAD = 0, FIRE = 0, ACID = 0)
+	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, RAD = 0, FIRE = 0, ACID = 0)
 
 //////////////////////////////////
 /*

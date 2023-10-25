@@ -5,11 +5,16 @@
 	var/ordered = TRUE
 
 /obj/screen/movable/action_button/MouseDrop(over_object)
+	if(locked && could_be_click_lag()) // in case something bad happend and game realised we dragged our ability instead of pressing it
+		Click()
+		drag_start = 0
+		return
+	drag_start = 0
+	if(locked)
+		to_chat(usr, "<span class='warning'>Action button \"[name]\" is locked, unlock it first.</span>")
+		closeToolTip(usr)
+		return
 	if((istype(over_object, /obj/screen/movable/action_button) && !istype(over_object, /obj/screen/movable/action_button/hide_toggle)))
-		if(locked)
-			to_chat(usr, "<span class='warning'>Action button \"[name]\" is locked, unlock it first.</span>")
-			closeToolTip(usr)
-			return
 		var/obj/screen/movable/action_button/B = over_object
 		var/list/actions = usr.actions
 		actions.Swap(actions.Find(linked_action), actions.Find(B.linked_action))
@@ -27,6 +32,9 @@
 
 /obj/screen/movable/action_button/Click(location,control,params)
 	var/list/modifiers = params2list(params)
+	if(usr.next_click > world.time)
+		return FALSE
+	usr.changeNext_click(1)
 	if(modifiers["shift"])
 		if(locked)
 			to_chat(usr, "<span class='warning'>Action button \"[name]\" is locked, unlock it first.</span>")
@@ -38,11 +46,20 @@
 		locked = !locked
 		to_chat(usr, "<span class='notice'>Action button \"[name]\" [locked ? "" : "un"]locked.</span>")
 		return TRUE
-	if(usr.next_click > world.time)
-		return
-	usr.next_click = world.time + 1
-	linked_action.Trigger()
+	if(modifiers["alt"])
+		AltClick(usr)
+		return TRUE
+	if(modifiers["middle"])
+		linked_action.Trigger(left_click = FALSE)
+		return TRUE
+	linked_action.Trigger(TRUE)
+	transform = transform.Scale(0.8, 0.8)
+	alpha = 200
+	animate(src, transform = matrix(), time = 0.4 SECONDS, alpha = 255)
 	return TRUE
+
+/obj/screen/movable/action_button/AltClick(mob/user)
+	return linked_action.AltTrigger()
 
 //Hide/Show Action Buttons ... Button
 /obj/screen/movable/action_button/hide_toggle
@@ -60,27 +77,6 @@
 		return ..()
 
 /obj/screen/movable/action_button/hide_toggle/Click(location,control,params)
-	var/list/modifiers = params2list(params)
-	if(modifiers["shift"])
-		if(locked)
-			to_chat(usr, "<span class='warning'>Action button \"[name]\" is locked, unlock it first.</span>")
-			return TRUE
-		moved = FALSE
-		usr.update_action_buttons(TRUE)
-		return TRUE
-	if(modifiers["ctrl"])
-		locked = !locked
-		to_chat(usr, "<span class='notice'>Action button \"[name]\" [locked ? "" : "un"]locked.</span>")
-		return TRUE
-	if(modifiers["alt"])
-		for(var/V in usr.actions)
-			var/datum/action/A = V
-			var/obj/screen/movable/action_button/B = A.button
-			B.moved = FALSE
-		moved = FALSE
-		usr.update_action_buttons(TRUE)
-		to_chat(usr, "<span class='notice'>Action button positions have been reset.</span>")
-		return TRUE
 	usr.hud_used.action_buttons_hidden = !usr.hud_used.action_buttons_hidden
 
 	hidden = usr.hud_used.action_buttons_hidden

@@ -22,6 +22,9 @@ GLOBAL_DATUM_INIT(paiController, /datum/paiController, new) // Global handler fo
 		var/obj/item/paicard/card = locate(href_list["device"])
 		if(card.pai)
 			return
+		if(!isobserver(candidate.owner.mob)) //This stops pais from being downloaded twice.
+			to_chat(usr, "<span class='warning'>Error downloading pAI from NT_NET. Please check if the pAI listing is still available.</span>")
+			return
 		if(usr.incapacitated() || isobserver(usr) || !card.Adjacent(usr))
 			return
 		if(istype(card, /obj/item/paicard) && istype(candidate, /datum/pai_save))
@@ -37,7 +40,6 @@ GLOBAL_DATUM_INIT(paiController, /datum/paiController, new) // Global handler fo
 			card.looking_for_personality = 0
 
 			SSticker.mode.update_cult_icons_removed(card.pai.mind)
-			SSticker.mode.update_rev_icons_removed(card.pai.mind)
 
 			pai_candidates -= candidate
 			usr << browse(null, "window=findPai")
@@ -47,7 +49,7 @@ GLOBAL_DATUM_INIT(paiController, /datum/paiController, new) // Global handler fo
 		var/mob/dead/observer/O = locate(href_list["signup"])
 		if(!O)
 			return
-		if(!(O in GLOB.respawnable_list))
+		if(!HAS_TRAIT(O, TRAIT_RESPAWNABLE))
 			to_chat(O, "You've given up your ability to respawn!")
 			return
 		if(!check_recruit(O))
@@ -230,7 +232,7 @@ GLOBAL_DATUM_INIT(paiController, /datum/paiController, new) // Global handler fo
 	var/list/available = list()
 	for(var/datum/pai_save/c in GLOB.paiController.pai_candidates)
 		var/found = 0
-		for(var/mob/o in GLOB.respawnable_list)
+		for(var/mob/dead/observer/o in GLOB.player_list)
 			if(o.ckey == c.owner.ckey)
 				found = 1
 		if(found)
@@ -355,7 +357,7 @@ GLOBAL_DATUM_INIT(paiController, /datum/paiController, new) // Global handler fo
 		return 0
 	if(cannotPossess(O))
 		return 0
-	if(!(O in GLOB.respawnable_list))
+	if(!HAS_TRAIT(O, TRAIT_RESPAWNABLE))
 		return 0
 	if(O.client)
 		return 1

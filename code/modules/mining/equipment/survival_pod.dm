@@ -4,6 +4,7 @@
 	requires_power = FALSE
 	has_gravity = TRUE
 	dynamic_lighting = DYNAMIC_LIGHTING_FORCED
+	ambientsounds = MINING_SOUNDS
 
 /obj/item/survivalcapsule
 	name = "bluespace shelter capsule"
@@ -242,7 +243,7 @@
 /obj/machinery/smartfridge/survival_pod/accept_check(obj/item/O)
 	return isitem(O)
 
-/obj/machinery/smartfridge/survival_pod/default_unfasten_wrench()
+/obj/machinery/smartfridge/survival_pod/default_unfasten_wrench(mob/user, obj/item/I, time)
 	return FALSE
 
 /obj/machinery/smartfridge/survival_pod/empty

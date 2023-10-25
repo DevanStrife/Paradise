@@ -31,29 +31,31 @@
 
 /client/proc/UpdateView()
 	if(!ViewModsActive)
-		ViewPreferedIconSize = winget(src, "mapwindow.map", "icon-size")
+		ViewPreferedIconSize = winget(src, "paramapwindow.map", "icon-size")
 
 	var/highest_range = 0
 	for(var/mod_id in ViewMods)
 		var/datum/viewmod/V = ViewMods[mod_id]
 		highest_range = max(highest_range, V.size)
 
-	SetView(highest_range ? highest_range : world.view)
+	SetView(highest_range ? highest_range : prefs.viewrange)
 	ViewModsActive = (highest_range > 0)
 
 /client/proc/SetView(view_range)
-	if(view_range == world.view)
-		winset(src, "mapwindow.map", "icon-size=[ViewPreferedIconSize]")
+	if(view_range == prefs.viewrange)
+		winset(src, "paramapwindow.map", "icon-size=[ViewPreferedIconSize]")
 	else
-		winset(src, "mapwindow.map", "icon-size=0")
+		winset(src, "paramapwindow.map", "icon-size=0")
 
 	view = view_range
 
-	if(mob && mob.hud_used)
+	var/view_range_calc = maxview()
+
+	if(mob?.hud_used)
 		// If view range is less than world.view, assume the HUD will not fit under normal mode and turn it to reduced
-		if(view_range < world.view)
+		if(view_range_calc < world.view)
 			// If it's really tiny, turn their hud off completely
-			if(view_range <= ARBITRARY_VIEWRANGE_NOHUD)
+			if(view_range_calc <= ARBITRARY_VIEWRANGE_NOHUD)
 				mob.hud_used.show_hud(HUD_STYLE_NOHUD)
 			else
 				mob.hud_used.show_hud(HUD_STYLE_REDUCED)

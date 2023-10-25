@@ -100,6 +100,8 @@
 			/obj/item/implant/explosive,
 			/obj/item/implant/freedom,
 			/obj/item/implant/traitor,
+			/obj/item/implant/gorilla_rampage,
+			/obj/item/implant/stealth
 		))
 	// Initialize
 	owning_hub = hub
@@ -377,6 +379,10 @@
 		victim_belongings += C.held_item
 		C.held_item = null
 
+	if(M.back) //Lets not bork modsuits in funny ways.
+		var/obj/modsuit_safety = M.back
+		M.unEquip(modsuit_safety)
+		stuff_to_transfer += modsuit_safety
 	// Regular items get removed in second
 	for(var/obj/item/I in M)
 		// Any items we don't want to take from them?
@@ -467,6 +473,14 @@
 		M.EyeBlind(35 SECONDS)
 		M.EyeBlurry(35 SECONDS)
 		M.AdjustConfused(35 SECONDS)
+
+		for(var/mob/living/simple_animal/hostile/guardian/G in GLOB.alive_mob_list)
+			if(G.summoner == M)
+				M.remove_guardian_actions()
+				to_chat(G, "<span class='danger'>You feel your body ripped to shreds as you're forcibly removed from your summoner!</span>")
+				to_chat(M, "<span class='warning'>You feel some part of you missing, you're not who you used to be...</span>")
+				G.ghostize()
+				qdel(G)
 
 		sleep(6 SECONDS)
 		to_chat(M, "<span class='warning'>That portal did something to you...</span>")

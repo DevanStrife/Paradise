@@ -120,10 +120,10 @@
 
 /mob/living/carbon/alien/Stat()
 	..()
-	statpanel("Status")
-	stat(null, "Intent: [a_intent]")
-	stat(null, "Move Mode: [m_intent]")
-	show_stat_emergency_shuttle_eta()
+	if(statpanel("Status"))
+		stat(null, "Intent: [a_intent]")
+		stat(null, "Move Mode: [m_intent]")
+		show_stat_emergency_shuttle_eta()
 
 /mob/living/carbon/alien/SetStunned(amount, updating = TRUE, force = 0)
 	..()
@@ -192,6 +192,25 @@
 		threatcount -= 1
 
 	return threatcount
+
+/mob/living/carbon/alien/death(gibbed)
+	. = ..()
+	if(!.)
+		return
+
+	deathrattle()
+
+
+/mob/living/carbon/alien/proc/deathrattle()
+	var/alien_message = deathrattle_message()
+	for(var/mob/living/carbon/alien/M in GLOB.player_list)
+		to_chat(M, alien_message)
+
+/mob/living/carbon/alien/proc/deathrattle_message()
+	return "<i><span class='alien'>The hivemind echoes: [name] has been slain!</span></i>"
+
+/mob/living/carbon/alien/CanContractDisease(datum/disease/D)
+	return FALSE
 
 /*----------------------------------------
 Proc: AddInfectionImages()

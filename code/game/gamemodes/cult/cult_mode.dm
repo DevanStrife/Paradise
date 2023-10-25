@@ -87,9 +87,7 @@ GLOBAL_LIST_EMPTY(all_cults)
 		to_chat(cult_mind.current, CULT_GREETING)
 		equip_cultist(cult_mind.current)
 		cult_mind.current.faction |= "cult"
-		var/datum/objective/servecult/obj = new
-		obj.owner = cult_mind
-		cult_mind.objectives += obj
+		cult_mind.add_mind_objective(/datum/objective/servecult)
 
 		if(cult_mind.assigned_role == "Clown")
 			to_chat(cult_mind.current, "<span class='cultitalic'>A dark power has allowed you to overcome your clownish nature, letting you wield weapons without harming yourself.</span>")
@@ -116,9 +114,9 @@ GLOBAL_LIST_EMPTY(all_cults)
 
 /datum/game_mode/proc/cult_give_item(obj/item/item_path, mob/living/carbon/human/H)
 	var/list/slots = list(
-		"backpack" = slot_in_backpack,
-		"left pocket" = slot_l_store,
-		"right pocket" = slot_r_store)
+		"backpack" = SLOT_HUD_IN_BACKPACK,
+		"left pocket" = SLOT_HUD_LEFT_STORE,
+		"right pocket" = SLOT_HUD_RIGHT_STORE)
 	var/T = new item_path(H)
 	var/item_name = initial(item_path.name)
 	var/where = H.equip_in_one_of_slots(T, slots)
@@ -151,7 +149,7 @@ GLOBAL_LIST_EMPTY(all_cults)
 			A.Grant(cult_mind.current)
 		SEND_SOUND(cult_mind.current, sound('sound/ambience/antag/bloodcult.ogg'))
 		cult_mind.current.create_attack_log("<span class='danger'>Has been converted to the cult!</span>")
-		cult_mind.current.create_log(CONVERSION_LOG, "converted to the cult")
+		cult_mind.current.create_log(CONVERSION_LOG, "Converted to the cult")
 
 		if(jobban_isbanned(cult_mind.current, ROLE_CULTIST) || jobban_isbanned(cult_mind.current, ROLE_SYNDICATE))
 			replace_jobbanned_player(cult_mind.current, ROLE_CULTIST)
@@ -159,9 +157,7 @@ GLOBAL_LIST_EMPTY(all_cults)
 			cult_objs.setup()
 		update_cult_icons_added(cult_mind)
 		add_cult_actions(cult_mind)
-		var/datum/objective/servecult/obj = new
-		obj.owner = cult_mind
-		cult_mind.objectives += obj
+		cult_mind.add_mind_objective(/datum/objective/servecult)
 
 		if(cult_risen)
 			rise(cult_mind.current)
@@ -182,9 +178,7 @@ GLOBAL_LIST_EMPTY(all_cults)
 	cult -= cult_mind
 	cultist.faction -= "cult"
 	cult_mind.special_role = null
-	for(var/datum/objective/servecult/S in cult_mind.objectives)
-		cult_mind.objectives -= S
-		qdel(S)
+	cult_mind.objective_holder.clear(/datum/objective/servecult)
 	for(var/datum/action/innate/cult/C in cultist.actions)
 		qdel(C)
 	update_cult_icons_removed(cult_mind)
@@ -206,10 +200,18 @@ GLOBAL_LIST_EMPTY(all_cults)
 			singlemutcheck(H, GLOB.clumsyblock, MUTCHK_FORCED)
 			for(var/datum/action/innate/toggle_clumsy/A in H.actions)
 				A.Remove(H)
+		cult_mind.current.create_log(CONVERSION_LOG, "Deconverted from the cult")
 	check_cult_size()
 	if(show_message)
 		cultist.visible_message("<span class='cult'>[cultist] looks like [cultist.p_they()] just reverted to [cultist.p_their()] old faith!</span>",
 		"<span class='userdanger'>An unfamiliar white light flashes through your mind, cleansing the taint of [SSticker.cultdat ? SSticker.cultdat.entity_title1 : "Nar'Sie"] and the memories of your time as their servant with it.</span>")
+
+/datum/game_mode/proc/add_cult_immunity(mob/living/target)
+	ADD_TRAIT(target, TRAIT_CULT_IMMUNITY, CULT_TRAIT)
+	addtimer(CALLBACK(src, PROC_REF(remove_cult_immunity), target), 1 MINUTES)
+
+/datum/game_mode/proc/remove_cult_immunity(mob/living/target)
+	REMOVE_TRAIT(target, TRAIT_CULT_IMMUNITY, CULT_TRAIT)
 
 
 /**
@@ -258,45 +260,84 @@ GLOBAL_LIST_EMPTY(all_cults)
 		return cultists + constructs
 
 /datum/game_mode/proc/check_cult_size()
-	if(cult_ascendant)
-		return
 	var/cult_players = get_cultists()
 
+	if(cult_ascendant)
+		// The cult only falls if below 1/2 of the rising, usually pretty low. e.g. 5% on highpop, 10% on lowpop
+		if(cult_players < rise_number / 2)
+			cult_fall()
+		return
+
 	if((cult_players >= rise_number) && !cult_risen)
-		cult_risen = TRUE
-		for(var/datum/mind/M in cult)
-			if(!M.current || !ishuman(M.current))
-				continue
-			SEND_SOUND(M.current, sound('sound/hallucinations/i_see_you2.ogg'))
-			to_chat(M.current, "<span class='cultlarge'>The veil weakens as your cult grows, your eyes begin to glow...</span>")
-			addtimer(CALLBACK(src, PROC_REF(rise), M.current), 20 SECONDS)
+		cult_rise()
+		return
 
-	else if(cult_players >= ascend_number)
-		cult_ascendant = TRUE
-		for(var/datum/mind/M in cult)
-			if(!M.current || !ishuman(M.current))
-				continue
-			SEND_SOUND(M.current, sound('sound/hallucinations/im_here1.ogg'))
-			to_chat(M.current, "<span class='cultlarge'>Your cult is ascendant and the red harvest approaches - you cannot hide your true nature for much longer!")
-			addtimer(CALLBACK(src, PROC_REF(ascend), M.current), 20 SECONDS)
-		GLOB.major_announcement.Announce("Picking up extradimensional activity related to the Cult of [SSticker.cultdat ? SSticker.cultdat.entity_name : "Nar'Sie"] from your station. Data suggests that about [ascend_percent * 100]% of the station has been converted. Security staff are authorized to use lethal force freely against cultists. Non-security staff should be prepared to defend themselves and their work areas from hostile cultists. Self defense permits non-security staff to use lethal force as a last resort, but non-security staff should be defending their work areas, not hunting down cultists. Dead crewmembers must be revived and deconverted once the situation is under control.", "Central Command Higher Dimensional Affairs", 'sound/AI/commandreport.ogg')
+	if(cult_players >= ascend_number)
+		cult_ascend()
 
+/datum/game_mode/proc/cult_rise()
+	cult_risen = TRUE
+	for(var/datum/mind/M in cult)
+		if(!ishuman(M.current))
+			continue
+		SEND_SOUND(M.current, sound('sound/hallucinations/i_see_you2.ogg'))
+		to_chat(M.current, "<span class='cultlarge'>The veil weakens as your cult grows, your eyes begin to glow...</span>")
+		addtimer(CALLBACK(src, PROC_REF(rise), M.current), 20 SECONDS)
+
+
+/datum/game_mode/proc/cult_ascend()
+	cult_ascendant = TRUE
+	for(var/datum/mind/M in cult)
+		if(!ishuman(M.current))
+			continue
+		SEND_SOUND(M.current, sound('sound/hallucinations/im_here1.ogg'))
+		to_chat(M.current, "<span class='cultlarge'>Your cult is ascendant and the red harvest approaches - you cannot hide your true nature for much longer!</span>")
+		addtimer(CALLBACK(src, PROC_REF(ascend), M.current), 20 SECONDS)
+	GLOB.major_announcement.Announce("Picking up extradimensional activity related to the Cult of [SSticker.cultdat ? SSticker.cultdat.entity_name : "Nar'Sie"] from your station. Data suggests that about [ascend_percent * 100]% of the station has been converted. Security staff are authorized to use lethal force freely against cultists. Non-security staff should be prepared to defend themselves and their work areas from hostile cultists. Self defense permits non-security staff to use lethal force as a last resort, but non-security staff should be defending their work areas, not hunting down cultists. Dead crewmembers must be revived and deconverted once the situation is under control.", "Central Command Higher Dimensional Affairs", 'sound/AI/commandreport.ogg')
+
+/datum/game_mode/proc/cult_fall()
+	cult_ascendant = FALSE
+	for(var/datum/mind/M in cult)
+		if(!ishuman(M.current))
+			continue
+		SEND_SOUND(M.current, sound('sound/hallucinations/wail.ogg'))
+		to_chat(M.current, "<span class='cultlarge'>The veil repairs itself, your power grows weaker...</span>")
+		addtimer(CALLBACK(src, PROC_REF(descend), M.current), 20 SECONDS)
+	GLOB.major_announcement.Announce("Paranormal activity has returned to minimal levels. \
+									Security staff should minimize lethal force against cultists, using non-lethals where possible. \
+									All dead cultists should be taken to medbay or robotics for immediate revival and deconversion. \
+									Non-security staff may defend themselves, but should prioritize leaving any areas with cultists and reporting the cultists to security. \
+									Self defense permits non-security staff to use lethal force as a last resort. Hunting down cultists may make you liable for a manslaughter charge. \
+									Any access granted in response to the paranormal threat should be reset. \
+									Any and all security gear that was handed out should be returned. Finally, all weapons (including improvised) should be removed from the crew.",
+									"Central Command Higher Dimensional Affairs", 'sound/AI/commandreport.ogg')
 
 /datum/game_mode/proc/rise(cultist)
-	if(ishuman(cultist) && iscultist(cultist))
-		var/mob/living/carbon/human/H = cultist
-		if(!H.original_eye_color)
-			H.original_eye_color = H.get_eye_color()
-		H.change_eye_color(BLOODCULT_EYE, FALSE)
-		H.update_eyes()
-		ADD_TRAIT(H, CULT_EYES, CULT_TRAIT)
-		H.update_body()
+	if(!ishuman(cultist) || !iscultist(cultist))
+		return
+	var/mob/living/carbon/human/H = cultist
+	if(!H.original_eye_color)
+		H.original_eye_color = H.get_eye_color()
+	H.change_eye_color(BLOODCULT_EYE, FALSE)
+	H.update_eyes()
+	ADD_TRAIT(H, CULT_EYES, CULT_TRAIT)
+	H.update_body()
 
 /datum/game_mode/proc/ascend(cultist)
-	if(ishuman(cultist) && iscultist(cultist))
-		var/mob/living/carbon/human/H = cultist
-		new /obj/effect/temp_visual/cult/sparks(get_turf(H), H.dir)
-		H.update_halo_layer()
+	if(!ishuman(cultist) || !iscultist(cultist))
+		return
+	var/mob/living/carbon/human/H = cultist
+	new /obj/effect/temp_visual/cult/sparks(get_turf(H), H.dir)
+	H.update_halo_layer()
+
+/datum/game_mode/proc/descend(cultist)
+	if(!ishuman(cultist) || !iscultist(cultist))
+		return
+	var/mob/living/carbon/human/H = cultist
+	new /obj/effect/temp_visual/cult/sparks(get_turf(H), H.dir)
+	H.update_halo_layer()
+	to_chat(cultist, "<span class='userdanger'>The halo above your head shatters!</span>")
+	playsound(cultist, "shatter", 50, TRUE)
 
 /datum/game_mode/proc/update_cult_icons_added(datum/mind/cult_mind)
 	var/datum/atom_hud/antag/culthud = GLOB.huds[ANTAG_HUD_CULT]

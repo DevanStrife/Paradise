@@ -6,7 +6,7 @@
 	base_icon_state = "lattice"
 	density = FALSE
 	anchored = TRUE
-	armor = list(MELEE = 50, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 0, RAD = 0, FIRE = 80, ACID = 50)
+	armor = list(MELEE = 50, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, RAD = 0, FIRE = 80, ACID = 50)
 	max_integrity = 50
 	layer = LATTICE_LAYER //under pipes
 	plane = FLOOR_PLANE
@@ -98,6 +98,14 @@
 
 /obj/structure/lattice/catwalk/mining/deconstruction_hints(mob/user)
 	return
+
+/obj/structure/lattice/lava
+	name = "heatproof support lattice"
+	desc = "A specialized support beam for building across lava. Watch your step."
+	resistance_flags = INDESTRUCTIBLE | LAVA_PROOF | FIRE_PROOF
+
+/obj/structure/lattice/lava/deconstruction_hints(mob/user)
+	to_chat(user, "<span class='notice'>The supporting rods look like they could be <b>cut</b>.</span>, but the <i>heat treatment will shatter off</i>.")
 
 /obj/structure/lattice/catwalk/clockwork
 	name = "clockwork catwalk"

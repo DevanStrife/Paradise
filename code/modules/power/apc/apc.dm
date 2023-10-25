@@ -124,6 +124,9 @@
 	/// settings variable for having the APC auto use certain power channel settings
 	var/autoflag = APC_AUTOFLAG_ALL_OFF		// 0 = off, 1= eqp and lights off, 2 = eqp off, 3 = all on.
 
+	/// Being hijacked by a pulse demon?
+	var/being_hijacked = FALSE
+
 	/*** APC Malf AI Vars ****/
 	var/malfhack = FALSE //New var for my changes to AI malf. --NeoFite
 	var/mob/living/silicon/ai/malfai = null //See above --NeoFite
@@ -146,7 +149,7 @@
 
 /obj/machinery/power/apc/New(turf/loc, direction, building = 0)
 	if(!armor)
-		armor = list(MELEE = 20, BULLET = 20, LASER = 10, ENERGY = 100, BOMB = 30, BIO = 100, RAD = 100, FIRE = 90, ACID = 50)
+		armor = list(MELEE = 20, BULLET = 20, LASER = 10, ENERGY = 100, BOMB = 30, RAD = 100, FIRE = 90, ACID = 50)
 	..()
 	GLOB.apcs += src
 	GLOB.apcs = sortAtom(GLOB.apcs)
@@ -269,6 +272,15 @@
 				return
 			W.forceMove(src)
 			cell = W
+
+			for(var/mob/living/simple_animal/demon/pulse_demon/demon in cell)
+				demon.forceMove(src)
+				demon.current_power = src
+				if(!being_hijacked) // first come first serve
+					demon.try_hijack_apc(src)
+			if(being_hijacked)
+				cell.rigged = FALSE // don't blow the demon up
+
 			user.visible_message(\
 				"[user.name] has inserted the power cell to [name]!",\
 				"<span class='notice'>You insert the power cell.</span>")
@@ -361,6 +373,10 @@
 		return
 	else
 		return ..()
+
+/obj/machinery/power/apc/AltClick(mob/user)
+	if(Adjacent(user))
+		togglelock(user)
 
 /obj/machinery/power/apc/run_obj_armor(damage_amount, damage_type, damage_flag = 0, attack_dir)
 	if(stat & BROKEN)
@@ -514,7 +530,7 @@
 /obj/machinery/power/apc/proc/is_authenticated(mob/user as mob)
 	if(user.can_admin_interact())
 		return TRUE
-	if(isAI(user) || isrobot(user))
+	if(isAI(user) || isrobot(user) || user.has_unlimited_silicon_privilege)
 		return TRUE
 	else
 		return !locked
@@ -522,14 +538,14 @@
 /obj/machinery/power/apc/proc/is_locked(mob/user as mob)
 	if(user.can_admin_interact())
 		return FALSE
-	if(isAI(user) || isrobot(user))
+	if(isAI(user) || isrobot(user) || user.has_unlimited_silicon_privilege)
 		return FALSE
 	else
 		return locked
 
 /obj/machinery/power/apc/ui_act(action, params, datum/tgui/ui)
 	var/mob/user = ui.user
-	if(..() || !can_use(user, TRUE) || (locked && !user.has_unlimited_silicon_privilege && (action != "toggle_nightshift") && !user.can_admin_interact()))
+	if(..() || !can_use(user, TRUE) || (is_locked(user) && (action != "toggle_nightshift")))
 		return
 	. = TRUE
 	switch(action)
@@ -608,9 +624,9 @@
 	var/last_charging_state = charging
 	update_last_used() // get local powernet usage and clear it for next cycle
 
-	var/excess = surplus()
-	//Now we calculate the state of the external powernet
-	if(!avail())
+	var/excess = get_power_balance()
+
+	if(!get_available_power())
 		main_status = APC_EXTERNAL_POWER_NOTCONNECTED
 	else if(excess < 0)
 		main_status = APC_EXTERNAL_POWER_NOENERGY  // there's more demand than supply on powernet, there's not enough power
@@ -624,11 +640,11 @@
 
 		if(excess > last_used_total)	// if power excess recharge the cell  by the same amount just used
 			cell.give(cell_used)
-			add_load(cell_used / GLOB.CELLRATE)		// add the load used to recharge the cell
+			consume_direct_power(cell_used / GLOB.CELLRATE)		// add the load used to recharge the cell
 		else // no excess, and not enough per-apc
 			if((cell.charge / GLOB.CELLRATE + excess) >= last_used_total)		// can we draw enough from cell+grid to cover last usage?
 				cell.charge = min(cell.maxcharge, cell.charge + GLOB.CELLRATE * excess)	//recharge with what we can
-				add_load(excess) // so draw what we can from the grid
+				consume_direct_power(excess) // so draw what we can from the grid
 				charging = APC_NOT_CHARGING
 			else	// not enough power available to run the last tick!
 				charging = APC_NOT_CHARGING
@@ -654,7 +670,7 @@
 			if(excess > 0)		// check to make sure we have enough to charge
 				// Max charge is capped to % per second constant
 				var/ch = min(excess*GLOB.CELLRATE, cell.maxcharge*GLOB.CHARGELEVEL)
-				add_load(ch/GLOB.CELLRATE) // Removes the power we're taking from the grid
+				consume_direct_power(ch / GLOB.CELLRATE) // Removes the power we're taking from the grid
 				cell.give(ch) // actually recharge the cell
 
 			else
@@ -773,21 +789,24 @@
 /obj/machinery/power/apc/connect_to_network()
 	terminal?.connect_to_network() //The terminal is what the power computer looks for
 
-/obj/machinery/power/apc/surplus()
+/obj/machinery/power/apc/get_surplus()
 	if(terminal)
-		return terminal.surplus()
+		return terminal.get_surplus()
 	else
-		return 0 //not FALSE
+		return 0
 
-/obj/machinery/power/apc/add_load(amount)
+/obj/machinery/power/apc/get_power_balance()
+	if(terminal)
+		return terminal.get_power_balance()
+	else
+		return 0
+
+/obj/machinery/power/apc/consume_direct_power(amount)
 	if(terminal?.powernet)
-		terminal.add_load(amount)
+		terminal.consume_direct_power(amount)
 
-/obj/machinery/power/apc/avail()
-	if(terminal)
-		return terminal.avail()
-	else
-		return 0 //not FALSE
+/obj/machinery/power/apc/get_available_power()
+	return terminal ? terminal.get_available_power() : 0
 
 /obj/machinery/power/apc/proc/power_destroy() // Caused only by explosions and teslas, not for deconstruction
 	if(obj_integrity > integrity_failure || opened != APC_COVER_OFF)
@@ -1004,6 +1023,19 @@
 			locked = FALSE
 			to_chat(user, "You emag the APC interface.")
 			update_icon()
+
+/obj/machinery/power/apc/proc/apc_short()
+	// if it has internal wires, cut the power wires
+	if(wires)
+		if(!wires.is_cut(WIRE_MAIN_POWER1))
+			wires.cut(WIRE_MAIN_POWER1)
+		if(!wires.is_cut(WIRE_MAIN_POWER2))
+			wires.cut(WIRE_MAIN_POWER2)
+	// if it was operating, toggle off the breaker
+	if(operating)
+		toggle_breaker()
+	// no matter what, ensure the area knows something happened to the power
+	apc_area.powernet.power_change()
 
 ///    *************
 /// APC subtypes

@@ -4,10 +4,12 @@
  * Plasteel
  * Wood
  * Cloth
- * Plastic
+ * Durathread
  * Cardboard
  * Runed Metal (cult)
  * Brass (clockwork cult)
+ * Bones
+ * Plastic
  */
 
 /*
@@ -37,7 +39,7 @@ GLOBAL_LIST_INIT(metal_recipes, list(
 		new /datum/stack_recipe("bench (right)", /obj/structure/chair/sofa/bench/right, 1, one_per_turf = TRUE, on_floor = TRUE),
 		)),
 	new /datum/stack_recipe("barber chair", /obj/structure/chair/barber, one_per_turf = TRUE, on_floor = TRUE),
-	new /datum/stack_recipe("wheelchair", /obj/structure/chair/wheelchair, 15, one_per_turf = TRUE, on_floor = TRUE),
+	new /datum/stack_recipe("wheelchair", /obj/structure/chair/wheelchair, 15, time = 5 SECONDS, one_per_turf = TRUE, on_floor = TRUE),
 	new /datum/stack_recipe("bed", /obj/structure/bed, 2, one_per_turf = TRUE, on_floor = TRUE),
 	new /datum/stack_recipe("psychiatrist bed", /obj/structure/bed/psych, 5, one_per_turf = TRUE, on_floor = TRUE),
 	new /datum/stack_recipe("bronze ashtray", /obj/item/ashtray/bronze, 1, time = 1 SECONDS),
@@ -74,7 +76,7 @@ GLOBAL_LIST_INIT(metal_recipes, list(
 	new /datum/stack_recipe("machine frame", /obj/machinery/constructable_frame/machine_frame, 5, time = 2.5 SECONDS, one_per_turf = TRUE, on_floor = TRUE),
 	new /datum/stack_recipe("turret frame", /obj/machinery/porta_turret_construct, 5, time = 2.5 SECONDS, one_per_turf = TRUE, on_floor = TRUE),
 	new /datum/stack_recipe("firelock frame", /obj/structure/firelock_frame, 3, time = 5 SECONDS, one_per_turf = TRUE, on_floor = TRUE),
-	new /datum/stack_recipe("meatspike frame", /obj/structure/kitchenspike_frame, 5, time = 2.5 SECONDS, one_per_turf = TRUE, on_floor = TRUE),
+	new /datum/stack_recipe("meatspike frame", /obj/structure/kitchenspike_frame, 5, time = 5 SECONDS, one_per_turf = TRUE, on_floor = TRUE),
 	new /datum/stack_recipe("reflector frame", /obj/structure/reflector, 5, time = 2.5 SECONDS, one_per_turf = TRUE, on_floor = TRUE),
 	null,
 	new /datum/stack_recipe_list("airlock assemblies", list(
@@ -161,6 +163,7 @@ GLOBAL_LIST_INIT(plasteel_recipes, list(
 	new /datum/stack_recipe("Surgery Table", /obj/machinery/optable, 5, time = 5 SECONDS, one_per_turf = TRUE, on_floor = TRUE),
 	new /datum/stack_recipe("Metal crate", /obj/structure/closet/crate, 10, time = 5 SECONDS, one_per_turf = TRUE),
 	new /datum/stack_recipe("Mass Driver frame", /obj/machinery/mass_driver_frame, 3, time = 5 SECONDS, one_per_turf = TRUE),
+	new /datum/stack_recipe("hardened wheelchair", /obj/structure/chair/wheelchair/plasteel, 15, time = 6 SECONDS, one_per_turf = TRUE, on_floor = TRUE),
 	null,
 	new /datum/stack_recipe_list("airlock assemblies", list(
 		new /datum/stack_recipe("high security airlock assembly", /obj/structure/door_assembly/door_assembly_highsecurity, 6, time = 5 SECONDS, one_per_turf = TRUE, on_floor = TRUE),
@@ -175,7 +178,7 @@ GLOBAL_LIST_INIT(plasteel_recipes, list(
 	icon_state = "sheet-plasteel"
 	item_state = "sheet-plasteel"
 	materials = list(MAT_METAL = MINERAL_MATERIAL_AMOUNT, MAT_PLASMA = MINERAL_MATERIAL_AMOUNT)
-	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 0, RAD = 0, FIRE = 100, ACID = 80)
+	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, RAD = 0, FIRE = 100, ACID = 80)
 	resistance_flags = FIRE_PROOF
 	throwforce = 10.0
 	flags = CONDUCT
@@ -250,7 +253,7 @@ GLOBAL_LIST_INIT(wood_recipes, list(
 	item_state = "sheet-wood"
 	origin_tech = "materials=1;biotech=1"
 	resistance_flags = FLAMMABLE
-	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 0, RAD = 0, FIRE = 50, ACID = 0)
+	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, RAD = 0, FIRE = 50, ACID = 0)
 	merge_type = /obj/item/stack/sheet/wood
 	sheettype = "wood"
 	table_type = /obj/structure/table/wood
@@ -285,6 +288,7 @@ GLOBAL_LIST_INIT(cloth_recipes, list (
 		new /datum/stack_recipe("chemistry bag", /obj/item/storage/bag/chemistry, 4),
 		new /datum/stack_recipe("bio bag", /obj/item/storage/bag/bio, 4),
 		new /datum/stack_recipe("fish bag", /obj/item/storage/bag/fish, 4),
+		new /datum/stack_recipe("mail bag", /obj/item/storage/bag/mail, 4),
 	)),
 	null,
 	new /datum/stack_recipe("improvised gauze", /obj/item/stack/medical/bruise_pack/improvised, 1, 2, 6),
@@ -317,6 +321,10 @@ GLOBAL_LIST_INIT(cloth_recipes, list (
 
 /obj/item/stack/sheet/cloth/ten
 	amount = 10
+
+/*
+ * Durathread
+ */
 
 GLOBAL_LIST_INIT(durathread_recipes, list (
 	new /datum/stack_recipe("durathread jumpsuit", /obj/item/clothing/under/misc/durathread, 4, time = 4 SECONDS),
@@ -514,6 +522,7 @@ GLOBAL_LIST_INIT(brass_recipes, list (
 	throw_range = 3
 	turf_type = /turf/simulated/floor/clockwork
 	table_type = /obj/structure/table/reinforced/brass
+	dynamic_icon_state = TRUE
 
 /obj/item/stack/tile/brass/narsie_act()
 	new /obj/item/stack/sheet/runed_metal(loc, amount)
@@ -544,6 +553,10 @@ GLOBAL_LIST_INIT(brass_recipes, list (
 	throw_speed = 1
 	throw_range = 3
 	origin_tech = "materials=2;biotech=2"
+
+/*
+ * Plastic
+ */
 
 GLOBAL_LIST_INIT(plastic_recipes, list(
 	new /datum/stack_recipe("plastic flaps", /obj/structure/plasticflaps, 5, one_per_turf = TRUE, on_floor = TRUE, time = 4 SECONDS),

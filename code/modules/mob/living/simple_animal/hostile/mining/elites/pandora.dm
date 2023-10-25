@@ -206,32 +206,20 @@
 	icon_state = "hope"
 	item_state = "hope"
 	item_color = "hope"
-	slot_flags = SLOT_TIE
+	slot_flags = SLOT_FLAG_TIE
 	allow_duplicates = FALSE
 	resistance_flags = FIRE_PROOF
 
 /obj/item/clothing/accessory/necklace/pandora_hope/on_attached(obj/item/clothing/under/S, mob/user)
 	. = ..()
-	if(isliving(user))
-		var/mob/living/M = user
+	if(isliving(S.loc))
+		var/mob/living/M = S.loc
 		M.apply_status_effect(STATUS_EFFECT_HOPE)
 
 /obj/item/clothing/accessory/necklace/pandora_hope/on_removed(mob/user)
-	. = ..()
-	if(isliving(user))
-		var/mob/living/M = user
+	if(isliving(has_suit.loc))
+		var/mob/living/M = has_suit.loc
 		M.remove_status_effect(STATUS_EFFECT_HOPE)
-
-/obj/item/clothing/accessory/necklace/pandora_hope/attached_unequip()
-	if(isliving(usr))
-		var/mob/living/M = usr
-		M.remove_status_effect(STATUS_EFFECT_HOPE)
-	return ..()
-
-/obj/item/clothing/accessory/necklace/pandora_hope/attached_equip()
-	if(isliving(usr))
-		var/mob/living/M = usr
-		M.apply_status_effect(STATUS_EFFECT_HOPE)
 	return ..()
 
 #undef CHASER_BURST

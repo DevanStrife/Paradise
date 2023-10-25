@@ -1,7 +1,8 @@
 /******************** Requests Console ********************/
 /** Originally written by errorage, updated by: Carn, needs more work though. I just added some security fixes */
 
-//Request Console Department Types
+//Request Console Department Types.
+//For one console to be under multiple categories, you need to add the numbers with each other. For example, value of 6 will allow you to request supplies and relay info to that specific console.
 #define RC_ASSIST 1		//Request Assistance
 #define RC_SUPPLY 2		//Request Supplies
 #define RC_INFO   4		//Relay Info
@@ -19,17 +20,14 @@
 #define RCS_SHIPPING 9	// Print Shipping Labels/Packages
 #define RCS_SHIP_LOG 10	// View Shipping Label Log
 
-//Radio list
+//Radio list. For a console to announce messages on a specific radio, it's "department" variable must be in the list below.
 #define ENGI_ROLES list("Atmospherics", "Engineering", "Chief Engineer's Desk")
 #define SEC_ROLES list("Warden", "Security", "Detective", "Head of Security's Desk")
 #define MISC_ROLES list("Bar", "Chapel", "Kitchen", "Hydroponics", "Janitorial")
 #define MED_ROLES list("Virology", "Chief Medical Officer's Desk", "Medbay")
 #define COM_ROLES list("Blueshield", "NT Representative", "Head of Personnel's Desk", "Captain's Desk", "Bridge")
 #define SCI_ROLES list("Robotics", "Science", "Research Director's Desk")
-
-#define RQ_NONEW_MESSAGES 0
-#define RQ_NORMALPRIORITY 1
-#define RQ_HIGHPRIORITY 2
+#define SUPPLY_ROLES list("Cargo Bay", "Mining Dock", "Mining Outpost", "Quartermaster's Desk")
 
 GLOBAL_LIST_EMPTY(req_console_assistance)
 GLOBAL_LIST_EMPTY(req_console_supplies)
@@ -43,14 +41,11 @@ GLOBAL_LIST_EMPTY(allRequestConsoles)
 	icon = 'icons/obj/terminals.dmi'
 	icon_state = "req_comp0"
 	max_integrity = 300
-	armor = list(MELEE = 70, BULLET = 30, LASER = 30, ENERGY = 30, BOMB = 0, BIO = 0, RAD = 0, FIRE = 90, ACID = 90)
+	armor = list(MELEE = 70, BULLET = 30, LASER = 30, ENERGY = 30, BOMB = 0, RAD = 0, FIRE = 90, ACID = 90)
 	var/department = "Unknown" //The list of all departments on the station (Determined from this variable on each unit) Set this to the same thing if you want several consoles in one department
 	var/list/message_log = list() //List of all messages
 	var/departmentType = 0 		//Bitflag. Zero is reply-only. Map currently uses raw numbers instead of defines.
 	var/newmessagepriority = RQ_NONEW_MESSAGES
-		// RQ_NONEWMESSAGES = no new message
-		// RQ_NORMALPRIORITY = normal priority
-		// RQ_HIGHPRIORITY = high priority
 	var/screen = RCS_MAINMENU
 	var/silent = FALSE // set to TRUE for it not to beep all the time
 	var/announcementConsole = FALSE
@@ -118,6 +113,7 @@ GLOBAL_LIST_EMPTY(allRequestConsoles)
 	if(departmentType & RC_INFO)
 		GLOB.req_console_information |= department
 
+	update_icon()
 	// NOT BOOLEAN. DO NOT CONVERT.
 	set_light(1)
 
@@ -250,7 +246,7 @@ GLOBAL_LIST_EMPTY(allRequestConsoles)
 					radiochannel = "Science"
 				else if(recipient == "AI")
 					radiochannel = "AI Private"
-				else if(recipient == "Cargo Bay")
+				else if(recipient in SUPPLY_ROLES)
 					radiochannel = "Supply"
 				message_log.Add(list(list("Message sent to [recipient] at [station_time_timestamp()]", "[message]")))
 				Radio.autosay("Alert; a new requests console message received for [recipient] from [department]", null, "[radiochannel]")
@@ -370,7 +366,3 @@ GLOBAL_LIST_EMPTY(allRequestConsoles)
 	sp.sortTag = tag_index
 	sp.update_desc()
 	print_cooldown = world.time + 600	//1 minute cooldown before you can print another label, but you can still configure the next one during this time
-
-#undef RQ_NONEW_MESSAGES
-#undef RQ_NORMALPRIORITY
-#undef RQ_HIGHPRIORITY

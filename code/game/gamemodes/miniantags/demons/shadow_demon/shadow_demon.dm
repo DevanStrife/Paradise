@@ -10,6 +10,19 @@
 	var/thrown_alert = FALSE
 	var/wrapping = FALSE
 
+/mob/living/simple_animal/demon/shadow/Login()
+	..()
+	var/list/L = list(
+		"<span class='deadsay'><font size=3><b>You are a shadow demon!</b></font></span>",
+		"<b>You are a lethal ambush predator who thrives in the darkness, calling upon the shadows to heal your injured form and increase your speed.</b>",
+		"<b>Light is however your worst enemy and being exposed for too long will be fatal.</b>",
+		"<b>Striking your victims with your shadow grapple extinguishes any light sources around them. Striking items silences any light within them.</b>",
+		"<b>You can wrap your dead victims into a shadow cocoon which provides a shroud of darkness which tears away any light near it.</b>",
+		"<b><i>You do not remember anything of your past lives, nor will you remember anything about this one after your death.</i></b>",
+		"<br><span class='motd'>For more information, check the wiki page: [wiki_link("Shadow_Demon")]</span>"
+	)
+	to_chat(src, chat_box_red(L.Join("<br>")))
+
 /mob/living/simple_animal/demon/shadow/Life(seconds, times_fired)
 	. = ..()
 	var/lum_count = check_darkness()
@@ -21,11 +34,13 @@
 	else
 		adjustBruteLoss(-20)
 
-/mob/living/simple_animal/demon/shadow/ClickOn(atom/A)
+/mob/living/simple_animal/demon/shadow/UnarmedAttack(atom/A)
 	if(!ishuman(A))
+		if(isitem(A))
+			A.extinguish_light()
 		return ..()
 	var/mob/living/carbon/human/target = A
-	if(!in_range(src, target) || target.stat != DEAD)
+	if(target.stat != DEAD)
 		return ..()
 
 	if(isLivingSSD(target) && client.send_ssd_warning(target)) //Similar to revenants, only wrap SSD targets if you've accepted the SSD warning
@@ -50,13 +65,60 @@
 /obj/structure/shadowcocoon
 	name = "shadowy cocoon"
 	desc = "Something wrapped in what seems to be manifested darkness. Its surface distorts unnaturally, and it emanates deep shadows."
-	icon = 'icons/obj/objects.dmi'
+	icon = 'icons/effects/effects.dmi'
 	icon_state = "shadowcocoon"
 	light_power = -4
 	light_range = 6
 	max_integrity = 100
-	light_color = "#AAD84B"
+	light_color = "#ddd6cf"
 	anchored = TRUE
+	/// Amount of SSobj ticks (Roughly 2 seconds) since the last hallucination proc'd
+	var/time_since_last_hallucination = 0
+	/// Will we play hallucination sounds or not
+	var/silent = TRUE
+
+/obj/structure/shadowcocoon/Initialize(mapload)
+	. = ..()
+	START_PROCESSING(SSobj, src)
+
+
+/obj/structure/shadowcocoon/examine(mob/user)
+	. = ..()
+	if(istype(user, /mob/living/simple_animal/demon/shadow))
+		. += silent ? "<span class='notice'>The tendrils are idle and will not produce noise.</span>" : "<span class='notice'>The tendrils are agitated <b>and will occasionally produce noise to lure in more prey.</b></span>"
+		. += "<span class='notice'>Alt+Click to toggle whether [src] should produce noise to lure in victims.</span>"
+
+/obj/structure/shadowcocoon/process()
+	time_since_last_hallucination++
+	for(var/atom/to_darken in range(4, src))
+		if(prob(60) || !length(to_darken.light_sources))
+			continue
+		if(iswelder(to_darken) && length(to_darken.light_sources))
+			var/obj/item/weldingtool/welder_to_darken = to_darken
+			welder_to_darken.remove_fuel(welder_to_darken.reagents.get_reagent_amount("fuel"))
+			welder_to_darken.visible_message("<span class='notice'>The shadows swarm around and overwhelm the flame of [welder_to_darken].</span>")
+			return
+		if(istype(to_darken, /obj/item/flashlight/flare))
+			var/obj/item/flashlight/flare/flare_to_darken = to_darken
+			if(!flare_to_darken.on)
+				continue
+			flare_to_darken.turn_off()
+			flare_to_darken.fuel = 0
+			flare_to_darken.visible_message("<span class='notice'>[flare_to_darken] suddenly dims.</span>")
+		to_darken.extinguish_light()
+	if(!silent && time_since_last_hallucination >= rand(8, 12))
+		playsound(src, pick('sound/items/deconstruct.ogg', 'sound/weapons/handcuffs.ogg', 'sound/machines/airlock_open.ogg',  'sound/machines/airlock_close.ogg', 'sound/machines/boltsup.ogg', 'sound/effects/eleczap.ogg', get_sfx("bodyfall"), get_sfx("gunshot"), 'sound/weapons/egloves.ogg'), 50)
+		time_since_last_hallucination = 0
+
+/obj/structure/shadowcocoon/AltClick(mob/user)
+	if(!isdemon(user))
+		return ..()
+	if(silent)
+		to_chat(user, "<span class='notice'>You twist and change your trapped victim in [src] to lure in more prey.</span>")
+		silent = FALSE
+		return
+	to_chat(user, "<span class='notice'>The tendrils from [src] snap back to their orignal form.</span>")
+	silent = TRUE
 
 /obj/structure/shadowcocoon/play_attack_sound(damage_amount, damage_type = BRUTE, damage_flag = 0)
 	if(damage_type != BURN) //I unashamedly stole this from spider cocoon code
@@ -76,7 +138,6 @@
 	if(isliving(AM)) // when a living creature is thrown at it, dont knock it back
 		return
 	..()
-
 
 /mob/living/simple_animal/demon/shadow/Initialize(mapload)
 	. = ..()
@@ -99,17 +160,19 @@
 			thrown_alert = TRUE
 			throw_alert("light", /obj/screen/alert/lightexposure)
 		alpha = 255
+		speed = initial(speed)
 	else
 		if(thrown_alert)
 			thrown_alert = FALSE
 			clear_alert("light")
 		alpha = 125
+		speed = 0.5
 	return lum_count
 
 
 /obj/effect/proc_holder/spell/fireball/shadow_grapple
 	name = "Shadow Grapple"
-	desc = "Fire one of your hands, if it hits a person it pulls them in. If you hit a structure you get pulled to the structure."
+	desc = "Fire one of your hands, if it hits a person it pulls them in. If you hit a structure you get pulled to the structure. Any light source hit with this will be disabled in a two tile radius."
 	base_cooldown = 10 SECONDS
 	fireball_type = /obj/item/projectile/magic/shadow_hand
 
@@ -143,6 +206,8 @@
 		return
 	hit = TRUE // to prevent double hits from the pull
 	. = ..()
+	for(var/atom/extinguish_target in range(2, src))
+		extinguish_target.extinguish_light(TRUE)
 	if(!isliving(target))
 		firer.throw_at(get_step(target, get_dir(target, firer)), 50, 10)
 	else
@@ -150,7 +215,6 @@
 		L.Immobilize(2 SECONDS)
 		L.apply_damage(40, BRUTE, BODY_ZONE_CHEST)
 		L.throw_at(get_step(firer, get_dir(firer, target)), 50, 10)
-	target.extinguish_light(TRUE)
 
 /obj/effect/ebeam/floor
 	plane = FLOOR_PLANE

@@ -3,6 +3,7 @@ CONTAINS:
 CIGARETTES
 CIGARS
 SMOKING PIPES
+HOLO-CIGAR
 
 CIGARETTE PACKETS ARE IN FANCY.DM
 LIGHTERS ARE IN LIGHTERS.DM
@@ -18,7 +19,7 @@ LIGHTERS ARE IN LIGHTERS.DM
 	icon_state = "cigoff"
 	throw_speed = 0.5
 	item_state = "cigoff"
-	slot_flags = SLOT_MASK
+	slot_flags = SLOT_FLAG_MASK
 	w_class = WEIGHT_CLASS_TINY
 	body_parts_covered = null
 	attack_verb = null
@@ -51,6 +52,11 @@ LIGHTERS ARE IN LIGHTERS.DM
 	QDEL_NULL(reagents)
 	STOP_PROCESSING(SSobj, src)
 	return ..()
+
+/obj/item/clothing/mask/cigarette/decompile_act(obj/item/matter_decompiler/C, mob/user)
+	C.stored_comms["wood"] += 1
+	qdel(src)
+	return TRUE
 
 /obj/item/clothing/mask/cigarette/attack(mob/living/M, mob/living/user, def_zone)
 	if(istype(M) && M.on_fire)
@@ -92,6 +98,13 @@ LIGHTERS ARE IN LIGHTERS.DM
 		var/obj/item/lighter/L = I
 		if(L.lit)
 			light("<span class='notice'>After some fiddling, [user] manages to light [user.p_their()] [name] with [L].</span>")
+
+	else if(istype(I, /obj/item/match/unathi))
+		var/obj/item/match/unathi/U = I
+		if(U.lit)
+			playsound(user.loc, 'sound/effects/unathiignite.ogg', 40, FALSE)
+			light("<span class='rose'>[user] spits fire at [user.p_their()] [name], igniting it.</span>")
+			U.matchburnout()
 
 	else if(istype(I, /obj/item/match))
 		var/obj/item/match/M = I
@@ -176,6 +189,7 @@ LIGHTERS ARE IN LIGHTERS.DM
 				C.wear_mask_update(src)
 		set_light(2, 0.25, "#E38F46")
 		START_PROCESSING(SSobj, src)
+		playsound(src, 'sound/items/lighter/light.ogg', 25, TRUE)
 
 
 /obj/item/clothing/mask/cigarette/process()
@@ -271,8 +285,8 @@ LIGHTERS ARE IN LIGHTERS.DM
 	pixel_x = rand(-5, 5)
 	pixel_y = rand(-5, 5)
 
-/obj/item/clothing/mask/cigarette/rollie/nicotine
-	list_reagents = list("nicotine" = 40)
+/obj/item/clothing/mask/cigarette/rollie/custom
+	list_reagents = list()
 
 
 /obj/item/cigbutt/roach
@@ -347,10 +361,74 @@ LIGHTERS ARE IN LIGHTERS.DM
 /obj/item/clothing/mask/cigarette/cigar/attackby(obj/item/I, mob/user, params)
 	if(istype(I, /obj/item/reagent_containers))
 		return
-	if(istype(I, /obj/item/match))
+	if(istype(I, /obj/item/match) || istype(I, /obj/item/lighter/zippo))
 		..()
 	else
 		to_chat(user, "<span class='notice'>[src] straight out REFUSES to be lit by such uncivilized means.</span>")
+
+/obj/item/clothing/mask/holo_cigar
+	name = "Holo-Cigar"
+	desc = "A sleek electronic cigar imported straight from Sol. You feel badass merely glimpsing it..."
+	icon_state = "holocigaroff"
+	var/enabled = FALSE
+	/// Tracks if this is the first cycle smoking the cigar.
+	var/has_smoked = FALSE
+
+/obj/item/clothing/mask/holo_cigar/Destroy()
+	. = ..()
+	STOP_PROCESSING(SSobj, src)
+
+/obj/item/clothing/mask/holo_cigar/update_icon_state()
+	. = ..()
+	icon_state = "holocigar[enabled ? "on" : "off"]"
+
+/obj/item/clothing/mask/holo_cigar/examine(mob/user)
+	. = ..()
+	if(enabled)
+		. += "[src] hums softly as it synthesizes nicotine."
+	else
+		. += "[src] seems to be inactive."
+
+/obj/item/clothing/mask/holo_cigar/process()
+	if(!iscarbon(loc))
+		return
+
+	var/mob/living/carbon/C = loc
+	if(C.wear_mask != src)
+		return
+
+	if(!has_smoked)
+		C.reagents.add_reagent("nicotine", 2)
+		has_smoked = TRUE
+	else
+		C.reagents.add_reagent("nicotine", REAGENTS_METABOLISM)
+
+/obj/item/clothing/mask/holo_cigar/equipped(mob/user, slot, initial)
+	. = ..()
+	if(enabled && slot == SLOT_HUD_WEAR_MASK)
+		if(!HAS_TRAIT_FROM(user, TRAIT_BADASS, HOLO_CIGAR))
+			ADD_TRAIT(user, TRAIT_BADASS, HOLO_CIGAR)
+			to_chat(user, "<span class='notice'>You feel more badass while smoking [src].</span>")
+
+/obj/item/clothing/mask/holo_cigar/dropped(mob/user, silent)
+	. = ..()
+	has_smoked = FALSE
+	if(HAS_TRAIT_FROM(user, TRAIT_BADASS, HOLO_CIGAR))
+		REMOVE_TRAIT(user, TRAIT_BADASS, HOLO_CIGAR)
+		to_chat(user, "<span class='notice'>You feel less badass.</span>")
+
+/obj/item/clothing/mask/holo_cigar/attack_self(mob/user)
+	. = ..()
+	if(enabled)
+		enabled = FALSE
+		to_chat(user, "<span class='notice'>You disable the holo-cigar.</span>")
+		STOP_PROCESSING(SSobj, src)
+	else
+		enabled = TRUE
+		to_chat(user, "<span class='notice'>You enable the holo-cigar.</span>")
+		START_PROCESSING(SSobj, src)
+
+	update_appearance(UPDATE_ICON_STATE)
 
 /////////////////
 //SMOKING PIPES//
@@ -448,7 +526,7 @@ LIGHTERS ARE IN LIGHTERS.DM
 		if(O.dry)
 			user.unEquip(target, 1)
 			user.unEquip(src, 1)
-			var/obj/item/clothing/mask/cigarette/rollie/R = new /obj/item/clothing/mask/cigarette/rollie(user.loc)
+			var/obj/item/clothing/mask/cigarette/rollie/custom/R = new /obj/item/clothing/mask/cigarette/rollie/custom(user.loc)
 			R.chem_volume = target.reagents.total_volume
 			target.reagents.trans_to(R, R.chem_volume)
 			user.put_in_active_hand(R)

@@ -1,11 +1,12 @@
 /datum/species/golem
 	name = "Golem"
 	name_plural = "Golems"
+	max_age = 300
 
 	icobase = 'icons/mob/human_races/r_golem.dmi'
 
 	species_traits = list(NO_BLOOD, NO_HAIR, NOT_SELECTABLE)
-	inherent_traits = list(TRAIT_RESISTHEAT, TRAIT_NOBREATH, TRAIT_RESISTCOLD, TRAIT_RESISTHIGHPRESSURE, TRAIT_RESISTLOWPRESSURE, TRAIT_NOFIRE, TRAIT_CHUNKYFINGERS, TRAIT_RADIMMUNE, TRAIT_PIERCEIMMUNE, TRAIT_NOPAIN, TRAIT_NO_BONES, TRAIT_STURDY_LIMBS, TRAIT_XENO_IMMUNE)
+	inherent_traits = list(TRAIT_RESISTHEAT, TRAIT_NOBREATH, TRAIT_RESISTCOLD, TRAIT_RESISTHIGHPRESSURE, TRAIT_RESISTLOWPRESSURE, TRAIT_NOFIRE, TRAIT_CHUNKYFINGERS, TRAIT_RADIMMUNE, TRAIT_PIERCEIMMUNE, TRAIT_NOPAIN, TRAIT_NO_BONES, TRAIT_STURDY_LIMBS, TRAIT_XENO_IMMUNE, TRAIT_BURN_WOUND_IMMUNE)
 	inherent_biotypes = MOB_HUMANOID | MOB_MINERAL
 	dies_at_threshold = TRUE
 	speed_mod = 2
@@ -14,7 +15,7 @@
 	punchdamagelow = 5
 	punchdamagehigh = 14
 	punchstunthreshold = 11 //about 40% chance to stun
-	no_equip = list(slot_wear_mask, slot_wear_suit, slot_gloves, slot_shoes, slot_w_uniform, slot_s_store)
+	no_equip = list(SLOT_HUD_WEAR_MASK, SLOT_HUD_OUTER_SUIT, SLOT_HUD_GLOVES, SLOT_HUD_SHOES, SLOT_HUD_JUMPSUIT, SLOT_HUD_SUIT_STORE)
 	nojumpsuit = TRUE
 
 	dietflags = DIET_OMNI		//golems can eat anything because they are magic or something
@@ -111,7 +112,7 @@
 	name = "Plasma Golem"
 	skinned_type = /obj/item/stack/ore/plasma
 	//Can burn and takes damage from heat
-	inherent_traits = list(TRAIT_NOBREATH, TRAIT_RESISTCOLD, TRAIT_RESISTHIGHPRESSURE, TRAIT_RESISTLOWPRESSURE, TRAIT_CHUNKYFINGERS, TRAIT_RADIMMUNE, TRAIT_PIERCEIMMUNE, TRAIT_NOPAIN, TRAIT_NO_BONES, TRAIT_STURDY_LIMBS) //no RESISTHEAT, NOFIRE
+	inherent_traits = list(TRAIT_NOBREATH, TRAIT_RESISTCOLD, TRAIT_RESISTHIGHPRESSURE, TRAIT_RESISTLOWPRESSURE, TRAIT_CHUNKYFINGERS, TRAIT_RADIMMUNE, TRAIT_PIERCEIMMUNE, TRAIT_NOPAIN, TRAIT_NO_BONES, TRAIT_STURDY_LIMBS, TRAIT_BURN_WOUND_IMMUNE) //no RESISTHEAT, NOFIRE
 	golem_colour = rgb(170, 51, 221)
 	info_text = "As a <span class='danger'>Plasma Golem</span>, you burn easily. Be careful, if you get hot enough while burning, you'll blow up!"
 	heatmod = 0 //fine until they blow up
@@ -288,7 +289,7 @@
 	golem_colour = rgb(158, 112, 75)
 	skinned_type = /obj/item/stack/sheet/wood
 	//Can burn and take damage from heat
-	inherent_traits = list(TRAIT_NOBREATH, TRAIT_RESISTCOLD, TRAIT_RESISTHIGHPRESSURE, TRAIT_RESISTLOWPRESSURE, TRAIT_CHUNKYFINGERS, TRAIT_RADIMMUNE, TRAIT_PIERCEIMMUNE, TRAIT_NOPAIN, TRAIT_NO_BONES, TRAIT_STURDY_LIMBS)
+	inherent_traits = list(TRAIT_NOBREATH, TRAIT_RESISTCOLD, TRAIT_RESISTHIGHPRESSURE, TRAIT_RESISTLOWPRESSURE, TRAIT_CHUNKYFINGERS, TRAIT_RADIMMUNE, TRAIT_PIERCEIMMUNE, TRAIT_NOPAIN, TRAIT_NO_BONES, TRAIT_STURDY_LIMBS, TRAIT_BURN_WOUND_IMMUNE)
 	inherent_biotypes = MOB_ORGANIC | MOB_HUMANOID | MOB_PLANT
 	armor = 30
 	burn_mod = 1.25
@@ -559,7 +560,7 @@
 	prefix = "Bananium"
 	special_names = null
 	unarmed_type = /datum/unarmed_attack/golem/bananium
-	inherent_traits = list(TRAIT_RESISTHEAT, TRAIT_NOBREATH, TRAIT_RESISTCOLD, TRAIT_RESISTHIGHPRESSURE, TRAIT_RESISTLOWPRESSURE, TRAIT_NOFIRE, TRAIT_CHUNKYFINGERS, TRAIT_CLUMSY, TRAIT_COMIC_SANS, TRAIT_RADIMMUNE, TRAIT_PIERCEIMMUNE, TRAIT_NOPAIN, TRAIT_NO_BONES, TRAIT_STURDY_LIMBS)
+	inherent_traits = list(TRAIT_RESISTHEAT, TRAIT_NOBREATH, TRAIT_RESISTCOLD, TRAIT_RESISTHIGHPRESSURE, TRAIT_RESISTLOWPRESSURE, TRAIT_NOFIRE, TRAIT_CHUNKYFINGERS, TRAIT_CLUMSY, TRAIT_COMIC_SANS, TRAIT_RADIMMUNE, TRAIT_PIERCEIMMUNE, TRAIT_NOPAIN, TRAIT_NO_BONES, TRAIT_STURDY_LIMBS, TRAIT_BURN_WOUND_IMMUNE)
 	var/last_honk = 0
 	var/honkooldown = 0
 	var/last_banana = 0
@@ -570,8 +571,8 @@
 	..()
 	last_banana = world.time
 	last_honk = world.time
-	H.equip_to_slot_or_del(new /obj/item/reagent_containers/food/drinks/bottle/bottleofbanana(H), slot_r_store)
-	H.equip_to_slot_or_del(new /obj/item/bikehorn(H), slot_l_store)
+	H.equip_to_slot_or_del(new /obj/item/reagent_containers/food/drinks/bottle/bottleofbanana(H), SLOT_HUD_RIGHT_STORE)
+	H.equip_to_slot_or_del(new /obj/item/bikehorn(H), SLOT_HUD_LEFT_STORE)
 	H.AddElement(/datum/element/waddling)
 
 /datum/species/golem/bananium/on_species_loss(mob/living/carbon/C)
@@ -648,9 +649,9 @@
 
 /datum/species/golem/tranquillite/on_species_gain(mob/living/carbon/human/H)
 	..()
-	H.equip_to_slot_or_del(new 	/obj/item/clothing/head/beret(H), slot_head)
-	H.equip_to_slot_or_del(new 	/obj/item/reagent_containers/food/drinks/bottle/bottleofnothing(H), slot_r_store)
-	H.equip_to_slot_or_del(new 	/obj/item/cane(H), slot_l_hand)
+	H.equip_to_slot_or_del(new 	/obj/item/clothing/head/beret(H), SLOT_HUD_HEAD)
+	H.equip_to_slot_or_del(new 	/obj/item/reagent_containers/food/drinks/bottle/bottleofnothing(H), SLOT_HUD_RIGHT_STORE)
+	H.equip_to_slot_or_del(new 	/obj/item/cane(H), SLOT_HUD_LEFT_HAND)
 	if(H.mind)
 		H.mind.AddSpell(new /obj/effect/proc_holder/spell/aoe/conjure/build/mime_wall(null))
 		H.mind.AddSpell(new /obj/effect/proc_holder/spell/mime/speak(null))
@@ -709,7 +710,7 @@
 	name = "pile of bandages"
 	desc = "It emits a strange aura, as if there was still life within it..."
 	max_integrity = 50
-	armor = list(MELEE = 90, BULLET = 90, LASER = 25, ENERGY = 80, BOMB = 50, BIO = 100, FIRE = -50, ACID = -50)
+	armor = list(MELEE = 90, BULLET = 90, LASER = 25, ENERGY = 80, BOMB = 50, FIRE = -50, ACID = -50)
 	icon = 'icons/obj/items.dmi'
 	icon_state = "pile_bandages"
 	resistance_flags = FLAMMABLE

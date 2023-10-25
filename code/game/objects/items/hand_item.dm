@@ -15,6 +15,10 @@
 	user.do_attack_animation(M)
 	playsound(M, hitsound, 50, TRUE, -1)
 	user.visible_message("<span class='danger'>[user] slaps [M]!</span>", "<span class='notice'>You slap [M]!</span>", "<span class='hear'>You hear a slap.</span>")
+	if(iscarbon(M))
+		var/mob/living/carbon/C = M
+		if(C.IsSleeping())
+			C.AdjustSleeping(-15 SECONDS)
 	if(force)
 		return ..()
 
@@ -23,12 +27,7 @@
 	if(!isliving(user))
 		return
 	var/mob/living/L = user
-	if(!L.has_status_effect(STATUS_EFFECT_HIGHFIVE))
-		L.apply_status_effect(STATUS_EFFECT_HIGHFIVE)
-		L.visible_message(
-			"<span class='notice'[user] raises [user.p_their()] hand for a high-five!</span>",
-			"<span class='notice'>You raise your hand for a high-five!</span>"
-		)
+	L.emote("highfive", intentional = TRUE)
 
 /obj/item/slapper/attack_obj(obj/O, mob/living/user, params)
 	if(!istype(O, /obj/structure/table))
@@ -56,3 +55,25 @@
 		table_smacks_left--
 		if(table_smacks_left <= 0)
 			qdel(src)
+
+/obj/item/slapper/get_clamped_volume() //Without this, you would hear the slap twice if it has force.
+	return 0
+
+/obj/item/slapper/parry
+	desc = "This is how real men win fights."
+	force = 5
+	attack_verb = list("slapped", "backhanded", "smacked", "discombobulated")
+	table_smacks_left = 10 //Much more smackitude
+
+/obj/item/slapper/parry/Initialize(mapload)
+	AddComponent(/datum/component/parry, _stamina_constant = 2, _stamina_coefficient = 0.5, _parryable_attack_types = NON_PROJECTILE_ATTACKS, _parry_cooldown = (1 / 3) SECONDS) //75% uptime
+	return ..()
+
+/obj/item/slapper/parry/attack(mob/M, mob/living/carbon/human/user)
+	if(isliving(M))
+		var/mob/living/creature = M
+		SEND_SOUND(creature, sound('sound/weapons/flash_ring.ogg'))
+		creature.Confused(10 SECONDS) //SMACK CAM
+		creature.EyeBlind(2 SECONDS) //OH GOD MY EARS ARE RINGING
+		creature.Deaf(4 SECONDS) //OH MY HEAD
+	return ..()

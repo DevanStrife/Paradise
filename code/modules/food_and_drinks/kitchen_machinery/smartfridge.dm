@@ -188,8 +188,8 @@
 		user.visible_message("<span class='notice'>[user] has added \the [O] to \the [src].</span>", "<span class='notice'>You add \the [O] to \the [src].</span>")
 		SStgui.update_uis(src)
 		update_icon(UPDATE_OVERLAYS)
-	else if(istype(O, /obj/item/storage/bag))
-		var/obj/item/storage/bag/P = O
+	else if(istype(O, /obj/item/storage/bag) || istype(O, /obj/item/storage/box))
+		var/obj/item/storage/P = O
 		var/items_loaded = 0
 		for(var/obj/G in P.contents)
 			if(load(G, user))
@@ -228,12 +228,12 @@
 		return
 	if(stat & (BROKEN|NOPOWER))
 		to_chat(user, "<span class='notice'>\The [src] is unpowered and useless.</span>")
-		return
+		return TRUE
 
 	var/obj/item/storage/box/pillbottles/P = over_object
 	if(!length(P.contents))
 		to_chat(user, "<span class='notice'>\The [P] is empty.</span>")
-		return
+		return TRUE
 
 	var/items_loaded = 0
 	for(var/obj/G in P.contents)
@@ -245,6 +245,7 @@
 	var/failed = length(P.contents)
 	if(failed)
 		to_chat(user, "<span class='notice'>[failed] item\s [failed == 1 ? "is" : "are"] refused.</span>")
+	return TRUE
 
 /obj/machinery/smartfridge/ui_interact(mob/user, ui_key = "main", datum/tgui/ui = null, force_open = TRUE, datum/tgui/master_ui = null, datum/ui_state/state = GLOB.default_state)
 	ui = SStgui.try_update_ui(user, src, ui_key, ui, force_open)
@@ -681,7 +682,7 @@
 	icon_state = "disktoaster"
 	icon_lightmask = "disktoaster"
 	pass_flags = PASSTABLE
-	visible_contents = FALSE
+	visible_contents = TRUE
 	board_type = /obj/machinery/smartfridge/disks
 
 /obj/machinery/smartfridge/disks/Initialize(mapload)
@@ -690,11 +691,23 @@
 		/obj/item/disk,
 	))
 
+/obj/machinery/smartfridge/disks/update_fridge_contents()
+	switch(length(contents))
+		if(0)
+			fill_level = null
+		if(1)
+			fill_level = 1
+		if(2)
+			fill_level = 2
+		if(3)
+			fill_level = 3
+		if(4 to INFINITY)
+			fill_level = 4
 /obj/machinery/smartfridge/id
 	name = "identification card compartmentalizer"
 	desc = "A machine capable of storing identification cards and PDAs. It's great for lost and terminated cards."
 	icon_state = "idbox"
-	icon_lightmask = FALSE
+	icon_lightmask = TRUE
 	pass_flags = PASSTABLE
 	visible_contents = FALSE
 	board_type = /obj/machinery/smartfridge/id
@@ -796,8 +809,7 @@
 	desc = "A wooden contraption, used to dry plant products, food and leather."
 	icon = 'icons/obj/hydroponics/equipment.dmi'
 	icon_state = "drying_rack"
-	idle_power_consumption = 5
-	active_power_consumption = 200
+	requires_power = FALSE
 	can_dry = TRUE
 	visible_contents = FALSE
 	light_range_on = null
@@ -823,14 +835,6 @@
 /obj/machinery/smartfridge/drying_rack/RefreshParts()
 	return
 
-/obj/machinery/smartfridge/drying_rack/power_change()
-	if(has_power() && anchored)
-		stat &= ~NOPOWER
-	else
-		stat |= NOPOWER
-		toggle_drying(TRUE)
-	update_icon(UPDATE_OVERLAYS)
-
 /obj/machinery/smartfridge/drying_rack/screwdriver_act(mob/living/user, obj/item/I)
 	return
 
@@ -853,13 +857,9 @@
 	switch(action)
 		if("drying")
 			drying = !drying
-			change_power_mode(drying ? ACTIVE_POWER_USE : IDLE_POWER_USE)
 			update_icon(UPDATE_OVERLAYS)
 
 /obj/machinery/smartfridge/drying_rack/update_overlays()
-	if(stat & NOPOWER)
-		. += "drying_rack_off"
-		return
 	if(drying)
 		. += "drying_rack_drying"
 	if(length(contents))
@@ -887,10 +887,8 @@
 /obj/machinery/smartfridge/drying_rack/proc/toggle_drying(forceoff)
 	if(drying || forceoff)
 		drying = FALSE
-		change_power_mode(IDLE_POWER_USE)
 	else
 		drying = TRUE
-		change_power_mode(ACTIVE_POWER_USE)
 	update_icon(UPDATE_OVERLAYS)
 
 /**

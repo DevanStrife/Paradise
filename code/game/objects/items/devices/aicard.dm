@@ -5,7 +5,7 @@
 	icon_state = "aicard" // aicard-full
 	item_state = "electronic"
 	w_class = WEIGHT_CLASS_SMALL
-	slot_flags = SLOT_BELT
+	slot_flags = SLOT_FLAG_BELT
 	flags = NOBLUDGEON
 	var/flush = null
 	origin_tech = "programming=3;materials=3"
@@ -123,3 +123,17 @@
 		AI.adjustOxyLoss(2)
 		sleep(10)
 	flush = FALSE
+
+/obj/item/aicard/add_tape()
+	var/mob/living/silicon/ai/AI = locate() in src
+	if(!AI)
+		return
+	QDEL_NULL(AI.builtInCamera)
+
+/obj/item/aicard/remove_tape()
+	var/mob/living/silicon/ai/AI = locate() in src
+	if(!AI)
+		return
+	AI.builtInCamera = new /obj/machinery/camera/portable(AI)
+	AI.builtInCamera.c_tag = AI.name
+	AI.builtInCamera.network = list("SS13")

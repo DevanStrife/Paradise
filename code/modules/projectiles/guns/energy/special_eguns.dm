@@ -12,7 +12,7 @@
 	w_class = WEIGHT_CLASS_HUGE
 	can_holster = FALSE
 	flags =  CONDUCT
-	slot_flags = SLOT_BACK
+	slot_flags = SLOT_FLAG_BACK
 	shaded_charge = TRUE
 	ammo_type = list(/obj/item/ammo_casing/energy/ion)
 	ammo_x_offset = 3
@@ -27,7 +27,7 @@
 	desc = "The MK.II Prototype Ion Projector is a lightweight carbine version of the larger ion rifle, built to be ergonomic and efficient."
 	icon_state = "ioncarbine"
 	w_class = WEIGHT_CLASS_NORMAL
-	slot_flags = SLOT_BELT
+	slot_flags = SLOT_FLAG_BELT
 	ammo_x_offset = 2
 	flight_x_offset = 18
 	flight_y_offset = 11
@@ -204,7 +204,7 @@
 	name = "bluespace wormhole projector"
 	desc = "A projector that emits high density quantum-coupled bluespace beams."
 	ammo_type = list(/obj/item/ammo_casing/energy/wormhole, /obj/item/ammo_casing/energy/wormhole/orange)
-	item_state = null
+	item_state = "wormhole_projector1"
 	icon_state = "wormhole_projector1"
 	origin_tech = "combat=4;bluespace=6;plasmatech=4;engineering=4"
 	charge_delay = 5
@@ -272,6 +272,7 @@
 	ammo_type = list(/obj/item/ammo_casing/energy/instakill)
 	force = 60
 	origin_tech = "combat=7;magnets=6"
+	execution_speed = 2 SECONDS
 
 /obj/item/gun/energy/laser/instakill/emp_act() //implying you could stop the instagib
 	return
@@ -292,7 +293,7 @@
 /obj/item/gun/energy/clown
 	name = "\improper HONK rifle"
 	desc = "Clown Planet's finest."
-	icon_state = "disabler"
+	icon_state = "honkrifle"
 	ammo_type = list(/obj/item/ammo_casing/energy/clown)
 	clumsy_check = FALSE
 	selfcharge = TRUE
@@ -319,6 +320,7 @@
 	var/charging = FALSE
 	var/charge_failure = FALSE
 	var/mob/living/carbon/holder = null
+	execution_speed = 4 SECONDS
 
 /obj/item/gun/energy/plasma_pistol/Initialize(mapload)
 	. = ..()
@@ -460,9 +462,9 @@
 	origin_tech = "combat=6;materials=6;powerstorage=6;bluespace=6;magnets=6" //cutting edge technology, be my guest if you want to deconstruct one instead of use it.
 	ammo_type = list(/obj/item/ammo_casing/energy/bsg)
 	weapon_weight = WEAPON_HEAVY
-	w_class = WEIGHT_CLASS_HUGE
+	w_class = WEIGHT_CLASS_BULKY
 	can_holster = FALSE
-	slot_flags = SLOT_BACK
+	slot_flags = SLOT_FLAG_BACK
 	cell_type = /obj/item/stock_parts/cell/bsg
 	shaded_charge = TRUE
 	can_fit_in_turrets = FALSE //Crystal would shatter, or someone would try to put an empty gun in the frame.
@@ -522,13 +524,8 @@
 		return
 	return ..()
 
-/obj/item/gun/energy/bsg/process_chamber()
-	if(prob(25))
-		shatter()
-	..()
-	update_icon()
-
 /obj/item/gun/energy/bsg/update_icon_state()
+	. = ..()
 	if(core)
 		if(has_bluespace_crystal)
 			icon_state = "bsg_finished"
@@ -572,7 +569,7 @@
 	icon = 'icons/obj/guns/gun_temperature.dmi'
 	icon_state = "tempgun_4"
 	item_state = "tempgun_4"
-	slot_flags = SLOT_BACK
+	slot_flags = SLOT_FLAG_BACK
 	w_class = WEIGHT_CLASS_BULKY
 	fire_sound = 'sound/weapons/pulse3.ogg'
 	desc = "A gun that changes the body temperature of its targets."
@@ -751,7 +748,6 @@
 	options["The Original"] = "handgun"
 	options["Golden Mamba"] = "handgun_golden-mamba"
 	options["NT's Finest"] = "handgun_nt-finest"
-	options["Cancel"] = null
 
 /obj/item/gun/energy/detective/Destroy()
 	QDEL_NULL(Announcer)
@@ -860,6 +856,55 @@
 		if(C?.mode == MODE_DET)
 			C.stop_tracking()
 	tracking_target_UID = null
+
+
+/obj/item/gun/energy/spikethrower //It's like the cyborg LMG, uses energy to make spikes
+	name = "\improper Vox spike thrower"
+	desc = "A vicious alien projectile weapon. Parts of it quiver gelatinously, as though the thing is insectile and alive."
+	icon = 'icons/obj/guns/projectile.dmi'
+	icon_state = "spikethrower"
+	item_state = "toxgun"
+	w_class = WEIGHT_CLASS_NORMAL
+	fire_sound_text = "a strange noise"
+	can_suppress = 0
+	burst_size = 2 // burst has to be stored here
+	can_charge = FALSE
+	selfcharge = TRUE
+	charge_delay = 10
+	restricted_species = list(/datum/species/vox)
+	ammo_type = list(/obj/item/ammo_casing/energy/spike)
+
+/obj/item/gun/energy/spikethrower/emp_act()
+	return
+
+/obj/item/ammo_casing/energy/spike
+	name = "alloy spike"
+	desc = "A broadhead spike made out of a weird silvery metal."
+	projectile_type = /obj/item/projectile/bullet/spike
+	muzzle_flash_effect = null
+	e_cost = 100
+	delay = 3 //and delay has to be stored here on energy guns
+	select_name = "spike"
+	fire_sound = 'sound/weapons/bladeslice.ogg'
+
+/obj/item/projectile/bullet/spike
+	name = "alloy spike"
+	desc = "It's about a foot of weird silvery metal with a wicked point."
+	damage = 25
+	knockdown = 2
+	armour_penetration_flat = 30
+	icon_state = "magspear"
+
+/obj/item/projectile/bullet/spike/on_hit(atom/target, blocked = 0)
+	if((blocked < 100) && ishuman(target))
+		var/mob/living/carbon/human/H = target
+		H.bleed(50)
+	..()
+
+/obj/item/gun/energy/spikethrower/examine(mob/user)
+	. = ..()
+	. += "<span class='notice'>This item's cell recharges on its own. Known to drive people mad by forcing them to wait for shots to recharge. Not compatible with rechargers.</span>"
+
 
 #undef PLASMA_CHARGE_USE_PER_SECOND
 #undef PLASMA_DISCHARGE_LIMIT

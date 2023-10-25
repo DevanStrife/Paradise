@@ -207,7 +207,7 @@
 	flags_cover = MASKCOVERSMOUTH
 	gas_transfer_coefficient = 0.90
 	permeability_coefficient = 0.01
-	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 15, RAD = 0, FIRE = 0, ACID = 0)
+	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, RAD = 0, FIRE = 0, ACID = 0)
 	actions_types = list(/datum/action/item_action/adjust)
 	can_toggle = TRUE
 
@@ -245,7 +245,7 @@
 	pontificate(user)
 
 /obj/item/clothing/mask/fakemoustache/item_action_slot_check(slot)
-	if(slot == slot_wear_mask)
+	if(slot == SLOT_HUD_WEAR_MASK)
 		return 1
 
 /obj/item/clothing/mask/fakemoustache/proc/pontificate(mob/user)
@@ -423,8 +423,8 @@
 	flags_inv = HIDEFACE
 	flags_cover = MASKCOVERSMOUTH
 	w_class = WEIGHT_CLASS_TINY
-	slot_flags = SLOT_MASK
-	adjusted_flags = SLOT_HEAD
+	slot_flags = SLOT_FLAG_MASK
+	adjusted_flags = SLOT_FLAG_HEAD
 	icon_state = "bandbotany"
 	dyeable = TRUE
 	can_toggle = TRUE
@@ -528,7 +528,7 @@
 /obj/item/clothing/mask/cursedclown/equipped(mob/user, slot)
 	..()
 	var/mob/living/carbon/human/H = user
-	if(istype(H) && slot == slot_wear_mask)
+	if(istype(H) && slot == SLOT_HUD_WEAR_MASK)
 		to_chat(H, "<span class='danger'>[src] grips your face!</span>")
 		if(H.mind && H.mind.assigned_role != "Cluwne")
 			H.makeCluwne()

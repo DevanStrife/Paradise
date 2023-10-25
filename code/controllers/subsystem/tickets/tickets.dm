@@ -221,7 +221,7 @@ SUBSYSTEM_DEF(tickets)
 		"Mentorhelp" = "Please redirect your question to Mentorhelp, as they are better experienced with these types of questions.",
 		"Happens Again" = "Thanks, let us know if it continues to happen.",
 		"Clear Cache" = "To fix a blank screen, go to the 'Special Verbs' tab and press 'Reload UI Resources'. If that fails, clear your BYOND cache (instructions provided with 'Reload UI Resources'). If that still fails, please adminhelp again, stating you have already done the following." ,
-		"IC Issue" = "This is an In Character (IC) issue and will not be handled by admins. You could speak to Security, Internal Affairs, a Departmental Head, Nanotrasen Representetive, or any other relevant authority currently on station.",
+		"IC Issue" = "This is an In Character (IC) issue and will not be handled by admins. You could speak to Security, Internal Affairs, a Departmental Head, Nanotrasen Representative, or any other relevant authority currently on station.",
 		"Reject" = "Reject",
 		"Man Up" = "Man Up",
 	)
@@ -232,11 +232,14 @@ SUBSYSTEM_DEF(tickets)
 	if(GLOB.configuration.url.github_url)
 		response_phrases["Github Issue Report"] = "To report a bug, please go to our <a href='[GLOB.configuration.url.github_url]'>Github page</a>. Then go to 'Issues'. Then 'New Issue'. Then fill out the report form. If the report would reveal current-round information, file it after the round ends."
 
+	if(GLOB.configuration.url.exploit_url)
+		response_phrases["Exploit Report"] = "To report an exploit, please go to our <a href='[GLOB.configuration.url.exploit_url]'>Exploit Report page</a>. Then 'Start New Topic'. Then fill out the topic with as much information about the exploit that you can. If possible, add steps taken to reproduce the exploit. The Development Team will be informed automatically of the post."
+
 	var/sorted_responses = list()
 	for(var/key in response_phrases)	//build a new list based on the short descriptive keys of the master list so we can send this as the input instead of the full paragraphs to the admin choosing which autoresponse
 		sorted_responses += key
 
-	var/message_key = input("Select an autoresponse. This will mark the ticket as resolved.", "Autoresponse") as null|anything in sortTim(sorted_responses, /proc/cmp_text_asc) //use sortTim and cmp_text_asc to sort alphabetically
+	var/message_key = input("Select an autoresponse. This will mark the ticket as resolved.", "Autoresponse") as null|anything in sortTim(sorted_responses, GLOBAL_PROC_REF(cmp_text_asc)) //use sortTim and cmp_text_asc to sort alphabetically
 	var/client/ticket_owner = get_client_by_ckey(T.client_ckey)
 	switch(message_key)
 		if(null) //they cancelled
@@ -358,8 +361,8 @@ SUBSYSTEM_DEF(tickets)
 	ticketNum = num
 	ticketState = TICKET_OPEN
 
-	var/list/this_data = list()
 	for(var/client/C in GLOB.admins)
+		var/list/this_data = list()
 		this_data["ckey"] = C.ckey
 		this_data["rank"] = C.holder.rank
 		this_data["afk"] = C.inactivity
@@ -719,6 +722,13 @@ UI STUFF
 
 	SSdbcore.MassExecute(all_queries, TRUE, TRUE, FALSE, TRUE)
 
+/datum/controller/subsystem/tickets/can_vv_get(var_name)
+	var/static/list/protected_vars = list(
+		"allTickets"
+	)
+	if(!check_rights(R_ADMIN, FALSE, usr) && (var_name in protected_vars))
+		return FALSE
+	return TRUE
 
 #undef TICKET_STAFF_MESSAGE_ADMIN_CHANNEL
 #undef TICKET_STAFF_MESSAGE_PREFIX

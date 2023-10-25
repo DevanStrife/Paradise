@@ -34,8 +34,8 @@
 		/obj/effect/hierophant,
 		/obj/item/warp_cube,
 		/obj/machinery/quantumpad,
-		/obj/structure/extraction_point
-	)
+		/obj/structure/extraction_point,
+		/obj/item/envelope)
 	if(A)
 		if(is_type_in_list(A, blacklist))
 			return TRUE
@@ -114,6 +114,7 @@
 	var/plasma_count = 0
 	var/intel_count = 0
 	var/crate_count = 0
+	var/total_crate_value = 0
 
 	var/msg = "<center>---[station_time_timestamp()]---</center><br>"
 	var/credits_to_deposit = 0
@@ -125,13 +126,20 @@
 			continue
 		if(istype(MA, /mob/dead))
 			continue
+		if(istype(MA, /obj/structure/closet/crate/mail))
+			continue
 		SSeconomy.sold_atoms += " [MA.name]"
 
 		// Must be in a crate (or a critter crate)!
-		if(istype(MA,/obj/structure/closet/crate) || istype(MA,/obj/structure/closet/critter))
+		if(istype(MA, /obj/structure/closet/crate) || istype(MA, /obj/structure/closet/critter))
 			SSeconomy.sold_atoms += ":"
 			if(!length(MA.contents))
 				SSeconomy.sold_atoms += " (empty)"
+			if(istype(MA, /obj/structure/closet/crate))
+				var/obj/structure/closet/crate/exported_crate = MA
+				total_crate_value += exported_crate.crate_value
+			else
+				total_crate_value += DEFAULT_CRATE_VALUE
 			crate_count++
 
 			var/find_slip = TRUE
@@ -195,7 +203,7 @@
 					else // This is a new discovery!
 						SSeconomy.discovered_plants[S.type] = S.potency
 						msg += "<span class='good'>[S.rarity]</span>: New species discovered: \"[capitalize(S.species)]\". Excellent work.<br>"
-						credits_to_deposit += S.rarity / 2 // That's right, no bonus for potency.  Send a crappy sample first to "show improvement" later
+						service_credits += S.rarity / 2 // That's right, no bonus for potency. Send a crappy sample first to "show improvement" later
 						credits_to_deposit += S.rarity / 2
 		qdel(MA)
 		SSeconomy.sold_atoms += "."
@@ -211,9 +219,8 @@
 		credits_to_deposit += credits_from_intel
 
 	if(crate_count > 0)
-		var/credits_from_crates = crate_count * SSeconomy.credits_per_crate
-		msg += "<span class='good'>+[credits_from_crates]</span>: Received [crate_count] crate(s).<br>"
-		credits_to_deposit += credits_from_crates
+		msg += "<span class='good'>+[total_crate_value]</span>: Received [crate_count] crate(s).<br>"
+		credits_to_deposit += total_crate_value
 
 	SSeconomy.centcom_message += "[msg]<hr>"
 	if(credits_to_deposit > 0)

@@ -15,7 +15,6 @@
 
 	var/list/blood_DNA
 	var/blood_color
-	var/last_bumped = 0
 	var/pass_flags = 0
 	var/germ_level = GERM_LEVEL_AMBIENT // The higher the germ level, the more germ on the atom.
 	var/simulated = TRUE //filter for actions - used by lighting overlays
@@ -519,7 +518,7 @@
 /atom/proc/unemag()
 	return
 
-/atom/proc/cmag_act()
+/atom/proc/cmag_act(mob/user)
 	return
 
 /atom/proc/uncmag()
@@ -546,6 +545,10 @@
 /atom/proc/hitby(atom/movable/AM, skipcatch, hitpush, blocked, datum/thrownthing/throwingdatum)
 	if(density && !has_gravity(AM)) //thrown stuff bounces off dense stuff in no grav, unless the thrown stuff ends up inside what it hit(embedding, bola, etc...).
 		addtimer(CALLBACK(src, PROC_REF(hitby_react), AM), 2)
+
+/// This proc applies special effects of a carbon mob hitting something, be it a wall, structure, or window. You can set mob_hurt to false to avoid double dipping through subtypes if returning ..()
+/atom/proc/hit_by_thrown_carbon(mob/living/carbon/human/C, datum/thrownthing/throwingdatum, damage, mob_hurt = FALSE, self_hurt = FALSE)
+	return
 
 /atom/proc/hitby_react(atom/movable/AM)
 	if(AM && isturf(AM.loc))
@@ -977,6 +980,8 @@ GLOBAL_LIST_EMPTY(blood_splatter_icons)
 				return
 
 		var/obj/effect/decal/cleanable/vomit/this = new type(src)
+		if(!this.gravity_check)
+			this.newtonian_move(dir)
 
 		// Make toxins vomit look different
 		if(toxvomit)
@@ -1247,21 +1252,6 @@ GLOBAL_LIST_EMPTY(blood_splatter_icons)
 	if(degrees)
 		appearance_flags |= PIXEL_SCALE
 	transform = M
-
-//Update the screentip to reflect what we're hovering over
-/atom/MouseEntered(location, control, params)
-	if(!usr || !usr.client)
-		return
-	var/datum/hud/active_hud = usr.hud_used
-	if(!active_hud)
-		return
-	var/screentip_mode = usr.client.prefs.screentip_mode
-	if(screentip_mode == 0 || (flags & NO_SCREENTIPS))
-		active_hud.screentip_text.maptext = ""
-		return
-	//We inline a MAPTEXT() here, because there's no good way to statically add to a string like this
-	var/screentip_color = usr.client.prefs.screentip_color
-	active_hud.screentip_text.maptext = "<span class='maptext' style='font-family: sans-serif; text-align: center; font-size: [screentip_mode]px; color: [screentip_color]'>[name]</span>"
 
 /*
 	Setter for the `density` variable.

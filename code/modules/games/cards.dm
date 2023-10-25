@@ -58,20 +58,23 @@
 /obj/item/deck/proc/build_deck()
 	return
 
-/obj/item/deck/attackby(obj/O as obj, mob/user as mob)
-	if(istype(O,/obj/item/cardhand))
+/obj/item/deck/attackby(obj/O, mob/user)
+	if(istype(O, /obj/item/cardhand))
 		var/obj/item/cardhand/H = O
-		if(H.parentdeck == src)
-			for(var/datum/playingcard/P in H.cards)
-				cards += P
-			qdel(H)
-			to_chat(user,"<span class='notice'>You place your cards on the bottom of [src]</span>.")
-			update_icon(UPDATE_ICON_STATE)
-			return
-		else
+		if(H.parentdeck != src)
 			to_chat(user,"<span class='warning'>You can't mix cards from different decks!</span>")
 			return
 
+		if(length(H.cards) > 1)
+			var/confirm = alert("Are you sure you want to put your [length(H.cards)] cards back into the deck?", "Return Hand", "Yes", "No")
+			if(confirm == "No" || !Adjacent(user) || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED))
+				return
+		for(var/datum/playingcard/P in H.cards)
+			cards += P
+		qdel(H)
+		to_chat(user, "<span class='notice'>You place your cards on the bottom of [src].</span>")
+		update_icon(UPDATE_ICON_STATE)
+		return
 	..()
 
 /obj/item/deck/examine(mob/user)
@@ -87,7 +90,7 @@
 	button_icon_state = "draw"
 	use_itemicon = FALSE
 
-/datum/action/item_action/draw_card/Trigger()
+/datum/action/item_action/draw_card/Trigger(left_click)
 	if(istype(target, /obj/item/deck))
 		var/obj/item/deck/D = target
 		return D.draw_card(owner)
@@ -98,7 +101,7 @@
 	button_icon_state = "deal_card"
 	use_itemicon = FALSE
 
-/datum/action/item_action/deal_card/Trigger()
+/datum/action/item_action/deal_card/Trigger(left_click)
 	if(istype(target, /obj/item/deck))
 		var/obj/item/deck/D = target
 		return D.deal_card()
@@ -109,7 +112,7 @@
 	button_icon_state = "deal_card_multi"
 	use_itemicon = FALSE
 
-/datum/action/item_action/deal_card_multi/Trigger()
+/datum/action/item_action/deal_card_multi/Trigger(left_click)
 	if(istype(target, /obj/item/deck))
 		var/obj/item/deck/D = target
 		return D.deal_card_multi()
@@ -120,7 +123,7 @@
 	button_icon_state = "shuffle"
 	use_itemicon = FALSE
 
-/datum/action/item_action/shuffle/Trigger()
+/datum/action/item_action/shuffle/Trigger(left_click)
 	if(istype(target, /obj/item/deck))
 		var/obj/item/deck/D = target
 		return D.deckshuffle()
@@ -147,9 +150,6 @@
 	var/obj/item/cardhand/H = M.is_in_hands(/obj/item/cardhand)
 	if(H && (H.parentdeck != src))
 		to_chat(user,"<span class='warning'>You can't mix cards from different decks!</span>")
-		return
-	if(H && length(H.cards) >= H.maxcardlen)
-		to_chat(user,"<span class = 'warning'>You can't hold that many cards in one hand!</span>")
 		return
 
 	if(!H)
@@ -239,6 +239,9 @@
 /obj/item/deck/attack_self()
 	deckshuffle()
 
+/obj/item/deck/AltClick()
+	deckshuffle()
+
 /obj/item/deck/verb/verb_shuffle()
 	if(!isobserver(usr))
 		set category = "Object"
@@ -249,34 +252,38 @@
 
 /obj/item/deck/proc/deckshuffle()
 	var/mob/living/user = usr
-	if(cooldown < world.time - 5 SECONDS)
+	if(cooldown < world.time - 1 SECONDS)
 		cards = shuffle(cards)
 		user.visible_message("<span class='notice'>[user] shuffles [src].</span>")
 		playsound(user, 'sound/items/cardshuffle.ogg', 50, 1)
 		cooldown = world.time
 
 
-/obj/item/deck/MouseDrop(atom/over_object) // Code from Paper bin, so you can still pick up the deck
+/obj/item/deck/MouseDrop(atom/over, src_location, over_location, src_control, over_control, params)
 	var/mob/M = usr
 	if(M.incapacitated() || !Adjacent(M))
 		return
 	if(!ishuman(M))
 		return
 
-	if(over_object == M || istype(over_object, /obj/screen))
-		if(!remove_item_from_storage(M))
+	if(istype(over, /obj/screen))
+		if(!remove_item_from_storage(get_turf(M)))
 			M.unEquip(src)
-		if(over_object != M)
-			switch(over_object.name)
-				if("r_hand")
-					M.put_in_r_hand(src)
-				if("l_hand")
-					M.put_in_l_hand(src)
-		else
-			M.put_in_hands(src)
+		switch(over.name)
+			if("r_hand")
+				if(M.put_in_r_hand(src))
+					add_fingerprint(M)
+					usr.visible_message("<span class='notice'>[usr] picks up the deck.</span>")
+			if("l_hand")
+				if(M.put_in_l_hand(src))
+					add_fingerprint(M)
+					usr.visible_message("<span class='notice'>[usr] picks up the deck.</span>")
+		return
 
-		add_fingerprint(M)
-		usr.visible_message("<span class='notice'>[usr] picks up the deck.</span>")
+	if(over == M && loc != M)
+		if(M.put_in_hands(src))
+			add_fingerprint(M)
+			usr.visible_message("<span class='notice'>[usr] picks up the deck.</span>")
 
 /obj/item/pack
 	name = "card pack"
@@ -307,7 +314,6 @@
 	icon = 'icons/obj/playing_cards.dmi'
 	icon_state = "empty"
 	w_class = WEIGHT_CLASS_TINY
-	var/maxcardlen = 20
 	actions_types = list(/datum/action/item_action/remove_card, /datum/action/item_action/discard)
 
 	var/concealed = FALSE
@@ -344,18 +350,14 @@
 		update_appearance(UPDATE_NAME|UPDATE_DESC|UPDATE_OVERLAYS)
 	else if(istype(O,/obj/item/cardhand))
 		var/obj/item/cardhand/H = O
-		if((length(H.cards) + length(cards)) > maxcardlen)
-			to_chat(user,"<span class='warning'>You can't hold that many cards in one hand!</span>")
-			return
 		if(H.parentdeck == parentdeck)
-			for(var/datum/playingcard/P in cards)
-				H.cards += P
 			H.concealed = concealed
-			qdel(src)
-			H.update_appearance(UPDATE_NAME|UPDATE_DESC|UPDATE_OVERLAYS)
+			cards.Add(H.cards)
+			qdel(H)
+			update_appearance(UPDATE_NAME|UPDATE_DESC|UPDATE_OVERLAYS)
 			return
 		else
-			to_chat(user,"<span class='notice'>You cannot mix cards from other deck!</span>")
+			to_chat(user, "<span class='notice'>You cannot mix cards from other decks!</span>")
 			return
 	..()
 
@@ -392,7 +394,7 @@
 		if(href_list["pick"] == "Turn")
 			turn_hand(usr)
 		else
-			if(cardUser.get_item_by_slot(slot_l_hand) == src || cardUser.get_item_by_slot(slot_r_hand) == src)
+			if(cardUser.get_item_by_slot(SLOT_HUD_LEFT_HAND) == src || cardUser.get_item_by_slot(SLOT_HUD_RIGHT_HAND) == src)
 				pickedcard = href_list["pick"]
 				Removecard()
 		cardUser << browse(null, "window=cardhand")
@@ -417,7 +419,7 @@
 		return FALSE
 	return ..()
 
-/datum/action/item_action/remove_card/Trigger()
+/datum/action/item_action/remove_card/Trigger(left_click)
 	if(!IsAvailable())
 		return
 	if(istype(target, /obj/item/cardhand))
@@ -430,7 +432,7 @@
 	button_icon_state = "discard"
 	use_itemicon = FALSE
 
-/datum/action/item_action/discard/Trigger()
+/datum/action/item_action/discard/Trigger(left_click)
 	if(istype(target, /obj/item/cardhand))
 		var/obj/item/cardhand/C = target
 		return C.discard()
@@ -539,16 +541,20 @@
 /obj/item/cardhand/update_name()
 	. = ..()
 	if(length(cards) > 1)
-		name = "hand of cards"
+		name = "hand of [length(cards)] cards"
 	else
-		name = "a playing card"
+		name = "playing card"
 
 /obj/item/cardhand/update_desc()
 	. = ..()
 	if(length(cards) > 1)
 		desc = "Some playing cards."
 	else
-		desc = "A playing card."
+		if(concealed)
+			desc = "A playing card. You can only see the back."
+		else
+			var/datum/playingcard/card = cards[1]
+			desc = "\A [card.name]."
 
 /obj/item/cardhand/update_icon_state()
 	return
@@ -579,22 +585,29 @@
 		return
 
 	var/offset = FLOOR(20/length(cards) + 1, 1)
-	var/i = 0
-	for(var/datum/playingcard/P in cards)
-		var/image/I = new(icon, (concealed ? "[P.back_icon]" : "[P.card_icon]") )
-		//I.pixel_x = origin+(offset*i)
-		switch(direction)
-			if(SOUTH)
-				I.pixel_x = 8-(offset*i)
-			if(WEST)
-				I.pixel_y = -6+(offset*i)
-			if(EAST)
-				I.pixel_y = 8-(offset*i)
-			else
-				I.pixel_x = -7+(offset*i)
-		I.transform = M
-		. += I
+	// var/i = 0
+	for(var/i in 1 to length(cards))
+		var/datum/playingcard/P = cards[i]
+		if(i >= 20)
+			// skip the rest and just draw the last one on top
+			. += render_card(cards[length(cards)], M, i, offset)
+			break
+		. += render_card(P, M, i, offset)
 		i++
+
+/obj/item/cardhand/proc/render_card(datum/playingcard/card, matrix/mat, index, offset)
+	var/image/I = new(icon, (concealed ? "[card.back_icon]" : "[card.card_icon]") )
+	switch(direction)
+		if(SOUTH)
+			I.pixel_x = 8 - (offset * index)
+		if(WEST)
+			I.pixel_y = -6 + (offset * index)
+		if(EAST)
+			I.pixel_y = 8 - (offset * index)
+		else
+			I.pixel_x = -7 + (offset * index)
+	I.transform = mat
+	return I
 
 /obj/item/cardhand/dropped(mob/user)
 	..()

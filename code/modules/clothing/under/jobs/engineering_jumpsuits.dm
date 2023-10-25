@@ -14,7 +14,7 @@
 	icon_state = "chiefengineer"
 	item_state = "chief"
 	item_color = "chief"
-	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 0, RAD = 5, FIRE = 200, ACID = 35)
+	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, RAD = 5, FIRE = 200, ACID = 35)
 	resistance_flags = NONE
 
 /obj/item/clothing/under/rank/engineering/chief_engineer/skirt
@@ -49,7 +49,7 @@
 
 /obj/item/clothing/under/rank/engineering/atmospheric_technician/contortionist/proc/check_clothing(mob/user as mob)
 	//Allowed to wear: glasses, shoes, gloves, pockets, mask, and jumpsuit (obviously)
-	var/list/slot_must_be_empty = list(slot_back,slot_handcuffed,slot_legcuffed,slot_l_hand,slot_r_hand,slot_belt,slot_head,slot_wear_suit)
+	var/list/slot_must_be_empty = list(SLOT_HUD_BACK,SLOT_HUD_HANDCUFFED,SLOT_HUD_LEGCUFFED,SLOT_HUD_LEFT_HAND,SLOT_HUD_RIGHT_HAND,SLOT_HUD_BELT,SLOT_HUD_HEAD,SLOT_HUD_OUTER_SUIT)
 	for(var/slot_id in slot_must_be_empty)
 		if(user.get_item_by_slot(slot_id))
 			to_chat(user,"<span class='warning'>You can't fit inside while wearing \the [user.get_item_by_slot(slot_id)].</span>")
@@ -69,7 +69,7 @@
 	icon_state = "engine"
 	item_state = "engi_suit"
 	item_color = "engine"
-	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 0, RAD = 5, FIRE = 75, ACID = 10)
+	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, RAD = 5, FIRE = 75, ACID = 10)
 	resistance_flags = NONE
 
 /obj/item/clothing/under/rank/engineering/engineer/sensor

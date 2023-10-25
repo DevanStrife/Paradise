@@ -19,6 +19,8 @@
 	name = "tomato"
 	desc = "I say to-mah-to, you say tom-mae-to."
 	icon_state = "tomato"
+	slice_path = /obj/item/reagent_containers/food/snacks/tomatoslice
+	slices_num = 4
 	splat_type = /obj/effect/decal/cleanable/tomato_smudge
 	filling_color = "#FF6347"
 	tastes = list("tomato" = 1)
@@ -141,7 +143,7 @@
 
 	spawn(30)
 		if(!QDELETED(src))
-			var/turf/T = get_turf(user)
+			var/turf/T = get_turf(src)
 			var/mob/living/simple_animal/hostile/killertomato/K = new /mob/living/simple_animal/hostile/killertomato(T)
 			K.maxHealth += round(seed.endurance / 3)
 			K.melee_damage_lower += round(seed.potency / 10)

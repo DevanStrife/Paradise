@@ -8,10 +8,14 @@
 #define ORGAN_MUTATED      (1 << 4)
 #define ORGAN_INT_BLEEDING (1 << 5)
 #define ORGAN_DISFIGURED   (1 << 6)
+#define ORGAN_BURNT		   (1 << 7)
+#define ORGAN_SALVED	   (1 << 8)
 
 // For limb resistance flags
 #define CANNOT_BREAK		(1 << 0)
 #define CANNOT_DISMEMBER 	(1 << 1)
+#define CANNOT_BURN			(1 << 2)
+#define CANNOT_INT_BLEED	(1 << 3)
 
 #define PROCESS_ACCURACY 10
 
@@ -33,7 +37,7 @@
 #define MOB_PLANT		(1 << 10)
 
 #define AGE_MIN 17			//youngest a character can be
-#define AGE_MAX 85			//oldest a character can be
+#define AGE_MAX 500			//oldest a character can be
 
 /// Mob is standing up, usually associated with lying_angle value of 0.
 #define STANDING_UP 0
@@ -57,11 +61,6 @@
 #define PULSE_2FAST		4	//>120 bpm
 #define PULSE_THREADY	5	//occurs during hypovolemic shock
 //feel free to add shit to lists below
-
-
-//proc/get_pulse methods
-#define GETPULSE_HAND	0	//less accurate (hand)
-#define GETPULSE_TOOL	1	//more accurate (med scanner, sleeper, etc)
 
 //Reagent Metabolization flags, defines the type of reagents that affect this mob
 #define PROCESS_ORG 1		//Only processes reagents with "ORGANIC" or "ORGANIC | SYNTHETIC"
@@ -128,15 +127,6 @@
 
 //Slime extract crossing. Controls how many extracts is required to feed to a slime to core-cross.
 #define SLIME_EXTRACT_CROSSING_REQUIRED 10
-
-//Slime commands defines
-#define SLIME_FRIENDSHIP_FOLLOW 			3 //Min friendship to order it to follow
-#define SLIME_FRIENDSHIP_STOPEAT 			5 //Min friendship to order it to stop eating someone
-#define SLIME_FRIENDSHIP_STOPEAT_NOANGRY	7 //Min friendship to order it to stop eating someone without it losing friendship
-#define SLIME_FRIENDSHIP_STOPCHASE			4 //Min friendship to order it to stop chasing someone (their target)
-#define SLIME_FRIENDSHIP_STOPCHASE_NOANGRY	6 //Min friendship to order it to stop chasing someone (their target) without it losing friendship
-#define SLIME_FRIENDSHIP_STAY				3 //Min friendship to order it to stay
-#define SLIME_FRIENDSHIP_ATTACK				8 //Min friendship to order it to attack
 
 //If you add a new status, be sure to add a list for it to the simple_animals global in _globalvars/lists/mobs.dm
 //Hostile Mob AI Status
@@ -226,7 +216,6 @@
 #define isvulpkanin(A) (is_species(A, /datum/species/vulpkanin))
 #define isskrell(A) (is_species(A, /datum/species/skrell))
 #define isvox(A) (is_species(A, /datum/species/vox))
-#define isvoxarmalis(A) (is_species(A, /datum/species/vox/armalis))
 #define iskidan(A) (is_species(A, /datum/species/kidan))
 #define isslimeperson(A) (is_species(A, /datum/species/slime))
 #define isgrey(A) (is_species(A, /datum/species/grey))
@@ -247,6 +236,8 @@
 #define isslaughterdemon(A) (istype((A), /mob/living/simple_animal/demon/slaughter))
 #define isdemon(A) 			(istype((A), /mob/living/simple_animal/demon))
 #define iscat(A) 			(istype((A), /mob/living/simple_animal/pet/cat))
+#define isgorilla(A) 		(istype((A), /mob/living/simple_animal/hostile/gorilla))
+#define ismorph(A)			(istype((A), /mob/living/simple_animal/hostile/morph))
 
 #define issilicon(A)	(istype((A), /mob/living/silicon))
 #define isAI(A)			(istype((A), /mob/living/silicon/ai))
@@ -264,6 +255,7 @@
 
 #define isAutoAnnouncer(A)	(istype((A), /mob/living/automatedannouncer))
 
+#define iscameramob(A)	(istype((A), /mob/camera))
 #define isAIEye(A)		(istype((A), /mob/camera/aiEye))
 #define isovermind(A)	(istype((A), /mob/camera/blob))
 
@@ -304,3 +296,28 @@
 
 #define MAX_EYE_BLURRY_FILTER_SIZE 2
 #define EYE_BLUR_TO_FILTER_SIZE_MULTIPLIER 0.005
+
+/proc/bodypart_name_to_clothing_bitflag(bodypart_name)
+	switch(bodypart_name)
+		if("head")
+			return HEAD
+		if("chest")
+			return UPPER_TORSO
+		if("groin")
+			return LOWER_TORSO
+		if("l_arm")
+			return ARM_LEFT
+		if("l_hand")
+			return HAND_LEFT
+		if("r_arm")
+			return ARM_RIGHT
+		if("r_hand")
+			return HAND_RIGHT
+		if("r_leg")
+			return LEG_RIGHT
+		if("r_foot")
+			return FOOT_RIGHT
+		if("l_leg")
+			return LEG_LEFT
+		if("l_foot")
+			return FOOT_LEFT

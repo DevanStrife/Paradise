@@ -85,6 +85,9 @@
 
 
 /area/Initialize(mapload)
+	if(is_station_level(z))
+		RegisterSignal(SSsecurity_level, COMSIG_SECURITY_LEVEL_CHANGED, PROC_REF(on_security_level_update))
+
 	GLOB.all_areas += src
 	icon_state = ""
 	layer = AREA_LAYER
@@ -116,6 +119,11 @@
 
 	return INITIALIZE_HINT_LATELOAD
 
+/area/proc/on_security_level_update(datum/source, previous_level_number, new_level_number)
+	SIGNAL_HANDLER
+
+	area_emergency_mode = (new_level_number >= SEC_LEVEL_EPSILON)
+
 /area/proc/create_powernet()
 	powernet = new()
 	powernet.powernet_area = src
@@ -138,21 +146,15 @@
 	return powernet
 
 /area/proc/reg_in_areas_in_z()
-	if(contents.len)
-		var/list/areas_in_z = GLOB.space_manager.areas_in_z
-		var/z
-		for(var/i in 1 to contents.len)
-			var/atom/thing = contents[i]
-			if(!thing)
-				continue
-			z = thing.z
-			break
-		if(!z)
-			WARNING("No z found for [src]")
-			return
-		if(!areas_in_z["[z]"])
-			areas_in_z["[z]"] = list()
-		areas_in_z["[z]"] += src
+	if(!length(contents)) // if its nullspaced or something, I guess
+		return
+	if(!z)
+		WARNING("No z found for [src]")
+		return
+	var/list/areas_in_z = GLOB.space_manager.areas_in_z
+	if(!areas_in_z["[z]"])
+		areas_in_z["[z]"] = list()
+	areas_in_z["[z]"] += src
 
 /area/proc/get_cameras()
 	var/list/cameras = list()
@@ -436,8 +438,12 @@
 
 	var/mob/living/L = A
 	if(!L.ckey)	return
+	SEND_SIGNAL(L, COMSIG_AREA_ENTERED, newarea)
 	if((oldarea.has_gravity == 0) && (newarea.has_gravity == 1) && (L.m_intent == MOVE_INTENT_RUN)) // Being ready when you change areas gives you a chance to avoid falling all together.
 		thunk(L)
+
+	if(GLOB.configuration.general.disable_ambient_noise)
+		return
 
 	//Ship ambience just loops if turned on.
 	if(L && L.client && !L.client.ambience_playing && (L.client.prefs.sound & SOUND_BUZZ))
@@ -452,6 +458,10 @@
 	if(gravitystate)
 		for(var/mob/living/carbon/human/M in A)
 			thunk(M)
+		for(var/obj/effect/decal/cleanable/blood/B in A)
+			B.splat(B)
+		for(var/obj/effect/decal/cleanable/vomit/V in A)
+			V.splat(V)
 
 /area/proc/thunk(mob/living/carbon/human/M)
 	if(!istype(M)) // Rather not have non-humans get hit with a THUNK

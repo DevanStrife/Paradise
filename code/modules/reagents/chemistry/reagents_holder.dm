@@ -1,4 +1,5 @@
 #define ADDICTION_TIME 4800 //8 minutes
+#define MINIMUM_REAGENT_AMOUNT 0.09 // To account for 0.1 sometimes being 0.09996 and etc.
 
 /**
  * # Reagents Holder
@@ -247,6 +248,17 @@
 
 	handle_reactions()
 
+/datum/reagents/proc/adjust_reagent_temp(amount, temperature_bound)
+	if(chem_temp == temperature_bound || !amount) // We don't need to do the mathy math
+		return
+	if(!isnull(temperature_bound)) // If we have a target temp, we only go until that temperature
+		chem_temp = directional_bounded_sum(chem_temp, amount, temperature_bound, temperature_bound)
+	else
+		chem_temp += amount
+	chem_temp = clamp(chem_temp, temperature_min, temperature_max)
+	temperature_react()
+	handle_reactions()
+
 /**
  * Same as [/datum/reagents/proc/trans_to] but only for a specific reagent in
  * the reagent list. If the specified amount is greater than what is available,
@@ -294,7 +306,7 @@
  */
 /datum/reagents/proc/metabolize(mob/living/M)
 	if(M)
-		temperature_reagents(M.bodytemperature - 30)
+		temperature_reagents(M.bodytemperature)
 		M.absorb_blood()
 
 	for(var/datum/reagent/R as anything in addiction_threshold_accumulated)
@@ -331,10 +343,13 @@
 				continue
 		//If you got this far, that means we can process whatever reagent this iteration is for. Handle things normally from here.
 		if(M && R)
-			update_flags |= R.on_mob_life(M)
 			if(R.volume >= R.overdose_threshold && !R.overdosed && R.overdose_threshold > 0)
 				R.overdosed = TRUE
 				R.overdose_start(M)
+			if(!R.overdosed || R.allowed_overdose_process)
+				update_flags |= R.on_mob_life(M)
+			else
+				update_flags |= R.on_mob_overdose_life(M) //We want to drain reagents but not do the entire mob life.
 			if(R.volume < R.overdose_threshold && R.overdosed)
 				R.overdosed = FALSE
 			if(R.overdosed)
@@ -559,7 +574,7 @@
 	total_volume = 0
 	for(var/A in reagent_list)
 		var/datum/reagent/R = A
-		if(R.volume < 0.1)
+		if(R.volume < MINIMUM_REAGENT_AMOUNT)
 			del_reagent(R.id)
 		else
 			total_volume += R.volume
@@ -937,12 +952,14 @@
 	reagents.my_atom = src
 
 /proc/get_random_reagent_id()	// Returns a random reagent ID minus blacklisted reagents
-	var/static/list/random_reagents = list()
+	var/static/list/random_reagents
 	if(!length(random_reagents))
-		for(var/thing  in subtypesof(/datum/reagent))
-			var/datum/reagent/R = thing
-			if(initial(R.can_synth))
-				random_reagents += initial(R.id)
+		random_reagents = list()
+		for(var/datum/reagent/thing as anything in subtypesof(/datum/reagent))
+			var/R = initial(thing.id)
+			if(R in GLOB.blocked_chems)
+				continue
+			random_reagents += R
 	var/picked_reagent = pick(random_reagents)
 	return picked_reagent
 

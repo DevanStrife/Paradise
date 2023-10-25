@@ -267,11 +267,14 @@ won't update every console in existence) but it's more of a hassle to do. Also, 
 /obj/machinery/computer/rdconsole/proc/sync_research()
 	if(!sync)
 		return
+	var/list/temp_unblacklist = files.unblacklisted_designs
+	files.unblacklisted_designs = list() //Remove this asap, else it will stick around
 	clear_wait_message()
 	for(var/obj/machinery/r_n_d/server/S in GLOB.machines)
 		var/server_processed = FALSE
 
 		if((id in S.id_with_upload) || istype(S, /obj/machinery/r_n_d/server/centcom))
+			S.files.blacklisted_designs -= temp_unblacklist
 			files.push_data(S.files)
 			server_processed = TRUE
 
@@ -355,8 +358,8 @@ won't update every console in existence) but it's more of a hassle to do. Also, 
 	for(var/obj/I in linked_destroy.contents)
 		for(var/mob/M in I.contents)
 			M.death()
-		if(istype(I, /obj/item/stack/sheet))//Only deconstructs one sheet at a time instead of the entire stack
-			var/obj/item/stack/sheet/S = I
+		if(istype(I, /obj/item/stack))//Only deconstructs one item in a stack at a time instead of the entire stack
+			var/obj/item/stack/S = I
 			if(S.amount > 1)
 				S.amount--
 				linked_destroy.loaded_item = S
@@ -369,7 +372,7 @@ won't update every console in existence) but it's more of a hassle to do. Also, 
 
 	linked_destroy.busy = FALSE
 	use_power(DECONSTRUCT_POWER)
-	menu = MENU_MAIN
+	menu = MENU_DESTROY
 	submenu = SUBMENU_MAIN
 	SStgui.update_uis(src)
 
@@ -456,8 +459,11 @@ won't update every console in existence) but it's more of a hassle to do. Also, 
 /obj/machinery/computer/rdconsole/proc/finish_machine(key, amount, enough_materials,  obj/machinery/r_n_d/machine, datum/design/being_built, list/efficient_mats)
 	if(machine)
 		if(enough_materials && being_built)
+			SSblackbox.record_feedback("nested tally", "RND Production List", amount, list("[being_built.category]", "[being_built.name]"))
 			for(var/i in 1 to amount)
 				var/obj/item/new_item = new being_built.build_path(src)
+				new_item.pixel_x = rand(-5, 5)
+				new_item.pixel_y = rand(-5, 5)
 				if(istype(new_item, /obj/item/storage/backpack/holding))
 					new_item.investigate_log("built by [key]","singulo")
 				if(!istype(new_item, /obj/item/stack/sheet)) // To avoid materials dupe glitches
@@ -606,7 +612,6 @@ won't update every console in existence) but it's more of a hassle to do. Also, 
 				to_chat(usr, "<span class='danger'>You must connect to the network first!</span>")
 			else
 				add_wait_message("Syncing Database...", SYNC_RESEARCH_DELAY)
-				griefProtection() //Putting this here because I dont trust the sync process
 				addtimer(CALLBACK(src, PROC_REF(sync_research)), SYNC_RESEARCH_DELAY)
 
 		if("togglesync") //Prevents the console from being synced by other consoles. Can still send data.

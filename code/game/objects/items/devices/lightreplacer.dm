@@ -47,7 +47,7 @@
 	belt_icon = "light_replacer"
 	w_class = WEIGHT_CLASS_SMALL
 	flags = CONDUCT
-	slot_flags = SLOT_BELT
+	slot_flags = SLOT_FLAG_BELT
 	origin_tech = "magnets=3;engineering=4"
 	force = 8
 	var/max_uses = 20
@@ -233,7 +233,7 @@
 		return
 	if(!isturf(T))
 		return
-	if(get_dist(src, T) >= (U.client.view + 2)) // To prevent people from using it over cameras
+	if(get_dist(src, T) >= (U.client.maxview() + 2)) // To prevent people from using it over cameras
 		return
 
 	var/used = FALSE

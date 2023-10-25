@@ -29,15 +29,19 @@
 	return ..()
 
 /obj/item/door_remote/attack_self(mob/user)
-	switch(mode)
-		if(WAND_OPEN)
-			mode = WAND_BOLT
-		if(WAND_BOLT)
-			mode = WAND_EMERGENCY
-		if(WAND_EMERGENCY)
-			mode = WAND_SPEED
-		if(WAND_SPEED)
-			mode = WAND_OPEN
+	var/list/options = list(WAND_OPEN = image(icon = 'icons/mob/radial.dmi', icon_state = "radial_open"),
+									WAND_BOLT = image(icon = 'icons/mob/radial.dmi', icon_state = "radial_bolt"),
+									WAND_EMERGENCY = image(icon = 'icons/mob/radial.dmi', icon_state = "radial_ea"),
+									WAND_SPEED = image(icon = 'icons/mob/radial.dmi', icon_state = "radial_speed"))
+	var/image/part_image = options[mode]
+	// scuffed, but allows you to easily show whats the currently selected one
+	part_image.underlays += image(icon = 'icons/mob/radial.dmi', icon_state = "radial_slice_focus")
+	var/choice = show_radial_menu(user, src, options)
+	if(!choice || user.stat || !in_range(user, src) || QDELETED(src))
+		return
+	if(choice == mode) // they didn't change their choice, don't do the to_chat
+		return
+	mode = choice
 
 	to_chat(user, "<span class='notice'>Now in mode: [mode].</span>")
 
@@ -122,9 +126,9 @@
 	region_access = list(REGION_MEDBAY)
 
 /obj/item/door_remote/civillian
-	name = "civillian door remote"
+	name = "civilian door remote"
 	icon_state = "gangtool-white"
-	region_access = list(REGION_GENERAL, REGION_SUPPLY)
+	region_access = list(REGION_GENERAL)
 	additional_access = list(ACCESS_HOP)
 
 /obj/item/door_remote/centcomm
@@ -138,7 +142,7 @@
 	desc = "A device used for illegally interfacing with doors."
 	icon_state = "hacktool"
 	item_state = "hacktool"
-	var/hack_speed = 30
+	var/hack_speed = 1.5 SECONDS
 	var/busy = FALSE
 
 /obj/item/door_remote/omni/access_tuner/afterattack(obj/machinery/door/airlock/D, mob/user)
@@ -155,7 +159,83 @@
 	busy = FALSE
 	icon_state = "hacktool"
 
+/// How long before you can "jangle" your keyring again (to prevent spam)
+#define JANGLE_COOLDOWN 10 SECONDS
+
+/obj/item/door_remote/janikeyring
+	name = "janitor's keyring"
+	desc = "An absolutely unwieldy set of keys attached to a metal ring. The keys on the ring allow you to access most Departmental entries and the Service Department!"
+	icon_state = "keyring"
+	item_state = "keyring"
+	/// Are you already using the keyring?
+	var/busy = FALSE
+	/// This prevents spamming the key-shake.
+	var/cooldown = 0
+	/// How fast does the keyring open an airlock. It is not set here so that it can be set via the user's role.
+	var/hack_speed
+	additional_access = list(ACCESS_MEDICAL, ACCESS_RESEARCH, ACCESS_CONSTRUCTION, ACCESS_MAILSORTING, ACCESS_CARGO, ACCESS_MINING, ACCESS_KITCHEN, ACCESS_BAR, ACCESS_JANITOR, ACCESS_CHAPEL_OFFICE)
+
+/obj/item/door_remote/janikeyring/examine(mob/user)
+	. = ..()
+	. += "<span class='notice'>This keyring has access to Medbay, Science, Engineering, Cargo, the Bar and the Kitchen!</span>"
+
+/obj/item/door_remote/janikeyring/attack_self(mob/user)
+	if(cooldown > world.time)
+		return
+	to_chat(user, "<span class='warning'>You shake [src]!</span>")
+	playsound(src, 'sound/items/keyring_shake.ogg', 50)
+	cooldown = world.time + JANGLE_COOLDOWN
+
+/obj/item/door_remote/janikeyring/afterattack(obj/machinery/door/airlock/D, mob/user, proximity)
+	if(!proximity)
+		return
+	if(!istype(D))
+		return
+	if(busy)
+		to_chat(user, "<span class='warning'>You are already using [src] on the [D] airlock's access panel!</span>")
+		return
+	busy = TRUE
+	to_chat(user, "<span class='notice'>You fiddle with [src], trying different keys to open the [D] airlock...</span>")
+	playsound(src, 'sound/items/keyring_unlock.ogg', 50)
+
+	var/mob/living/carbon/human/H = user
+	if(H.mind.assigned_role != "Janitor")
+		hack_speed = rand(30, 60) SECONDS
+	else
+		hack_speed = rand(5, 20) SECONDS
+
+	if(!do_after(user, hack_speed, target = D, progress = 0))
+		busy = FALSE
+		return
+	busy = FALSE
+
+	if(!istype(D))
+		return
+
+	if(HAS_TRAIT(D, TRAIT_CMAGGED))
+		to_chat(user, "<span class='danger'>[src] won't fit in the [D] airlock's access panel, there's slime everywhere!</span>")
+		return
+
+	if(D.is_special)
+		to_chat(user, "<span class='danger'>[src] cannot fit in the [D] airlock's access panel!</span>")
+		return
+
+	if(!D.arePowerSystemsOn())
+		to_chat(user, "<span class='danger'>The [D] airlock has no power!</span>")
+		return
+
+	if(D.check_access(ID))
+		D.add_hiddenprint(user)
+		if(D.density)
+			D.open()
+		else
+			to_chat(user, "<span class='danger'>The [D] airlock is already open!</span>")
+
+	else
+		to_chat(user, "<span class='danger'>[src] does not seem to have a key for the [D] airlock's access panel!</span>")
+
 #undef WAND_OPEN
 #undef WAND_BOLT
 #undef WAND_EMERGENCY
 #undef WAND_SPEED
+#undef JANGLE_COOLDOWN

@@ -155,7 +155,7 @@
 		return
 
 	if(!isturf(loc)) // This is going to stop you from telekinesing from inside a closet, but I don't shed many tears for that
-		return
+		return TRUE
 
 	// Allows you to click on a box's contents, if that box is on the ground, but no deeper than that
 	sdepth = A.storage_depth_turf()
@@ -244,6 +244,9 @@
 
 // See click_override.dm
 /mob/living/MiddleClickOn(atom/A)
+	. = SEND_SIGNAL(src, COMSIG_MOB_MIDDLECLICKON, A, src)
+	if(. & COMSIG_MOB_CANCEL_CLICKON)
+		return
 	if(middleClickOverride)
 		middleClickOverride.onClick(A, src)
 	else
@@ -319,7 +322,6 @@
 
 /*
 	Alt click
-	Unused except for AI
 */
 /mob/proc/AltClickOn(atom/A)
 	A.AltClick(src)
@@ -327,10 +329,12 @@
 
 // See click_override.dm
 /mob/living/AltClickOn(atom/A)
-	if(middleClickOverride)
-		middleClickOverride.onClick(A, src)
-	else
-		..()
+	. = SEND_SIGNAL(src, COMSIG_MOB_ALTCLICKON, A, src)
+	if(. & COMSIG_MOB_CANCEL_CLICKON)
+		return
+	if(middleClickOverride && middleClickOverride.onClick(A, src))
+		return
+	..()
 
 /atom/proc/AltClick(mob/user)
 	SEND_SIGNAL(src, COMSIG_CLICK_ALT, user)
@@ -420,6 +424,12 @@
 	plane = CLICKCATCHER_PLANE
 	mouse_opacity = MOUSE_OPACITY_OPAQUE
 	screen_loc = "CENTER"
+
+/obj/screen/click_catcher/MouseEntered(location, control, params)
+	return
+
+/obj/screen/click_catcher/MouseExited(location, control, params)
+	return
 
 #define MAX_SAFE_BYOND_ICON_SCALE_TILES (MAX_SAFE_BYOND_ICON_SCALE_PX / world.icon_size)
 #define MAX_SAFE_BYOND_ICON_SCALE_PX (33 * 32)			//Not using world.icon_size on purpose.

@@ -77,6 +77,9 @@
 
 	verbs -= /mob/living/silicon/robot/verb/Namepick
 	module = new /obj/item/robot_module/drone(src)
+	// Give us our action button
+	var/datum/action/innate/hide/drone_hide/hide = new()
+	hide.Grant(src)
 
 	//Allows Drones to hear the Engineering channel.
 	module.channels = list("Engineering" = 1)
@@ -95,6 +98,9 @@
 	flavor_text = "It's a tiny little repair drone. The casing is stamped with an NT logo and the subscript: 'Nanotrasen Recursive Repair Systems: Fixing Tomorrow's Problem, Today!'"
 	scanner.Grant(src)
 	update_icons()
+
+	// Drones have laws to not attack people
+	ADD_TRAIT(src, TRAIT_PACIFISM, INNATE_TRAIT)
 
 /mob/living/silicon/robot/drone/init(alien = FALSE, mob/living/silicon/ai/ai_to_sync_to = null)
 	laws = new /datum/ai_laws/drone()
@@ -191,6 +197,8 @@
 	QDEL_NULL(stack_wood)
 	QDEL_NULL(stack_plastic)
 	QDEL_NULL(decompiler)
+	for(var/datum/action/innate/hide/drone_hide/hide in actions)
+		hide.Remove(src)
 
 /mob/living/silicon/robot/drone/emag_act(mob/user)
 	if(!client || stat == DEAD)
@@ -229,6 +237,7 @@
 	clear_supplied_laws()
 	clear_inherent_laws()
 	laws = new /datum/ai_laws/syndicate_override
+	REMOVE_TRAIT(src, TRAIT_PACIFISM, INNATE_TRAIT)
 	set_zeroth_law("Only [H.real_name] and people [H.real_name] designates as being such are Syndicate Agents.")
 
 	to_chat(src, "<b>Obey these laws:</b>")

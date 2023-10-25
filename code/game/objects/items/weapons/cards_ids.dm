@@ -109,11 +109,14 @@
 	desc = "A card used to provide ID and determine access across the station."
 	icon_state = "id"
 	item_state = "card-id"
-	var/mining_points = 0 //For redeeming at mining equipment lockers
+	/// For redeeming at mining equipment lockers
+	var/mining_points = 0
+	/// Total mining points for the Shift.
+	var/total_mining_points = 0
 	var/list/access = list()
 	var/registered_name = "Unknown" // The name registered_name on the card
-	slot_flags = SLOT_ID
-	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 0, RAD = 0, FIRE = 100, ACID = 100)
+	slot_flags = SLOT_FLAG_ID
+	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, RAD = 0, FIRE = 100, ACID = 100)
 	resistance_flags = FIRE_PROOF | ACID_PROOF
 	var/untrackable // Can not be tracked by AI's
 
@@ -174,7 +177,7 @@
 	user.visible_message("[user] shows you: [bicon(src)] [src.name]. The assignment on the card: [src.assignment]",\
 		"You flash your ID card: [bicon(src)] [src.name]. The assignment on the card: [src.assignment]")
 	if(mining_points)
-		to_chat(user, "There's [mining_points] mining equipment redemption points loaded onto this card.")
+		to_chat(user, "There's <b>[mining_points] Mining Points</b> loaded onto this card. This card has earned <b>[total_mining_points] Mining Points</b> this Shift!")
 	src.add_fingerprint(user)
 	return
 
@@ -330,6 +333,7 @@
 	data["account"] = associated_account_number
 	data["owner"] = registered_name
 	data["mining"] = mining_points
+	data["total_mining"] = total_mining_points
 	return data
 
 /obj/item/card/id/deserialize(list/data)
@@ -343,6 +347,7 @@
 	associated_account_number = data["account"]
 	registered_name = data["owner"]
 	mining_points = data["mining"]
+	total_mining_points = data["total_mining"]
 	// We'd need to use icon serialization(b64) to save the photo, and I don't feel like i
 	UpdateName()
 	RebuildHTML()
@@ -380,6 +385,12 @@
 	name = "agent card"
 	initial_access = list(ACCESS_MAINT_TUNNELS, ACCESS_VOX, ACCESS_EXTERNAL_AIRLOCKS)
 
+/obj/item/card/id/syndicate/ghost_bar
+	name = "ghost bar identification card"
+	assignment = "Ghost Bar Occupant"
+	initial_access = list() // This is for show, they don't need actual accesses
+	icon_state = "assistant"
+
 /obj/item/card/id/syndicate/command
 	initial_access = list(ACCESS_MAINT_TUNNELS, ACCESS_SYNDICATE, ACCESS_SYNDICATE_LEADER, ACCESS_SYNDICATE_COMMAND, ACCESS_EXTERNAL_AIRLOCKS)
 	icon_state = "commander"
@@ -410,10 +421,10 @@
 		src.assignment = u
 		src.name = "[src.registered_name]'s ID Card ([src.assignment])"
 		to_chat(user, "<span class='notice'>You successfully forge the ID card.</span>")
-		registered_user = user
-	else if(!registered_user || registered_user == user)
+		registered_user = user.mind.current
+	else if(!registered_user || registered_user == user.mind.current)
 		if(!registered_user)
-			registered_user = user
+			registered_user = user.mind.current
 
 		switch(alert(user,"Would you like to display \the [src] or edit it?","Choose","Show","Edit"))
 			if("Show")
@@ -539,15 +550,16 @@
 						RebuildHTML()
 
 					if("Occupation")
-						var/list/departments =list(
-							"Assistant",
-							"Engineering",
-							"Medical",
-							"Science",
-							"Security",
-							"Support",
-							"Command",
-							"Custom",
+						var/list/departments = list(
+							"Assistant" = null,
+							"Engineering" = GLOB.engineering_positions,
+							"Medical" = GLOB.medical_positions,
+							"Science" = GLOB.science_positions,
+							"Security" = GLOB.security_positions,
+							"Support" = GLOB.support_positions,
+							"Supply" = GLOB.supply_positions,
+							"Command" = GLOB.command_positions,
+							"Custom" = null,
 						)
 
 						var/department = input(user, "What job would you like to put on this card?\nChoose a department or a custom job title.\nChanging occupation will not grant or remove any access levels.","Agent Card Occupation") in departments
@@ -555,20 +567,8 @@
 
 						if(department == "Custom")
 							new_job = sanitize(stripped_input(user,"Choose a custom job title:","Agent Card Occupation", "Assistant", MAX_MESSAGE_LEN))
-						else if(department != "Assistant")
-							switch(department)
-								if("Engineering")
-									new_job = input(user, "What job would you like to put on this card?\nChanging occupation will not grant or remove any access levels.","Agent Card Occupation") in GLOB.engineering_positions
-								if("Medical")
-									new_job = input(user, "What job would you like to put on this card?\nChanging occupation will not grant or remove any access levels.","Agent Card Occupation") in GLOB.medical_positions
-								if("Science")
-									new_job = input(user, "What job would you like to put on this card?\nChanging occupation will not grant or remove any access levels.","Agent Card Occupation") in GLOB.science_positions
-								if("Security")
-									new_job = input(user, "What job would you like to put on this card?\nChanging occupation will not grant or remove any access levels.","Agent Card Occupation") in GLOB.security_positions
-								if("Support")
-									new_job = input(user, "What job would you like to put on this card?\nChanging occupation will not grant or remove any access levels.","Agent Card Occupation") in GLOB.support_positions
-								if("Command")
-									new_job = input(user, "What job would you like to put on this card?\nChanging occupation will not grant or remove any access levels.","Agent Card Occupation") in GLOB.command_positions
+						else if(department != "Assistant" && !isnull(departments[department]))
+							new_job = input(user, "What job would you like to put on this card?\nChanging occupation will not grant or remove any access levels.","Agent Card Occupation") in departments[department]
 
 						if(!Adjacent(user))
 							return
@@ -651,6 +651,10 @@
 							RebuildHTML()
 	else
 		..()
+
+/obj/item/card/id/syndicate/Destroy()
+	registered_user = null
+	return ..()
 
 /obj/item/card/id/syndicate_command
 	name = "syndicate ID card"
@@ -884,7 +888,7 @@
 						ACCESS_ALL_PERSONAL_LOCKERS, ACCESS_MAINT_TUNNELS, ACCESS_BAR, ACCESS_JANITOR, ACCESS_CONSTRUCTION, ACCESS_MORGUE,
 						ACCESS_CREMATORIUM, ACCESS_KITCHEN, ACCESS_CARGO, ACCESS_CARGO_BOT, ACCESS_MAILSORTING, ACCESS_QM, ACCESS_HYDROPONICS, ACCESS_LAWYER,
 						ACCESS_THEATRE, ACCESS_CHAPEL_OFFICE, ACCESS_LIBRARY, ACCESS_RESEARCH, ACCESS_MINING, ACCESS_HEADS_VAULT, ACCESS_MINING_STATION,
-						ACCESS_CLOWN, ACCESS_MIME, ACCESS_HOP, ACCESS_RC_ANNOUNCE, ACCESS_KEYCARD_AUTH, ACCESS_GATEWAY, ACCESS_WEAPONS, ACCESS_MINERAL_STOREROOM)
+						ACCESS_CLOWN, ACCESS_MIME, ACCESS_HOP, ACCESS_RC_ANNOUNCE, ACCESS_KEYCARD_AUTH, ACCESS_EXPEDITION, ACCESS_WEAPONS, ACCESS_MINERAL_STOREROOM)
 
 /obj/item/card/id/hos
 	name = "Head of Security ID"
@@ -893,7 +897,7 @@
 	access = list(ACCESS_SECURITY, ACCESS_SEC_DOORS, ACCESS_BRIG, ACCESS_ARMORY, ACCESS_COURT,
 						ACCESS_FORENSICS_LOCKERS, ACCESS_MORGUE, ACCESS_MAINT_TUNNELS, ACCESS_ALL_PERSONAL_LOCKERS,
 						ACCESS_RESEARCH, ACCESS_ENGINE, ACCESS_MINING, ACCESS_MEDICAL, ACCESS_CONSTRUCTION, ACCESS_MAILSORTING,
-						ACCESS_HEADS, ACCESS_HOS, ACCESS_RC_ANNOUNCE, ACCESS_KEYCARD_AUTH, ACCESS_GATEWAY, ACCESS_WEAPONS)
+						ACCESS_HEADS, ACCESS_HOS, ACCESS_RC_ANNOUNCE, ACCESS_KEYCARD_AUTH, ACCESS_EXPEDITION, ACCESS_WEAPONS)
 
 /obj/item/card/id/cmo
 	name = "Chief Medical Officer ID"
@@ -910,7 +914,7 @@
 	access = list(ACCESS_RD, ACCESS_HEADS, ACCESS_TOX, ACCESS_GENETICS, ACCESS_MORGUE,
 						ACCESS_TOX_STORAGE, ACCESS_TECH_STORAGE, ACCESS_TELEPORTER, ACCESS_SEC_DOORS,
 						ACCESS_RESEARCH, ACCESS_ROBOTICS, ACCESS_XENOBIOLOGY, ACCESS_AI_UPLOAD,
-						ACCESS_RC_ANNOUNCE, ACCESS_KEYCARD_AUTH, ACCESS_TCOMSAT, ACCESS_GATEWAY, ACCESS_XENOARCH, ACCESS_MINISAT, ACCESS_MINERAL_STOREROOM)
+						ACCESS_RC_ANNOUNCE, ACCESS_KEYCARD_AUTH, ACCESS_TCOMSAT, ACCESS_EXPEDITION, ACCESS_XENOARCH, ACCESS_MINISAT, ACCESS_MINERAL_STOREROOM)
 
 /obj/item/card/id/ce
 	name = "Chief Engineer ID"
@@ -930,7 +934,7 @@
 						ACCESS_ALL_PERSONAL_LOCKERS, ACCESS_MAINT_TUNNELS, ACCESS_BAR, ACCESS_JANITOR, ACCESS_CONSTRUCTION, ACCESS_MORGUE,
 						ACCESS_CREMATORIUM, ACCESS_KITCHEN, ACCESS_CARGO, ACCESS_CARGO_BOT, ACCESS_MAILSORTING, ACCESS_QM, ACCESS_HYDROPONICS, ACCESS_LAWYER,
 						ACCESS_THEATRE, ACCESS_CHAPEL_OFFICE, ACCESS_LIBRARY, ACCESS_RESEARCH, ACCESS_MINING, ACCESS_HEADS_VAULT, ACCESS_MINING_STATION,
-						ACCESS_CLOWN, ACCESS_MIME, ACCESS_HOP, ACCESS_RC_ANNOUNCE, ACCESS_KEYCARD_AUTH, ACCESS_GATEWAY, ACCESS_WEAPONS, ACCESS_NTREP)
+						ACCESS_CLOWN, ACCESS_MIME, ACCESS_HOP, ACCESS_RC_ANNOUNCE, ACCESS_KEYCARD_AUTH, ACCESS_EXPEDITION, ACCESS_WEAPONS, ACCESS_NTREP)
 
 /obj/item/card/id/blueshield
 	name = "Blueshield ID"
@@ -941,7 +945,7 @@
 						ACCESS_ALL_PERSONAL_LOCKERS, ACCESS_MAINT_TUNNELS, ACCESS_BAR, ACCESS_JANITOR, ACCESS_CONSTRUCTION, ACCESS_MORGUE,
 						ACCESS_CREMATORIUM, ACCESS_KITCHEN, ACCESS_CARGO, ACCESS_CARGO_BOT, ACCESS_MAILSORTING, ACCESS_QM, ACCESS_HYDROPONICS, ACCESS_LAWYER,
 						ACCESS_THEATRE, ACCESS_CHAPEL_OFFICE, ACCESS_LIBRARY, ACCESS_RESEARCH, ACCESS_MINING, ACCESS_HEADS_VAULT, ACCESS_MINING_STATION,
-						ACCESS_CLOWN, ACCESS_MIME, ACCESS_HOP, ACCESS_RC_ANNOUNCE, ACCESS_KEYCARD_AUTH, ACCESS_GATEWAY, ACCESS_WEAPONS, ACCESS_BLUESHIELD)
+						ACCESS_CLOWN, ACCESS_MIME, ACCESS_HOP, ACCESS_RC_ANNOUNCE, ACCESS_KEYCARD_AUTH, ACCESS_EXPEDITION, ACCESS_WEAPONS, ACCESS_BLUESHIELD)
 
 /obj/item/card/id/magistrate
 	name = "Magistrate ID"
@@ -952,7 +956,7 @@
 						ACCESS_ALL_PERSONAL_LOCKERS, ACCESS_MAINT_TUNNELS, ACCESS_BAR, ACCESS_JANITOR, ACCESS_CONSTRUCTION, ACCESS_MORGUE,
 						ACCESS_CREMATORIUM, ACCESS_KITCHEN, ACCESS_CARGO, ACCESS_CARGO_BOT, ACCESS_MAILSORTING, ACCESS_QM, ACCESS_HYDROPONICS, ACCESS_LAWYER,
 						ACCESS_THEATRE, ACCESS_CHAPEL_OFFICE, ACCESS_LIBRARY, ACCESS_RESEARCH, ACCESS_MINING, ACCESS_HEADS_VAULT, ACCESS_MINING_STATION,
-						ACCESS_CLOWN, ACCESS_MIME, ACCESS_RC_ANNOUNCE, ACCESS_KEYCARD_AUTH, ACCESS_GATEWAY, ACCESS_MAGISTRATE)
+						ACCESS_CLOWN, ACCESS_MIME, ACCESS_RC_ANNOUNCE, ACCESS_KEYCARD_AUTH, ACCESS_EXPEDITION, ACCESS_MAGISTRATE)
 
 /obj/item/card/id/assistant
 	name = "Assistant ID"
@@ -1088,6 +1092,9 @@
 		to_chat(user, "<span class='notice'>The ID is now registered as yours.</span>")
 	else
 		..()
+
+/obj/item/card/id/data
+	icon_state = "data"
 
 // Decals
 /obj/item/id_decal

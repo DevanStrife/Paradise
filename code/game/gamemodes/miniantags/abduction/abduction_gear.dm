@@ -14,15 +14,15 @@
 	item_state = "armor"
 	blood_overlay_type = "armor"
 	origin_tech = "magnets=7;biotech=4;powerstorage=4;abductor=4"
-	armor = list(MELEE = 10, BULLET = 10, LASER = 10, ENERGY = 10, BOMB = 10, BIO = 10, RAD = 10, FIRE = 115, ACID = 115)
+	armor = list(MELEE = 10, BULLET = 10, LASER = 10, ENERGY = 10, BOMB = 10, RAD = 10, FIRE = 115, ACID = 115)
 	actions_types = list(/datum/action/item_action/hands_free/activate)
 	allowed = list(/obj/item/abductor, /obj/item/abductor_baton, /obj/item/melee/baton, /obj/item/gun/energy, /obj/item/restraints/handcuffs)
 	var/mode = VEST_STEALTH
 	var/stealth_active = 0
 	var/combat_cooldown = 10
 	var/datum/icon_snapshot/disguise
-	var/stealth_armor = list(MELEE = 10, BULLET = 10, LASER = 10, ENERGY = 10, BOMB = 10, BIO = 10, RAD = 10, FIRE = 115, ACID = 115)
-	var/combat_armor = list(MELEE = 50, BULLET = 50, LASER = 50, ENERGY = 50, BOMB = 50, BIO = 50, RAD = 50, FIRE = 450, ACID = 450)
+	var/stealth_armor = list(MELEE = 10, BULLET = 10, LASER = 10, ENERGY = 10, BOMB = 10, RAD = 10, FIRE = 115, ACID = 115)
+	var/combat_armor = list(MELEE = 50, BULLET = 50, LASER = 50, ENERGY = 50, BOMB = 50, RAD = 50, FIRE = 450, ACID = 450)
 	sprite_sheets = null
 
 /obj/item/clothing/suit/armor/abductor/vest/Initialize(mapload)
@@ -54,7 +54,7 @@
 		A.UpdateButtonIcon()
 
 /obj/item/clothing/suit/armor/abductor/vest/item_action_slot_check(slot, mob/user)
-	if(slot == slot_wear_suit) //we only give the mob the ability to activate the vest if he's actually wearing it.
+	if(slot == SLOT_HUD_OUTER_SUIT) //we only give the mob the ability to activate the vest if he's actually wearing it.
 		return 1
 
 /obj/item/clothing/suit/armor/abductor/vest/proc/SetDisguise(datum/icon_snapshot/entry)
@@ -113,6 +113,7 @@
 		M.SetStunned(0)
 		M.SetWeakened(0)
 		M.SetKnockDown(0)
+		M.stand_up(TRUE)
 		combat_cooldown = 0
 		START_PROCESSING(SSobj, src)
 
@@ -401,9 +402,11 @@ Congratulations! You are now trained for invasive xenobiology research!"}
 	desc = "A quad-mode baton used for incapacitation and restraining of specimens."
 	var/mode = BATON_STUN
 	icon = 'icons/obj/abductor.dmi'
+	lefthand_file = 'icons/mob/inhands/weapons_lefthand.dmi'
+	righthand_file = 'icons/mob/inhands/weapons_righthand.dmi'
 	icon_state = "wonderprodStun"
 	item_state = "wonderprod"
-	slot_flags = SLOT_BELT
+	slot_flags = SLOT_FLAG_BELT
 	origin_tech = "materials=4;combat=4;biotech=7;abductor=4"
 	w_class = WEIGHT_CLASS_NORMAL
 	actions_types = list(/datum/action/item_action/toggle_mode)

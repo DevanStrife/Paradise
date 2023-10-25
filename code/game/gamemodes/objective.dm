@@ -33,7 +33,11 @@ GLOBAL_LIST_INIT(potential_theft_objectives, (subtypesof(/datum/theft_objective)
 	/// If the objective is compatible with martyr objective, i.e. if you can still do it while dead.
 	var/martyr_compatible = FALSE
 
+	var/datum/objective_holder/holder
+
 /datum/objective/New(text, datum/team/team_to_join)
+	. = ..()
+	SHOULD_CALL_PARENT(TRUE)
 	GLOB.all_objectives += src
 	if(text)
 		explanation_text = text
@@ -49,6 +53,9 @@ GLOBAL_LIST_INIT(potential_theft_objectives, (subtypesof(/datum/theft_objective)
 
 /datum/objective/proc/check_completion()
 	return completed
+
+/datum/objective/proc/found_target()
+	return target
 
 /**
  * Get all owners of the objective, including ones from the objective's team, if it has one.
@@ -122,12 +129,17 @@ GLOBAL_LIST_INIT(potential_theft_objectives, (subtypesof(/datum/theft_objective)
 /datum/objective/proc/post_target_cryo(list/owners)
 	find_target()
 	if(!target)
-		for(var/datum/mind/M in owners)
-			M.remove_objective(src)
-		GLOB.all_objectives -= src
-		qdel(src)
+		holder.remove_objective(src)
+		// even if we have to remove the objective, still announce it
 	for(var/datum/mind/M in owners)
-		M.announce_objectives()
+		var/list/messages = M.prepare_announce_objectives(FALSE)
+		to_chat(M.current, chat_box_red(messages.Join("<br>")))
+
+// Borgs, brains, AIs, etc count as dead for traitor objectives
+/datum/objective/proc/is_special_dead(mob/target_current, check_silicon = TRUE)
+	if(check_silicon && issilicon(target_current))
+		return TRUE
+	return isbrain(target_current) || istype(target_current, /mob/living/simple_animal/spiderbot)
 
 /datum/objective/assassinate
 	name = "Assassinate"
@@ -145,7 +157,7 @@ GLOBAL_LIST_INIT(potential_theft_objectives, (subtypesof(/datum/theft_objective)
 	if(target && target.current)
 		if(target.current.stat == DEAD)
 			return TRUE
-		if(issilicon(target.current) || isbrain(target.current)) //Borgs/brains/AIs count as dead for traitor objectives. --NeoFite
+		if(is_special_dead(target.current)) //Borgs/brains/AIs count as dead for traitor objectives. --NeoFite
 			return TRUE
 		if(!target.current.ckey)
 			return TRUE
@@ -155,15 +167,22 @@ GLOBAL_LIST_INIT(potential_theft_objectives, (subtypesof(/datum/theft_objective)
 
 /datum/objective/mutiny
 	name = "Mutiny"
-	martyr_compatible = 1
+	martyr_compatible = TRUE
 
 /datum/objective/mutiny/find_target(list/target_blacklist)
 	..()
 	if(target && target.current)
-		explanation_text = "Assassinate [target.current.real_name], the [target.assigned_role]."
+		explanation_text = "Assassinate or exile [target.current.real_name], the [target.assigned_role]."
 	else
 		explanation_text = "Free Objective"
 	return target
+
+/datum/objective/mutiny/is_invalid_target(datum/mind/possible_target)
+	. = ..()
+	if(.)
+		return
+	if(!(possible_target in SSticker.mode.get_all_heads()))
+		return TARGET_INVALID_NOTHEAD
 
 /datum/objective/mutiny/check_completion()
 	if(target && target.current)
@@ -178,6 +197,9 @@ GLOBAL_LIST_INIT(potential_theft_objectives, (subtypesof(/datum/theft_objective)
 /datum/objective/mutiny/on_target_cryo()
 	// We don't want revs to get objectives that aren't for heads of staff. Letting
 	// them win or lose based on cryo is silly so we remove the objective.
+	if(team)
+		team.remove_team_objective(src)
+		return
 	qdel(src)
 
 /datum/objective/maroon
@@ -198,9 +220,7 @@ GLOBAL_LIST_INIT(potential_theft_objectives, (subtypesof(/datum/theft_objective)
 			return TRUE
 		if(!target.current.ckey)
 			return TRUE
-		if(issilicon(target.current))
-			return TRUE
-		if(isbrain(target.current))
+		if(is_special_dead(target.current))
 			return TRUE
 		var/turf/T = get_turf(target.current)
 		if(is_admin_level(T.z))
@@ -236,7 +256,7 @@ GLOBAL_LIST_INIT(potential_theft_objectives, (subtypesof(/datum/theft_objective)
 	if(!target.current || !isbrain(target.current))
 		return FALSE
 	for(var/datum/mind/M in get_owners())
-		if(QDELETED(M.current) || M.current.stat == DEAD)
+		if(QDELETED(M.current))
 			continue // Maybe someone who's alive has the brain.
 		if(target.current in M.current.GetAllContents())
 			return TRUE
@@ -261,9 +281,7 @@ GLOBAL_LIST_INIT(potential_theft_objectives, (subtypesof(/datum/theft_objective)
 	if(target.current)
 		if(target.current.stat == DEAD)
 			return FALSE
-		if(issilicon(target.current))
-			return FALSE
-		if(isbrain(target.current))
+		if(is_special_dead(target.current))
 			return FALSE
 		return TRUE
 	return FALSE
@@ -359,7 +377,7 @@ GLOBAL_LIST_INIT(potential_theft_objectives, (subtypesof(/datum/theft_objective)
 	var/list/owners = get_owners()
 	for(var/datum/mind/M in owners)
 		// These are mandatory conditions, they should come before the freebie conditions below.
-		if(QDELETED(M.current) || M.current.stat == DEAD || issilicon(M.current) || isbrain(M.current))
+		if(QDELETED(M.current) || M.current.stat == DEAD || is_special_dead(M.current))
 			return FALSE
 
 	if(SSticker.force_ending) // This one isn't their fault, so lets just assume good faith.
@@ -451,22 +469,6 @@ GLOBAL_LIST_INIT(potential_theft_objectives, (subtypesof(/datum/theft_objective)
 				return TRUE
 	return FALSE
 
-/datum/objective/die
-	name = "Die a glorious death"
-	explanation_text = "Die a glorious death."
-	needs_target = FALSE
-
-/datum/objective/die/check_completion()
-	for(var/datum/mind/M in get_owners())
-		if(QDELETED(M.current) || M.current.stat == DEAD || isbrain(M.current))
-			continue
-		if(issilicon(M.current) && !M.is_original_mob(M.current))
-			continue
-		return FALSE // Some owner didn't meet the above criteria.
-	return TRUE
-
-
-
 /datum/objective/survive
 	name = "Survive"
 	explanation_text = "Stay alive until the end."
@@ -474,7 +476,7 @@ GLOBAL_LIST_INIT(potential_theft_objectives, (subtypesof(/datum/theft_objective)
 
 /datum/objective/survive/check_completion()
 	for(var/datum/mind/M in get_owners())
-		if(QDELETED(M.current) || M.current.stat == DEAD || isbrain(M.current))
+		if(QDELETED(M.current) || M.current.stat == DEAD || is_special_dead(M.current, check_silicon = FALSE))
 			return FALSE
 		if(issilicon(M.current) && !M.is_original_mob(M.current))
 			return FALSE
@@ -492,6 +494,9 @@ GLOBAL_LIST_INIT(potential_theft_objectives, (subtypesof(/datum/theft_objective)
 	martyr_compatible = 0
 	var/theft_area
 
+/datum/objective/steal/found_target()
+	return steal_target
+
 /datum/objective/steal/proc/get_location()
 	return steal_target.location_override || "an unknown area"
 
@@ -499,6 +504,8 @@ GLOBAL_LIST_INIT(potential_theft_objectives, (subtypesof(/datum/theft_objective)
 	var/potential = GLOB.potential_theft_objectives.Copy()
 	while(!steal_target && length(potential))
 		var/thefttype = pick_n_take(potential)
+		if(locate(thefttype) in target_blacklist)
+			continue
 		var/datum/theft_objective/O = new thefttype
 		var/has_invalid_owner = FALSE
 		for(var/datum/mind/M in get_owners())
@@ -506,6 +513,8 @@ GLOBAL_LIST_INIT(potential_theft_objectives, (subtypesof(/datum/theft_objective)
 				has_invalid_owner = TRUE
 				break
 		if(has_invalid_owner)
+			continue
+		if(!O.check_objective_conditions())
 			continue
 		if(O.flags & 2) // THEFT_FLAG_UNIQUE
 			continue
@@ -556,11 +565,11 @@ GLOBAL_LIST_INIT(potential_theft_objectives, (subtypesof(/datum/theft_objective)
 /datum/objective/steal/proc/give_kit(obj/item/item_path)
 	var/I = new item_path
 	var/list/slots = list(
-		"backpack" = slot_in_backpack,
-		"left pocket" = slot_l_store,
-		"right pocket" = slot_r_store,
-		"left hand" = slot_l_hand,
-		"right hand" = slot_r_hand,
+		"backpack" = SLOT_HUD_IN_BACKPACK,
+		"left pocket" = SLOT_HUD_LEFT_STORE,
+		"right pocket" = SLOT_HUD_RIGHT_STORE,
+		"left hand" = SLOT_HUD_LEFT_HAND,
+		"right hand" = SLOT_HUD_RIGHT_HAND,
 	)
 	for(var/datum/mind/M in get_owners())
 		var/mob/living/carbon/human/H = M.current
@@ -577,7 +586,11 @@ GLOBAL_LIST_INIT(potential_theft_objectives, (subtypesof(/datum/theft_objective)
 	name = "Absorb DNA"
 	needs_target = FALSE
 
-/datum/objective/absorb/proc/gen_amount_goal(lowbound = 4, highbound = 6)
+/datum/objective/absorb/New(text, datum/team/team_to_join)
+	. = ..()
+	gen_amount_goal()
+
+/datum/objective/absorb/proc/gen_amount_goal(lowbound = 6, highbound = 8)
 	target_amount = rand (lowbound,highbound)
 	if(SSticker)
 		var/n_p = 1 //autowin
@@ -628,6 +641,9 @@ GLOBAL_LIST_INIT(potential_theft_objectives, (subtypesof(/datum/theft_objective)
 		return FALSE
 	return TRUE
 
+/datum/objective/destroy/post_target_cryo(list/owners)
+	holder.replace_objective(src, /datum/objective/assassinate)
+	
 /datum/objective/steal_five_of_type
 	name = "Steal Five Items"
 	explanation_text = "Steal at least five items!"
@@ -712,13 +728,14 @@ GLOBAL_LIST_INIT(potential_theft_objectives, (subtypesof(/datum/theft_objective)
 // Traders
 // These objectives have no check_completion, they exist only to tell Sol Traders what to aim for.
 
-/datum/objective/trade/proc/choose_target()
-	return
+/datum/objective/trade
+	needs_target = FALSE
+	completed = TRUE
 
-/datum/objective/trade/plasma/choose_target()
+/datum/objective/trade/plasma
 	explanation_text = "Acquire at least 15 sheets of plasma through trade."
 
-/datum/objective/trade/credits/choose_target()
+/datum/objective/trade/credits
 	explanation_text = "Acquire at least 10,000 credits through trade."
 
 //wizard
@@ -726,4 +743,4 @@ GLOBAL_LIST_INIT(potential_theft_objectives, (subtypesof(/datum/theft_objective)
 /datum/objective/wizchaos
 	explanation_text = "Wreak havoc upon the station as much you can. Send those wandless Nanotrasen scum a message!"
 	needs_target = FALSE
-	completed = 1
+	completed = TRUE

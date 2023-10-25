@@ -159,13 +159,13 @@
 	if(href_list["__keydown"])
 		var/keycode = href_list["__keydown"]
 		if(keycode)
-			KeyDown(keycode)
+			Key_Down(keycode)
 		return
 
 	if(href_list["__keyup"])
 		var/keycode = href_list["__keyup"]
 		if(keycode)
-			KeyUp(keycode)
+			Key_Up(keycode)
 		return
 
 
@@ -216,6 +216,8 @@
 
 	if(GLOB.configuration.general.enable_auto_mute && !check_rights(R_ADMIN, 0) && last_message == message)
 		last_message_count++
+		if(SEND_SIGNAL(mob, COMSIG_MOB_AUTOMUTE_CHECK, src, last_message, mute_type) & WAIVE_AUTOMUTE_CHECK)
+			return FALSE
 		if(last_message_count >= SPAM_TRIGGER_AUTOMUTE)
 			to_chat(src, "<span class='danger'>You have exceeded the spam filter limit for identical messages. An auto-mute was applied.</span>")
 			cmd_admin_mute(mob, mute_type, 1)
@@ -320,9 +322,10 @@
 		// ToS accepted
 		tos_consent = TRUE
 
+	// Setup widescreen
+	view = prefs.viewrange
+
 	prefs.init_keybindings(prefs.keybindings_overrides) //The earliest sane place to do it where prefs are not null, if they are null you can't do crap at lobby
-	prefs.last_ip = address				//these are gonna be used for banning
-	prefs.last_id = computer_id			//these are gonna be used for banning
 	fps = prefs.clientfps
 
 	// Log alts
@@ -369,6 +372,10 @@
 			winset(src, null, "command=\".configure graphics-hwmode off\"")
 			winset(src, null, "command=\".configure graphics-hwmode on\"")
 
+	// Try doing this before mob login
+	generate_clickcatcher()
+	apply_clickcatcher()
+
 	. = ..()	//calls mob.Login()
 
 	mob.update_client_colour(0) // Activate colourblind mode if they have one set
@@ -391,9 +398,6 @@
 	else
 		// activate_darkmode() calls the CL update button proc, so we dont want it double called
 		SSchangelog.UpdatePlayerChangelogButton(src)
-
-	generate_clickcatcher()
-	apply_clickcatcher()
 
 	if(show_update_prompt)
 		show_update_notice()
@@ -430,6 +434,7 @@
 	// Tell client about their connection
 	to_chat(src, "<span class='notice'>You are currently connected [prefs.server_region ? "via the <b>[prefs.server_region]</b> relay" : "directly"] to Paradise.</span>")
 	to_chat(src, "<span class='notice'>You can change this using the <code>Change Region</code> verb in the OOC tab, as selecting a region closer to you may reduce latency.</span>")
+
 
 /client/proc/is_connecting_from_localhost()
 	var/static/list/localhost_addresses = list("127.0.0.1", "::1")
@@ -957,9 +962,6 @@
 	/* Rpane */
 	winset(src, "rpane", "background-color=#202020")
 	winset(src, "rpane.rpanewindow", "background-color=#202020")
-	/* Browserwindow */
-	winset(src, "browserwindow", "background-color=#171717")
-	winset(src, "browserwindow.browser", "background-color=#171717")
 	/* Infowindow */
 	winset(src, "infowindow", "background-color=#202020;text-color=#a4bad6")
 	winset(src, "infowindow.info", "background-color=#171717;text-color=#a4bad6;highlight-color=#009900;tab-text-color=#a4bad6;tab-background-color=#202020")
@@ -991,9 +993,6 @@
 	/* Rpane */
 	winset(src, "rpane", "background-color=none")
 	winset(src, "rpane.rpanewindow", "background-color=none")
-	/* Browserwindow */
-	winset(src, "browserwindow", "background-color=none")
-	winset(src, "browserwindow.browser", "background-color=none")
 	/* Infowindow */
 	winset(src, "infowindow", "background-color=none;text-color=#000000")
 	winset(src, "infowindow.info", "background-color=none;text-color=#000000;highlight-color=#007700;tab-text-color=#000000;tab-background-color=none")
@@ -1248,6 +1247,11 @@
 
 	winset(src, null, "command=\".configure graphics-hwmode off\"")
 	winset(src, null, "command=\".configure graphics-hwmode on\"")
+
+/// Returns the biggest number from client.view so we can do easier maths
+/client/proc/maxview()
+	var/list/screensize = getviewsize(view)
+	return max(screensize[1], screensize[2])
 
 #undef LIMITER_SIZE
 #undef CURRENT_SECOND

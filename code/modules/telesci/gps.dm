@@ -13,7 +13,7 @@ GLOBAL_LIST_EMPTY(GPS_list)
 	icon = 'icons/obj/telescience.dmi'
 	icon_state = "gps-c"
 	w_class = WEIGHT_CLASS_SMALL
-	slot_flags = SLOT_BELT
+	slot_flags = SLOT_FLAG_BELT
 	origin_tech = "materials=2;magnets=1;bluespace=2"
 	/// Whether the GPS is on.
 	var/tracking = TRUE
@@ -47,6 +47,14 @@ GLOBAL_LIST_EMPTY(GPS_list)
 		. += "emp"
 	else if(tracking)
 		. += "working"
+
+/obj/item/gps/pickup(mob/user)
+	..()
+	ADD_TRAIT(user, TRAIT_HAS_GPS, "GPS[UID()]")
+
+/obj/item/gps/dropped(mob/user, silent)
+	REMOVE_TRAIT(user, TRAIT_HAS_GPS, "GPS[UID()]")
+	return ..()
 
 /obj/item/gps/emp_act(severity)
 	emped = TRUE
@@ -146,6 +154,12 @@ GLOBAL_LIST_EMPTY(GPS_list)
 	emped = FALSE
 	update_icon(UPDATE_OVERLAYS)
 
+/obj/item/gps/security
+	icon_state = "gps-sec"
+	gpstag = "SEC0"
+	desc = "A positioning system helpful for monitoring prisoners that are implanted with a tracking implant."
+	local = TRUE
+
 /obj/item/gps/science
 	icon_state = "gps-s"
 	gpstag = "SCI0"
@@ -158,6 +172,12 @@ GLOBAL_LIST_EMPTY(GPS_list)
 	icon_state = "gps-m"
 	gpstag = "MINE0"
 	desc = "A positioning system helpful for rescuing trapped or injured miners, keeping one on you at all times while mining might just save your life."
+
+/obj/item/gps/mod
+	icon_state = "gps-m"
+	gpstag = "MOD0"
+	desc = "A positioning system helpful for rescuing trapped or injured miners, after you have become lost from rolling around at the speed of sound."
+	flags = NODROP
 
 /obj/item/gps/cyborg
 	icon_state = "gps-b"

@@ -51,7 +51,7 @@
 	. = ..()
 	if(. && isliving(user))
 		var/mob/living/L = user
-		L.Paralyse(4 SECONDS)
+		L.KnockDown(10 SECONDS)
 
 /datum/emote/living/dance
 	key = "dance"
@@ -120,7 +120,7 @@
 	if(!istype(H))
 		return ..()
 	// special handling here: we don't want monkeys' gasps to sound through walls so you can actually walk past xenobio
-	playsound(user.loc, sound_path, sound_volume, TRUE, frequency = H.get_age_pitch(), ignore_walls = !isnull(user.mind))
+	playsound(user.loc, sound_path, sound_volume, TRUE, -8, frequency = H.get_age_pitch(H.dna.species.max_age), ignore_walls = !isnull(user.mind))
 
 /datum/emote/living/drool
 	key = "drool"
