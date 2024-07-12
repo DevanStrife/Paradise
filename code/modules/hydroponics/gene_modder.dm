@@ -6,21 +6,36 @@
 	icon_state = "dnamod"
 	density = TRUE
 	anchored = TRUE
-
+	/// the seed stored in the machine
 	var/obj/item/seeds/seed
+	/// the disk in use
 	var/obj/item/disk/plantgene/disk
-
+	/// list of the seed's trait genes
 	var/list/core_genes = list()
+	/// list of the seed's trait genes
 	var/list/reagent_genes = list()
+	/// list of the seed's trait genes
 	var/list/trait_genes = list()
-
+	/// disk capacity
+	var/disk_capacity = 100
+	/// gene targeted for operation
 	var/datum/plant_gene/target
+	/// maximum potency that can be put on a disk
 	var/max_potency = 50 // See RefreshParts() for how these work
+	/// maximum yield that can be put on a disk
 	var/max_yield = 2
+	/// minimum production that can be put on a disk
 	var/min_production = 12
+	/// maximum endurance that can be put on a disk
 	var/max_endurance = 10 // IMPT: ALSO AFFECTS LIFESPAN
+	/// minimum weed growth chance that can be put on a disk
 	var/min_weed_chance = 67
+	/// minimum weed growth rate that can be put on a disk
 	var/min_weed_rate = 10
+	/// amount of seeds needed to make a core stat disk
+	var/seeds_for_bulk_core = 5
+	/// index of disk in use in the content list
+	var/disk_index = 0
 
 /obj/machinery/plantgenes/Initialize(mapload)
 	. = ..()
@@ -43,12 +58,14 @@
 	RefreshParts()
 
 /obj/machinery/plantgenes/Destroy()
+	for(var/atom/movable/A in contents)
+		A.forceMove(loc)
+	seed = null
+	disk = null
 	core_genes.Cut()
 	reagent_genes.Cut()
 	trait_genes.Cut()
 	target = null
-	QDEL_NULL(seed)
-	QDEL_NULL(disk)
 	return ..()
 
 /obj/machinery/plantgenes/RefreshParts() // Comments represent the max you can set per tier, respectively. seeds.dm [219] clamps these for us but we don't want to mislead the viewer.
@@ -73,14 +90,32 @@
 		min_weed_rate = FLOOR(10-weed_rate_mod, 1) // 7,5,2,0	Clamps at 0 and 10	You want this low
 		min_weed_chance = 67-(ML.rating*16) // 48,35,19,3 	Clamps at 0 and 67	You want this low
 
+	var/total_rating = 0
+	for(var/obj/item/stock_parts/S in component_parts)
+		total_rating += S.rating
+
+	switch(clamp(total_rating, 1, 12))
+		if(1 to 3)
+			seeds_for_bulk_core = 5
+		if(4 to 6)
+			seeds_for_bulk_core = 4
+		if(7 to 9)
+			seeds_for_bulk_core = 3
+		if(10 to 11)
+			seeds_for_bulk_core = 2
+		else
+			seeds_for_bulk_core = 1
+
 	for(var/obj/item/circuitboard/plantgenes/vaultcheck in component_parts)
 		if(istype(vaultcheck, /obj/item/circuitboard/plantgenes/vault)) // TRAIT_DUMB BOTANY TUTS
+			total_rating = 12
 			max_potency = 100
 			max_yield = 10
 			min_production = 1
 			max_endurance = 100
 			min_weed_chance = 0
 			min_weed_rate = 0
+			seeds_for_bulk_core = 1
 
 /obj/machinery/plantgenes/update_icon_state()
 	if((stat & (BROKEN|NOPOWER)))
@@ -108,7 +143,10 @@
 
 	if(istype(I, /obj/item/seeds))
 		add_seed(I, user)
-	else if(istype(I, /obj/item/disk/plantgene))
+	else if(istype(I, /obj/item/unsorted_seeds))
+		to_chat(user, "<span class='warning'>You need to sort [I] first!</span>")
+		return ..()
+	else if(istype(I, /obj/item/disk/plantgene) || istype(I, /obj/item/storage/box))
 		add_disk(I, user)
 	else
 		return ..()
@@ -124,13 +162,31 @@
 	ui_interact(user)
 
 /obj/machinery/plantgenes/proc/add_disk(obj/item/disk/plantgene/new_disk, mob/user)
-	if(disk)
-		to_chat(user, "<span class='warning'>A data disk is already loaded into the machine!</span>")
+	if(length(contents) - (seed ? 1 : 0) >= disk_capacity)
+		to_chat(user, "<span class='warning'>[src] cannot hold any more disks!</span>")
+		return
+	if(istype(new_disk, /obj/item/storage/box))
+		var/has_disks = FALSE
+		for(var/obj/item/disk/plantgene/D in new_disk.contents)
+			if(length(contents)- (seed ? 1 : 0) >= disk_capacity)
+				to_chat(user, "<span class='notice'>You fill [src] with disks.</span>")
+				break
+			has_disks = TRUE
+			D.forceMove(src)
+			if(!disk)
+				disk = D
+		if(has_disks)
+			playsound(loc, 'sound/items/handling/cardboardbox_drop.ogg', 50)
+			to_chat(user, "<span class='notice'>You load [src] from [new_disk].</span>")
+		else
+			to_chat(user, "<span class='notice'>[new_disk] contains no disks.</span>")
+		SStgui.update_uis(src)
 		return
 	if(!user.drop_item())
 		return
-	disk = new_disk
-	disk.forceMove(src)
+	if(!disk)
+		disk = new_disk
+	new_disk.forceMove(src)
 	to_chat(user, "<span class='notice'>You add [new_disk] to the machine.</span>")
 	ui_interact(user)
 
@@ -142,10 +198,14 @@
 /obj/machinery/plantgenes/attack_ghost(mob/user)
 	ui_interact(user)
 
-/obj/machinery/plantgenes/ui_interact(mob/user, ui_key = "main", datum/tgui/ui = null, force_open = TRUE, datum/tgui/master_ui = null, datum/ui_state/state = GLOB.default_state)
-	ui = SStgui.try_update_ui(user, src, ui_key, ui, force_open)
+/obj/machinery/plantgenes/ui_state(mob/user)
+	return GLOB.default_state
+
+/obj/machinery/plantgenes/ui_interact(mob/user, datum/tgui/ui = null)
+	ui = SStgui.try_update_ui(user, src, ui)
 	if(!ui)
-		ui = new(user, src, ui_key, "GeneModder", name, 500, 700, master_ui, state)
+		ui = new(user, src, "GeneModder", name)
+		ui.set_autoupdate(FALSE)
 		ui.open()
 
 /obj/machinery/plantgenes/ui_data(mob/user)
@@ -164,8 +224,12 @@
 	data["seed"] = list()
 
 	if(seed)
+		var/icon/base64icon = GLOB.seeds_cached_base64_icons["[initial(seed.icon)][initial(seed.icon_state)]"]
+		if(!base64icon)
+			base64icon = icon2base64(icon(initial(seed.icon), initial(seed.icon_state), SOUTH, 1))
+			GLOB.seeds_cached_base64_icons["[initial(seed.icon)][initial(seed.icon_state)]"] = base64icon
 		data["seed"] = list(
-			"image" = "[icon2base64(icon(initial(seed.icon), initial(seed.icon_state), SOUTH, 1))]",
+			"image" = "[base64icon]",
 			"name" = seed.name,
 			"variant" = seed.variant
 		)
@@ -198,9 +262,7 @@
 	data["disk"] = list()
 
 	if(disk)
-		var/disk_name = "Empty Disk"
-		if(disk.gene)
-			disk_name = disk.gene.get_name()
+		var/disk_name = disk.ui_name
 		if(disk.read_only)
 			disk_name = "[disk_name] (Read Only)"
 		var/can_insert = FALSE
@@ -210,10 +272,45 @@
 			"name" = disk_name,
 			"can_insert" = can_insert,
 			"can_extract" = !disk.read_only,
-			"is_core" = istype(disk?.gene, /datum/plant_gene/core)
+			"is_core" = istype(disk?.gene, /datum/plant_gene/core),
+			"is_bulk_core" = disk?.is_bulk_core && (disk.seeds_needed <= disk.seeds_scanned)
 		)
 
 	data["modal"] = ui_modal_data(src)
+
+	var/list/stats = list()
+	var/list/traits = list()
+	var/list/reagents = list()
+	var/empty_disks = 0
+
+	data["stat_disks"] = list()
+	data["trait_disks"] = list()
+	data["reagent_disks"] = list()
+
+	for(var/i in 1 to length(contents))
+		if(istype(contents[i], /obj/item/disk/plantgene))
+			var/obj/item/disk/plantgene/D = contents[i]
+			if(!D.gene && !D.is_bulk_core)
+				empty_disks++
+			else if(D.is_bulk_core)
+				stats.Add(list(list("display_name" = D.ui_name, "index" = i, "stat" = "All", "ready" = D.seeds_needed <= D.seeds_scanned, "read_only" = D.read_only)))
+			else if(istype(D.gene, /datum/plant_gene/core))
+				var/datum/plant_gene/core/C = D.gene
+				stats.Add(list(list("display_name" = C.name +" "+ num2text(C.value), "index" = i, "stat" = C.name, "read_only" = D.read_only)))
+			else if(istype(D.gene, /datum/plant_gene/trait))
+				var/insertable = D.gene?.can_add(seed)
+				traits.Add(list(list("display_name" = D.gene.name, "index" = i, "can_insert" = insertable, "read_only" = D.read_only)))
+			else if(istype(D.gene, /datum/plant_gene/reagent))
+				var/datum/plant_gene/reagent/R = D.gene
+				var/insertable = R?.can_add(seed)
+				reagents.Add(list(list("display_name" = "[R.name] [num2text(R.rate*200)]%", "index" = i,  "can_insert" = insertable, "read_only" = D.read_only)))
+	if(length(stats))
+		data["stat_disks"] = stats
+	if(length(traits))
+		data["trait_disks"] = traits
+	if(length(reagents))
+		data["reagent_disks"] = reagents
+	data["empty_disks"] = empty_disks
 
 	return data
 
@@ -229,7 +326,12 @@
 
 	var/mob/user = ui.user
 
-	target = seed?.get_gene(params["id"])
+	if(params["id"])
+		target = seed?.get_gene(params["id"])
+	else if(params["stat"] && params["stat"] != "All")
+		for(var/datum/plant_gene/core/c_gene in core_genes)
+			if(c_gene.name == params["stat"])
+				target = c_gene
 
 	switch(action)
 		if("eject_seed")
@@ -245,9 +347,10 @@
 					add_seed(I, user)
 
 		if("eject_disk")
-			if(disk)
-				disk.forceMove(loc)
-				user.put_in_hands(disk)
+			var/obj/item/disk/plantgene/D = contents[text2num(params["index"])]
+			if(D)
+				D.forceMove(loc)
+				user.put_in_hands(D)
 				disk = null
 				update_genes()
 			else
@@ -259,12 +362,22 @@
 			seed.variant_prompt(user, src)
 			// uses the default byond prompt, but it works
 
+		if("bulk_extract_core")
+			var/dat = "Are you sure you want to extract all core genes from the [seed]? The sample will be destroyed in the process!"
+			var/prev_seeds = 0
+			if(disk.is_bulk_core && disk.core_matches(seed))
+				prev_seeds = disk.seeds_scanned
+			if(seeds_for_bulk_core > prev_seeds + 1)
+				var/remaining = seeds_for_bulk_core - prev_seeds - 1
+				dat += " This device needs [seeds_for_bulk_core] samples to produce a usable core gene disk. You will need [remaining] more sample[ remaining > 1 ? "s" : ""] with identical core genes."
+
+			ui_modal_boolean(src, action, dat, yes_text = "Extract", no_text = "Cancel", delegate = PROC_REF(bulk_extract_core))
+
 		if("extract")
 			var/dat = "Are you sure you want to extract [target.get_name()] gene from the [seed]? The sample will be destroyed in process!"
 			if(istype(target, /datum/plant_gene/core))
 				var/datum/plant_gene/core/core_gene = target
 				var/genemod_var = core_gene.get_genemod_variable(src) // polymorphism my beloved
-
 				if((core_gene.use_max && core_gene.value < genemod_var) || (!core_gene.use_max && core_gene.value > genemod_var))
 					var/gene_name = lowertext(core_gene.name)
 					dat += " This device's extraction capabilities are currently limited to [genemod_var] [gene_name]. \
@@ -272,21 +385,47 @@
 
 			ui_modal_boolean(src, action, dat, yes_text = "Extract", no_text = "Cancel", delegate = PROC_REF(gene_extract))
 
+		if("bulk_replace_core")
+			disk_index = text2num(params["index"])
+			ui_modal_boolean(src, action, "Are you sure you want to replace ALL core genes of the [seed]?" , yes_text = "Replace", no_text = "Cancel", delegate = PROC_REF(bulk_replace_core))
+
 		if("replace")
-			ui_modal_boolean(src, action, "Are you sure you want to replace [target.get_name()] gene with [disk.gene.get_name()]?", yes_text = "Replace", no_text = "Cancel", delegate = PROC_REF(gene_replace))
+			disk_index = text2num(params["index"])
+			var/obj/item/disk/plantgene/D = contents[text2num(params["index"])]
+			ui_modal_boolean(src, action, "Are you sure you want to replace [target.get_name()] gene with [D.gene.get_name()]?", yes_text = "Replace", no_text = "Cancel", delegate = PROC_REF(gene_replace))
 
 		if("remove")
 			ui_modal_boolean(src, action, "Are you sure you want to remove [target.get_name()] gene from the [seed]" , yes_text = "Remove", no_text = "Cancel", delegate = PROC_REF(gene_remove))
 
 		if("insert")
-			if(!istype(disk.gene, /datum/plant_gene/core) && disk.gene.can_add(seed))
-				seed.genes += disk.gene.Copy()
-				if(istype(disk.gene, /datum/plant_gene/reagent))
+			var/obj/item/disk/plantgene/D = contents[text2num(params["index"])]
+			if(D.gene && (istype(D.gene, /datum/plant_gene/trait) || istype(D.gene, /datum/plant_gene/reagent)) && D.gene.can_add(seed))
+				seed.genes += D.gene.Copy()
+				if(istype(D.gene, /datum/plant_gene/reagent))
 					seed.reagents_from_genes()
 				update_genes()
 				repaint_seed()
-				// this doesnt need a modal, its easy enough to just remove the inserted gene
 
+		if("select")
+			disk = contents[text2num(params["index"])]
+
+		if("select_empty_disk")
+			for(var/obj/item/disk/plantgene/D in contents)
+				if(!D.gene && !D.is_bulk_core)
+					disk =	D
+					return
+
+		if("eject_empty_disk")
+			for(var/obj/item/disk/plantgene/D in contents)
+				if(!D.gene && !D.is_bulk_core)
+					D.forceMove(loc)
+					user.put_in_hands(D)
+					update_genes()
+					return
+			to_chat(user, "<span class='warning'> No Empty Disks to Eject!</span>")
+		if("set_read_only")
+			var/obj/item/disk/plantgene/D = contents[text2num(params["index"])]
+			D.read_only = !D.read_only
 
 /obj/machinery/plantgenes/proc/gene_remove()
 	if(istype(target, /datum/plant_gene/core))
@@ -301,6 +440,7 @@
 /obj/machinery/plantgenes/proc/gene_extract()
 	if(!disk || disk.read_only)
 		return
+	disk.is_bulk_core = FALSE
 	disk.gene = target.Copy()
 	if(istype(disk.gene, /datum/plant_gene/core))
 		var/datum/plant_gene/core/core_gene = disk.gene
@@ -315,18 +455,68 @@
 	update_icon(UPDATE_OVERLAYS)
 	update_genes()
 	target = null
+	//replace with empty disk if possible
+	for(var/obj/item/disk/plantgene/D in contents)
+		if(!D.gene && !D.is_bulk_core)
+			disk = D
+			return
 
 /obj/machinery/plantgenes/proc/gene_replace()
-	if(!disk?.gene)
+	var/obj/item/disk/plantgene/D = contents[disk_index]
+	if(!D?.gene || D.is_bulk_core)
 		return
 	if(!istype(target, /datum/plant_gene/core))
 		return
-	if(!istype(disk.gene, target.type))
+	if(!istype(D.gene, target.type))
 		return // you can't replace a endurance gene with a weed chance gene, etc
 	seed.genes -= target
-	var/datum/plant_gene/core/C = disk.gene.Copy()
+	var/datum/plant_gene/core/C = D.gene.Copy()
 	seed.genes += C
 	C.apply_stat(seed)
+	repaint_seed()
+	update_genes()
+	target = null
+
+/obj/machinery/plantgenes/proc/bulk_extract_core()
+	if(!disk || disk.read_only)
+		return
+	disk.seeds_needed = seeds_for_bulk_core
+	if(disk.core_matches(seed))
+		disk.seeds_scanned += 1
+	else
+		disk.seeds_scanned = 1
+		disk.is_bulk_core = TRUE
+		disk.gene = null
+		disk.core_genes = list()
+		for(var/datum/plant_gene/core/gene in core_genes)
+			var/datum/plant_gene/core/C = gene.Copy()
+			disk.core_genes += C
+
+	disk.update_name()
+	QDEL_NULL(seed)
+	update_icon(UPDATE_OVERLAYS)
+	update_genes()
+	target = null
+
+	if(disk.seeds_scanned >= disk.seeds_needed)
+		for(var/obj/item/disk/plantgene/D in contents)
+			if(!D.gene && (!D.is_bulk_core))
+				disk = D
+				return
+
+/obj/machinery/plantgenes/proc/bulk_replace_core()
+	var/obj/item/disk/plantgene/D = contents[disk_index]
+	if(!D?.is_bulk_core)
+		return
+	if(D.seeds_scanned < D.seeds_needed)
+		return
+	for(var/datum/plant_gene/gene in seed.genes)
+		if(istype(gene, /datum/plant_gene/core))
+			seed.genes -= gene
+	for(var/datum/plant_gene/core/gene in D.core_genes)
+		var/datum/plant_gene/core/C = gene.Copy()
+		seed.genes += C
+		C.apply_stat(seed)
 	repaint_seed()
 	update_genes()
 	target = null
@@ -379,8 +569,17 @@
 	desc = "A disk for storing plant genetic data."
 	icon_state = "datadisk_hydro"
 	materials = list(MAT_METAL=30, MAT_GLASS=10)
-	var/datum/plant_gene/gene
+	var/ui_name = "Empty Disk"
+	var/is_bulk_core = FALSE
 	var/read_only = 0 //Well, it's still a floppy disk
+
+	// For single genes
+	var/datum/plant_gene/gene
+
+	// For bulk core genes
+	var/list/core_genes = list()
+	var/seeds_scanned = 0
+	var/seeds_needed = 5
 
 /obj/item/disk/plantgene/New()
 	..()
@@ -399,11 +598,41 @@
 	. = ..()
 	if(HAS_TRAIT(src, TRAIT_CMAGGED))
 		name = "nuclear authentication disk"
+		ui_name = "nuclear authentication disk?"
 		return
-	if(gene)
-		name = "[gene.get_name()] (Plant Data Disk)"
+	if(!is_bulk_core && gene)
+		name = "[gene.get_name()] (plant data disk)"
+		ui_name = "[gene.get_name()]"
+	else if(is_bulk_core)
+		name = ""
+		if(seeds_scanned < seeds_needed)
+			name +=  "[round(seeds_scanned/seeds_needed*100,1)]% of "
+		name += "Core gene set "
+		ui_name = "Core "
+		for(var/i in 1 to length(core_genes))
+			if(i > 1)
+				name += "/"
+				ui_name += "/"
+			var/datum/plant_gene/core/core_gene = core_genes[i]
+			name += "[core_gene.value]"
+			ui_name += "[core_gene.value]"
+
+		name += " (plant data disk)"
+
+		if(seeds_scanned < seeds_needed)
+			ui_name +=  " ([round(seeds_scanned / seeds_needed * 100, 1)]%)"
 	else
 		name = "plant data disk"
+		ui_name = "Empty Disk"
+
+/obj/item/disk/plantgene/proc/core_matches(obj/item/seeds/seed)
+	if(!is_bulk_core)
+		return FALSE
+	for(var/datum/plant_gene/core/gene in core_genes)
+		var/datum/plant_gene/core/seed_gene = seed.get_gene(gene.type)
+		if(gene.value != seed_gene.value)
+			return FALSE
+	return TRUE
 
 /obj/item/disk/plantgene/update_desc()
 	. = ..()
@@ -451,14 +680,3 @@
 		return
 	if((user.mind.assigned_role == "Captain" || user.mind.special_role == SPECIAL_ROLE_NUKEOPS) && (user.Adjacent(src)))
 		. += "<span class='warning'>... Wait. This isn't the nuclear authentication disk! It's a clever forgery!</span>"
-
-/*
- *  Plant DNA Disks Box
- */
-/obj/item/storage/box/disks_plantgene
-	name = "plant data disks box"
-	icon_state = "disk_kit"
-
-/obj/item/storage/box/disks_plantgene/populate_contents()
-	for(var/i in 1 to 7)
-		new /obj/item/disk/plantgene(src)

@@ -112,6 +112,7 @@
 	desc = "An electronic device designed to mimic the functions of a pair of human eyes. It has no benefits over organic eyes, but is easy to produce."
 	origin_tech = "biotech=4"
 	status = ORGAN_ROBOT
+	var/flash_intensity = 1
 
 /obj/item/organ/internal/eyes/cybernetic/emp_act(severity)
 	if(!owner || emp_proof)
@@ -119,7 +120,7 @@
 	if(prob(10 * severity))
 		return
 	to_chat(owner, "<span class='warning'>Static obfuscates your vision!</span>")
-	owner.flash_eyes(visual = TRUE)
+	owner.flash_eyes(flash_intensity, visual = TRUE)
 	..()
 
 /obj/item/organ/internal/eyes/cybernetic/meson
@@ -166,6 +167,38 @@
 	emp_proof = TRUE
 	origin_tech = "materials=6;programming=5;biotech=6;magnets=6;syndicate=3"
 
+/obj/item/organ/internal/eyes/cybernetic/scope
+	name = "\improper Kaleido Optics eyes"
+	desc = "These cybernetic eye implants will let you zoom in on far away objects. Many users find it disorienting, and find it hard to interact with things near them when active."
+	eye_color = "#6f00ff"
+	flash_protect = FLASH_PROTECTION_EXTRA_SENSITIVE
+	origin_tech = "materials=5;programming=4;biotech=4;magnets=4"
+	var/scope_range = 0.8 //Only used in initialize. Greatly nerfed zoom range, since you are not taking the time zoom delay the lwap has.
+	var/active = FALSE
+
+/obj/item/organ/internal/eyes/cybernetic/scope/Initialize(mapload)
+	. = ..()
+	AddComponent(/datum/component/scope, range_modifier = scope_range, item_action_type = /datum/action/item_action/organ_action/toggle, flags = SCOPE_CLICK_MIDDLE)
+
+/obj/item/organ/internal/eyes/cybernetic/scope/insert(mob/living/carbon/human/M, special)
+	. = ..()
+	flash_protect = FLASH_PROTECTION_NONE //Resets it to none, so we can just flip to inital each time it is used.
+
+/obj/item/organ/internal/eyes/cybernetic/scope/ui_action_click(mob/user, actiontype)
+	active = !active
+	if(active)
+		flash_protect = initial(flash_protect)
+	else
+		flash_protect = FLASH_PROTECTION_NONE
+
+/obj/item/organ/internal/eyes/cybernetic/scope/hardened
+	name = "\improper Hardened Kaleido Optics eyes"
+	desc = "These cybernetic eye implants will let you zoom in on far away objects. Many users find it disorienting, and find it hard to interact with things near them when active. This pair has been hardened for special operations personnel, and has enhanced zoom functionality."
+	flash_protect = FLASH_PROTECTION_SENSITIVE
+	origin_tech = "materials=6;programming=5;biotech=6;magnets=6;syndicate=3"
+	scope_range = 1.25
+	emp_proof = TRUE
+
 /obj/item/organ/internal/eyes/cybernetic/flashlight
 	name = "flashlight eyes"
 	desc = "It's two flashlights rigged together with some wire. Why would you put these in someone's head?"
@@ -204,17 +237,16 @@
 	flash_protect = FLASH_PROTECTION_WELDER
 	eye_color = "#101010"
 	origin_tech = "materials=4;biotech=3;engineering=4;plasmatech=3"
-
-/obj/item/organ/internal/eyes/cybernetic/shield/emp_act(severity)
-	return
+	flash_intensity = 3
 
 #define INTACT 0
 #define ONE_SHATTERED 1
 #define BOTH_SHATTERED 2
 
-/obj/item/organ/internal/eyes/cybernetic/eyesofgod //no occuline allowed
+// no occuline allowed
+/obj/item/organ/internal/eyes/cybernetic/eyesofgod
 	name = "\improper Eyes of the Gods"
-	desc = "Two eyes said to belong to the gods. But such vision comes at a price"
+	desc = "Two eyes said to belong to the gods. But such vision comes at a price."
 	icon_state = "eyesofgod"
 	eye_color = "#58a5ec"
 	see_in_dark = 8
@@ -358,3 +390,7 @@
 	icon_state = "shield_reversed"
 	duration = 2 SECONDS
 	invisibility = INVISIBILITY_LEVEL_TWO
+
+#undef INTACT
+#undef ONE_SHATTERED
+#undef BOTH_SHATTERED

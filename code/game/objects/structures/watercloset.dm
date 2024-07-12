@@ -31,7 +31,7 @@
 		return
 
 	if(cistern && !open)
-		if(!contents.len)
+		if(!length(contents))
 			to_chat(user, "<span class='notice'>The cistern is empty.</span>")
 			return
 		else
@@ -108,11 +108,37 @@
 						GM.apply_damage(5, BRUTE, BODY_ZONE_HEAD)
 			else
 				to_chat(user, "<span class='warning'>You need a tighter grip!</span>")
+	if(istype(I, /obj/item/flamethrower))
+		var/obj/item/flamethrower/big_lighter = I
+		if(!big_lighter.lit)
+			to_chat(user, "<span class='warning'>The flamethrower isn't lit!</span>")
+			return
+		big_lighter.default_ignite(loc, 0.01)
+		if(!cistern) //Just changes what message you get, since fire_act handles the open cistern too.
+			user.visible_message("<span class='warning'>[user] torches the contents of the top of the toilet with [big_lighter]!</span>", "<span class='warning'>You torch the top of the toilet with [big_lighter]! Whoops.</span>")
+			return
+
+		user.visible_message("<span class='notice'>[user] torches the contents of the cistern with [big_lighter]!</span>", "<span class='notice'>You torch the contents of the cistern with [big_lighter]!</span>")
+		return
 
 	if(cistern)
+		update_contents_weight_class()
 		stash_goods(I, user)
 		return
 
+/obj/structure/toilet/fire_act(datum/gas_mixture/air, exposed_temperature, exposed_volume, global_overlay)
+	..()
+	if(!cistern)
+		return
+	for(var/obj/item/I in src)
+		I.fire_act(air, exposed_temperature, exposed_volume, global_overlay)
+
+//Used in case the contents of the cistern update outside of stash_goods, sets w_items to the new total weight.
+/obj/structure/toilet/proc/update_contents_weight_class()
+	var/new_total_weight = 0
+	for(var/obj/item/I in src)
+		new_total_weight += I.w_class
+	w_items = new_total_weight
 
 /obj/structure/toilet/crowbar_act(mob/user, obj/item/I)
 	. = TRUE
@@ -139,7 +165,7 @@
 		choices += "Connect"
 		choices += "Rotate"
 
-	var/response = input(user, "What do you want to do?", "[src]") as null|anything in choices
+	var/response = tgui_input_list(user, "What do you want to do?", "[src]", choices)
 	if(!Adjacent(user) || !response)	//moved away or cancelled
 		return
 	switch(response)
@@ -161,7 +187,9 @@
 				anchored = TRUE
 		if("Rotate")
 			var/list/dir_choices = list("North" = NORTH, "East" = EAST, "South" = SOUTH, "West" = WEST)
-			var/selected = input(user,"Select a direction for the connector.", "Connector Direction") in dir_choices
+			var/selected = tgui_input_list(user, "Select a direction for the connector.", "Connector Direction", dir_choices)
+			if(!selected)
+				return
 			dir = dir_choices[selected]
 	update_icon()	//is this necessary? probably not
 
@@ -178,7 +206,7 @@
 		to_chat(user, "<span class='warning'>[I] is stuck to your hand, you cannot put it in the cistern!</span>")
 		return
 	I.loc = src
-	w_items += I.w_class
+	update_contents_weight_class()
 	to_chat(user, "<span class='notice'>You carefully place [I] into the cistern.</span>")
 
 /obj/structure/toilet/secret
@@ -545,7 +573,7 @@
 		if(can_rotate)
 			choices += "Rotate"
 
-	var/response = input(user, "What do you want to do?", "[src]") as null|anything in choices
+	var/response = tgui_input_list(user, "What do you want to do?", "[src]", choices)
 	if(!Adjacent(user) || !response)	//moved away or cancelled
 		return
 	switch(response)
@@ -572,7 +600,9 @@
 				anchored = TRUE
 		if("Rotate")
 			var/list/dir_choices = list("North" = NORTH, "East" = EAST, "South" = SOUTH, "West" = WEST)
-			var/selected = input(user, "Select a direction for the connector.", "Connector Direction") in dir_choices
+			var/selected = tgui_input_list(user, "Select a direction for the connector.", "Connector Direction", dir_choices)
+			if(!selected)
+				return
 			dir = dir_choices[selected]
 	update_icon()	//is this necessary? probably not
 
@@ -606,7 +636,8 @@
 	can_rotate = 0
 
 
-/obj/structure/sink/puddle	//splishy splashy ^_^
+/// splishy splashy ^_^
+/obj/structure/sink/puddle
 	name = "puddle"
 	desc = "A puddle of clean water. Looks refreshing."
 	icon_state = "puddle"
@@ -657,8 +688,8 @@
 /obj/item/bathroom_parts
 	name = "toilet in a box"
 	desc = "An entire toilet in a box, straight from Space Sweden. It has an unpronounceable name."
-	icon = 'icons/obj/storage.dmi'
-	icon_state = "largebox"
+	icon = 'icons/obj/boxes.dmi'
+	icon_state = "large_box"
 	w_class = WEIGHT_CLASS_BULKY
 	var/result = /obj/structure/toilet
 	var/result_name = "toilet"

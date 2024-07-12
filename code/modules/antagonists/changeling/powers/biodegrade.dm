@@ -2,11 +2,12 @@
 	name = "Biodegrade"
 	desc = "Dissolves restraints or other objects preventing free movement if we are restrained. Prepares hand to vomit acid on other objects, doesn't work on living targets. Costs 30 chemicals."
 	helptext = "This is obvious to nearby people, and can destroy standard restraints and closets, and break you out of grabs."
-	button_icon_state = "biodegrade"
+	button_overlay_icon_state = "biodegrade"
 	chemical_cost = 30 //High cost to prevent spam
 	dna_cost = 4
 	req_human = TRUE
 	power_type = CHANGELING_PURCHASABLE_POWER
+	category = /datum/changeling_power_category/defence
 	/// Type of acid hand we give to person
 	var/hand = /obj/item/melee/changeling_corrosive_acid
 	/// Current hand given to human, null is we did not give hand, object if hand is given
@@ -123,6 +124,7 @@
 /obj/item/melee/changeling_corrosive_acid
 	name = "Corrosive acid"
 	desc = "A fistfull of death."
+	icon = 'icons/obj/weapons/magical_weapons.dmi'
 	icon_state = "alien_acid"
 	item_state = null
 	flags = ABSTRACT | NODROP | DROPDEL

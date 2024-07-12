@@ -110,13 +110,13 @@
 
 		if(cold_air && hot_air)
 
-			//log_debug("hot_air = [hot_air] temperature = [hot_air.temperature]; cold_air = [cold_air] temperature = [hot_air.temperature];")
+			//log_debug("hot_air = [hot_air] temperature = [hot_air.temperature()]; cold_air = [cold_air] temperature = [hot_air.temperature()];")
 
 			//log_debug("coldair and hotair pass")
 			var/cold_air_heat_capacity = cold_air.heat_capacity()
 			var/hot_air_heat_capacity = hot_air.heat_capacity()
 
-			var/delta_temperature = hot_air.temperature - cold_air.temperature
+			var/delta_temperature = hot_air.temperature() - cold_air.temperature()
 
 			//log_debug("delta_temperature = [delta_temperature]; cold_air_heat_capacity = [cold_air_heat_capacity]; hot_air_heat_capacity = [hot_air_heat_capacity]")
 
@@ -130,8 +130,8 @@
 
 				//log_debug("lastgen = [lastgen]; heat = [heat]; delta_temperature = [delta_temperature]; hot_air_heat_capacity = [hot_air_heat_capacity]; cold_air_heat_capacity = [cold_air_heat_capacity];")
 
-				hot_air.temperature = hot_air.temperature - energy_transfer / hot_air_heat_capacity
-				cold_air.temperature = cold_air.temperature + heat / cold_air_heat_capacity
+				hot_air.set_temperature(hot_air.temperature() - energy_transfer / hot_air_heat_capacity)
+				cold_air.set_temperature(cold_air.temperature() + heat / cold_air_heat_capacity)
 
 				//log_debug("POWER: [lastgen] W generated at [efficiency * 100]% efficiency and sinks sizes [cold_air_heat_capacity], [hot_air_heat_capacity]")
 
@@ -191,20 +191,20 @@
 
 /obj/machinery/power/teg/wrench_act(mob/user, obj/item/I)
 	. = TRUE
-	if(!I.use_tool(src, user, 0, volume = I.tool_volume))
+	if(!default_unfasten_wrench(user, I, 0))
 		return
-	anchored = !anchored
 	if(!anchored)
 		disconnect()
-		power_change()
 	else
 		connect()
-	to_chat(user, "<span class='notice'>You [anchored ? "secure" : "unsecure"] the bolts holding [src] to the floor.</span>")
 
-/obj/machinery/power/teg/ui_interact(mob/user, ui_key = "main", datum/tgui/ui = null, force_open = TRUE, datum/tgui/master_ui = null, datum/ui_state/state = GLOB.default_state)
-	ui = SStgui.try_update_ui(user, src, ui_key, ui, force_open)
+/obj/machinery/power/teg/ui_state(mob/user)
+	return GLOB.default_state
+
+/obj/machinery/power/teg/ui_interact(mob/user, datum/tgui/ui = null)
+	ui = SStgui.try_update_ui(user, src, ui)
 	if(!ui)
-		ui = new(user, src, ui_key, "TEG",  name, 500, 400, master_ui, state)
+		ui = new(user, src, "TEG",  name)
 		ui.open()
 
 /obj/machinery/power/teg/ui_data(mob/user)
@@ -221,10 +221,10 @@
 		data["hot_dir"] = dir2text(hot_dir)
 		data["output_power"] = round(lastgen)
 		// Temps are K, pressures are kPa, power is W
-		data["cold_inlet_temp"] = round(cold_circ_air2.temperature, 0.1)
-		data["hot_inlet_temp"] = round(hot_circ_air2.temperature, 0.1)
-		data["cold_outlet_temp"] = round(cold_circ_air1.temperature, 0.1)
-		data["hot_outlet_temp"] = round(hot_circ_air1.temperature, 0.1)
+		data["cold_inlet_temp"] = round(cold_circ_air2.temperature(), 0.1)
+		data["hot_inlet_temp"] = round(hot_circ_air2.temperature(), 0.1)
+		data["cold_outlet_temp"] = round(cold_circ_air1.temperature(), 0.1)
+		data["hot_outlet_temp"] = round(hot_circ_air1.temperature(), 0.1)
 		data["cold_delta_temp"] = data["cold_outlet_temp"] - data["cold_inlet_temp"]
 		data["cold_inlet_pressure"] = round(cold_circ_air2.return_pressure(), 0.1)
 		data["hot_inlet_pressure"] = round(hot_circ_air2.return_pressure(), 0.1)

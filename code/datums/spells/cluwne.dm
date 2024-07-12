@@ -1,4 +1,4 @@
-/obj/effect/proc_holder/spell/touch/cluwne
+/datum/spell/touch/cluwne
 	name = "Curse of the Cluwne"
 	desc = "Turns the target into a fat and cursed monstrosity of a clown."
 	hand_path = /obj/item/melee/touch_attack/cluwne
@@ -12,6 +12,11 @@
 	action_icon_state = "cluwne"
 
 /mob/living/carbon/human/proc/makeCluwne()
+	if(istype(back, /obj/item/mod/control)) // Check if the target is wearing a modsuit
+		var/obj/item/mod/control/modsuit_control = back
+		if(istype(wear_suit, /obj/item/clothing/suit/mod)) // Check if the modsuit is deployed
+			modsuit_control.active = FALSE // Instantly deactivate the modsuit - if it was activated
+			modsuit_control.quick_deploy(src) // The modsuit is no longer deployed
 	to_chat(src, "<span class='danger'>You feel funny.</span>")
 	if(!get_int_organ(/obj/item/organ/internal/brain/cluwne))
 		var/obj/item/organ/internal/brain/cluwne/idiot_brain = new
@@ -49,7 +54,7 @@
 	SetConfused(0)
 	SetJitter(0)
 	if(mind)
-		mind.assigned_role = "Lawyer"
+		mind.assigned_role = "Internal Affairs Agent"
 
 	var/obj/item/organ/internal/honktumor/cursed/tumor = get_int_organ(/obj/item/organ/internal/honktumor/cursed)
 	if(tumor)
@@ -80,5 +85,5 @@
 		unEquip(gloves, 1)
 		qdel(G)
 
-	equip_to_slot_if_possible(new /obj/item/clothing/under/rank/procedure/lawyer/black, SLOT_HUD_JUMPSUIT, TRUE, TRUE)
+	equip_to_slot_if_possible(new /obj/item/clothing/under/rank/procedure/iaa/formal/black, SLOT_HUD_JUMPSUIT, TRUE, TRUE)
 	equip_to_slot_if_possible(new /obj/item/clothing/shoes/black, SLOT_HUD_SHOES, TRUE, TRUE)

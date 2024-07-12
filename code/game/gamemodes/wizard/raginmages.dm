@@ -2,7 +2,6 @@
 	name = "ragin' mages"
 	config_tag = "raginmages"
 	required_players = 20
-	use_huds = TRUE
 	but_wait_theres_more = TRUE
 	var/max_mages = 0
 	var/making_mage = FALSE
@@ -11,30 +10,12 @@
 	var/players_per_mage = 10 // If the admin wants to tweak things or something
 	var/delay_per_mage = 7 MINUTES // Every 7 minutes by default
 	var/time_till_chaos = 30 MINUTES // Half-hour in
+	/// Tracks a one-time restock of all magivends once we get a second wizard
+	var/have_we_populated_magivends = FALSE
 
 /datum/game_mode/wizard/raginmages/announce()
 	to_chat(world, "<B>The current game mode is - Ragin' Mages!</B>")
 	to_chat(world, "<B>The <font color='red'>Space Wizard Federation</font> is pissed, crew must help defeat all the Space Wizards invading the station!</B>")
-
-/datum/game_mode/wizard/post_setup()
-	// Makes magivends PLENTIFUL
-	for(var/obj/machinery/economy/vending/magivend/magic in GLOB.machines)
-		for(var/key in magic.products)
-			magic.products[key] = 20 // and so, there was prosperity for ragin mages everywhere
-		magic.product_records.Cut()
-		magic.build_inventory(magic.products, magic.product_records)
-	..()
-
-/datum/game_mode/wizard/raginmages/greet_wizard(datum/mind/wizard, you_are=1)
-	var/list/messages = list()
-	if(you_are)
-		messages.Add("<span class='danger'>You are the Space Wizard!</span>")
-	messages.Add("<B>The Space Wizards Federation has given you the following tasks:</B>")
-
-	messages.Add("<b>Supreme Objective</b>: Make sure the station pays for its actions against our diplomats. We might send more Wizards to the station if the situation is not developing in our favour.")
-	messages.Add(wizard.prepare_announce_objectives(title = FALSE))
-	to_chat(wizard.current, chat_box_red(messages.Join("<br>")))
-	wizard.current.create_log(MISC_LOG, "[wizard.current] was made into a wizard")
 
 /datum/game_mode/wizard/raginmages/check_finished()
 	var/wizards_alive = 0
@@ -44,14 +25,14 @@
 		if(isnull(wizard.current))
 			continue
 		if(wizard.current.stat == DEAD || isbrain(wizard.current) || !iscarbon(wizard.current))
-			squabble_helper(wizard)
-			continue
-		if(wizard.current.stat == UNCONSCIOUS)
-			if(wizard.current.health < HEALTH_THRESHOLD_DEAD) //Lets make this not get funny rng crit involved
+			if(squabble_helper(wizard))
+				continue
+		if(wizard.current.stat != CONSCIOUS)
+			if(wizard.current.health < HEALTH_THRESHOLD_DEAD || wizard.current.stat == DEAD) //Lets make this not get funny rng crit involved
 				if(!squabble_helper(wizard))
 					to_chat(wizard.current, "<span class='warning'><font size='4'>The Space Wizard Federation is upset with your performance and have terminated your employment.</font></span>")
 					wizard.current.dust() // *REAL* ACTION!! *REAL* DRAMA!! *REAL* BLOODSHED!!
-			continue
+				continue
 
 		if(!wizard.current.client)
 			continue // Could just be a bad connection, so SSD wiz's shouldn't be gibbed over it, but they're not "alive" either
@@ -101,7 +82,7 @@
 		L.ghostize()
 		if(isbrain(L))
 			// diediedie
-			var/mob/living/carbon/brain/B = L
+			var/mob/living/brain/B = L
 			if(isitem(B.loc))
 				qdel(B.loc)
 			if(B && B.container)
@@ -116,13 +97,15 @@
 	if(making_mage || SSshuttle.emergency.mode >= SHUTTLE_ESCAPE)
 		return FALSE
 	making_mage = TRUE
+	if(!have_we_populated_magivends)
+		populate_magivends()
 
 	var/image/source = image('icons/obj/cardboard_cutout.dmi', "cutout_wizard")
 	var/list/mob/dead/observer/candidates = SSghost_spawns.poll_candidates("Do you want to play as a raging Space Wizard?", ROLE_WIZARD, TRUE, poll_time = 20 SECONDS, source = source)
 	var/mob/dead/observer/harry = null
 	message_admins("SWF is still pissed, sending another wizard - [max_mages - mages_made] left.")
 
-	if(!candidates.len)
+	if(!length(candidates))
 		message_admins("This is awkward, sleeping until another mage check..")
 		making_mage = FALSE
 		sleep(300)
@@ -131,8 +114,11 @@
 	making_mage = FALSE
 	if(harry)
 		var/mob/living/carbon/human/new_character = makeBody(harry)
-		new_character.mind.make_Wizard() // This puts them at the wizard spawn, worry not
-		new_character.equip_to_slot_or_del(new /obj/item/reagent_containers/food/drinks/mugwort(harry), SLOT_HUD_IN_BACKPACK)
+		var/datum/antagonist/wizard/wizard = new /datum/antagonist/wizard()
+		wizard.additional_text = "Make sure the station pays for its actions against our diplomats. We might send more Wizards to the station if the situation is not developing in our favour."
+		new_character.mind.add_antag_datum(wizard)
+		new_character.forceMove(pick(GLOB.wizardstart))
+		new_character.equip_to_slot_or_del(new /obj/item/reagent_containers/drinks/mugwort(harry), SLOT_HUD_IN_BACKPACK)
 		// The first wiznerd can get their mugwort from the wizard's den, new ones will also need mugwort!
 		mages_made++
 		dust_if_respawnable(harry)
@@ -157,3 +143,13 @@
 		SSticker.mode_result = "raging wizard loss - wizard killed"
 		to_chat(world, "<span class='warning'><font size = 3><b>The crew has managed to hold off the Wizard attack! The Space Wizard Federation has been taught a lesson they will not soon forget!</b></font></span>")
 	..(1)
+
+/datum/game_mode/wizard/raginmages/proc/populate_magivends()
+	// Makes magivends PLENTIFUL
+	for(var/obj/machinery/economy/vending/magivend/magic in GLOB.machines)
+		for(var/key in magic.products)
+			magic.products[key] = 20 // and so, there was prosperity for ragin mages everywhere
+		magic.product_records.Cut()
+		magic.build_inventory(magic.products, magic.product_records)
+
+	have_we_populated_magivends = TRUE

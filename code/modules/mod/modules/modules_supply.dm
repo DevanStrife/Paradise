@@ -58,7 +58,7 @@
 		if(target_turf.density)
 			return
 		playsound(src, 'sound/mecha/hydraulic.ogg', 25, TRUE)
-		if(!do_after(mod.wearer, load_time, target = target))
+		if(!do_after(mod.wearer, load_time, target = target, extra_checks = list(CALLBACK(src, TYPE_PROC_REF(/obj/item/mod/module/clamp, should_cancel_drop)))))
 			return
 		if(target_turf.density)
 			return
@@ -85,6 +85,10 @@
 		to_chat(mod.wearer, "<span class='warning'>Too heavy!</span>")
 		return FALSE
 	return TRUE
+
+/// Checks if the target crate has already been dropped by another on_select_use call
+/obj/item/mod/module/clamp/proc/should_cancel_drop()
+	return !length(stored_crates)
 
 /obj/item/mod/module/clamp/loader
 	name = "MOD loader hydraulic clamp module"
@@ -324,8 +328,9 @@
 		))
 	if(!keep_turfs)
 		keep_turfs = typecacheof(list(
-			/turf/simulated/floor/plating/lava,
-			/turf/simulated/floor/indestructible/hierophant
+			/turf/simulated/floor/lava,
+			/turf/simulated/floor/indestructible/hierophant,
+			/turf/simulated/floor/indestructible/necropolis
 			))
 
 /obj/item/mod/module/ash_accretion/on_suit_activation()
@@ -465,7 +470,7 @@
 	var/obj/item/projectile/bomb = new /obj/item/projectile/bullet/reusable/mining_bomb(get_turf(mod.wearer))
 	bomb.original = target
 	bomb.firer = mod.wearer
-	bomb.preparePixelProjectile(target, get_turf(target), mod.wearer)
+	bomb.preparePixelProjectile(target, mod.wearer)
 	bomb.fire()
 	playsound(src, 'sound/weapons/grenadelaunch.ogg', 75, TRUE)
 	drain_power(use_power_cost)
@@ -515,6 +520,10 @@
 	var/fauna_boost = 4
 	/// Image overlaid on explosion.
 	var/static/image/explosion_image
+	/// Radius of explosion
+	var/power = 1
+	/// Drill power of grenade
+	var/drill_power = 2
 
 /obj/structure/mining_bomb/Initialize(mapload, atom/movable/firer)
 	. = ..()
@@ -533,16 +542,24 @@
 /obj/structure/mining_bomb/proc/boom(atom/movable/firer)
 	visible_message("<span class='danger'>[src] explodes!</span>")
 	playsound(src, 'sound/magic/magic_missile.ogg', 200, vary = TRUE)
-	for(var/turf/T in circleviewturfs(src, 2))
+	for(var/turf/T in circleviewturfs(src, drill_power))
 		if(ismineralturf(T))
 			var/turf/simulated/mineral/mineral_turf = T
 			mineral_turf.gets_drilled(firer)
-	for(var/mob/living/mob in range(1, src))
+	for(var/mob/living/mob in range(power, src))
 		mob.apply_damage(damage * (ishostile(mob) ? fauna_boost : 1), BRUTE, spread_damage = TRUE)
 		if(!ishostile(mob) || !firer)
 			continue
 		var/mob/living/simple_animal/hostile/hostile_mob = mob
 		hostile_mob.GiveTarget(firer)
-	for(var/obj/object in range(1, src))
+	for(var/obj/object in range(power, src))
 		object.take_damage(damage, BRUTE, BOMB)
 	qdel(src)
+
+/obj/item/projectile/bullet/reusable/mining_bomb/mecha
+	ammo_type = /obj/structure/mining_bomb/mecha
+
+/obj/structure/mining_bomb/mecha
+	damage = 15
+	power = 2
+	drill_power = 3

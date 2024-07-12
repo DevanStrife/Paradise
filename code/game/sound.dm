@@ -92,9 +92,6 @@ falloff_distance - Distance at which falloff begins. Sound is at peak volume (in
 	S.channel = channel || SSsounds.random_available_channel()
 	S.volume = vol
 
-	if(channel)
-		S.volume *= client.prefs.get_channel_volume(channel)
-
 	if(vary)
 		if(frequency)
 			S.frequency = frequency
@@ -109,22 +106,23 @@ falloff_distance - Distance at which falloff begins. Sound is at peak volume (in
 
 		distance *= distance_multiplier
 
-		if(max_distance) //If theres no max_distance we're not a 3D sound, so no falloff.
+		if(max_distance && distance > falloff_distance) //If theres no max_distance we're not a 3D sound, so no falloff.
 			S.volume -= (max(distance - falloff_distance, 0) ** (1 / falloff_exponent)) / ((max(max_distance, distance) - falloff_distance) ** (1 / falloff_exponent)) * S.volume
 			//https://www.desmos.com/calculator/sqdfl8ipgf
 
 		if(pressure_affected)
 			//Atmosphere affects sound
-			var/pressure_factor = 1
-			var/datum/gas_mixture/hearer_env = T.return_air()
-			var/datum/gas_mixture/source_env = turf_source.return_air()
+			var/pressure = ONE_ATMOSPHERE
+			if(!T.blocks_air)
+				var/datum/gas_mixture/hearer_env = T.get_readonly_air()
+				pressure = hearer_env.return_pressure()
+			if(!turf_source.blocks_air)
+				var/datum/gas_mixture/source_env = turf_source.get_readonly_air()
+				pressure = min(pressure, source_env.return_pressure())
 
-			if(hearer_env && source_env)
-				var/pressure = min(hearer_env.return_pressure(), source_env.return_pressure())
-				if(pressure < ONE_ATMOSPHERE)
-					pressure_factor = max((pressure - SOUND_MINIMUM_PRESSURE)/(ONE_ATMOSPHERE - SOUND_MINIMUM_PRESSURE), 0)
-			else //space
-				pressure_factor = 0
+			var/pressure_factor = 1
+			if(pressure < ONE_ATMOSPHERE)
+				pressure_factor = max((pressure - SOUND_MINIMUM_PRESSURE) / (ONE_ATMOSPHERE - SOUND_MINIMUM_PRESSURE), 0)
 
 			if(distance <= 1)
 				pressure_factor = max(pressure_factor, 0.15) //touching the source of the sound
@@ -158,6 +156,10 @@ falloff_distance - Distance at which falloff begins. Sound is at peak volume (in
 			if(!(client?.prefs?.toggles2 & PREFTOGGLE_2_REVERB_DISABLE))
 				S.echo[3] = 0 //Room setting, 0 means normal reverb
 				S.echo[4] = 0 //RoomHF setting, 0 means normal reverb.
+
+	S.volume *= USER_VOLUME(src, CHANNEL_GENERAL)
+	if(channel)
+		S.volume *= USER_VOLUME(src, channel)
 
 	SEND_SOUND(src, S)
 

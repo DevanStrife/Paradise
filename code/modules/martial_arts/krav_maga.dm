@@ -9,7 +9,7 @@
 
 /datum/action/neutral_stance
 	name = "Neutral Stance - You relax, cancelling your last Krav Maga stance attack."
-	button_icon_state = "neutralstance"
+	button_overlay_icon_state = "neutralstance"
 
 /datum/action/neutral_stance/Trigger(left_click)
 	var/mob/living/carbon/human/H = owner
@@ -23,7 +23,7 @@
 
 /datum/action/neck_chop
 	name = "Neck Chop - Injures the neck, stopping the victim from speaking for a while."
-	button_icon_state = "neckchop"
+	button_overlay_icon_state = "neckchop"
 
 /datum/action/neck_chop/Trigger(left_click)
 	var/mob/living/carbon/human/H = owner //This is a janky solution, but I want to refactor krav anyway and un-jank this (written in may 2023)
@@ -41,7 +41,7 @@
 	H.mind.martial_art.in_stance = TRUE
 /datum/action/leg_sweep
 	name = "Leg Sweep - Trips the victim, rendering them prone and unable to move for a short time."
-	button_icon_state = "legsweep"
+	button_overlay_icon_state = "legsweep"
 
 /datum/action/leg_sweep/Trigger(left_click)
 	var/mob/living/carbon/human/H = owner
@@ -63,7 +63,7 @@
 
 /datum/action/lung_punch//referred to internally as 'quick choke'
 	name = "Lung Punch - Delivers a strong punch just above the victim's abdomen, constraining the lungs. The victim will be unable to breathe for a short time."
-	button_icon_state = "lungpunch"
+	button_overlay_icon_state = "lungpunch"
 
 /datum/action/lung_punch/Trigger(left_click)
 	var/mob/living/carbon/human/H = owner
@@ -108,15 +108,15 @@
 	if(IS_HORIZONTAL(D))
 		bonus_damage += 5
 		picked_hit_type = "stomps on"
-	D.apply_damage(bonus_damage, BRUTE)
-	if(picked_hit_type == "kicks" || picked_hit_type == "stomps")
+	if(picked_hit_type == "kicks" || IS_HORIZONTAL(D))
 		A.do_attack_animation(D, ATTACK_EFFECT_KICK)
-		playsound(get_turf(D), 'sound/effects/hit_kick.ogg', 50, 1, -1)
+		playsound(get_turf(D), 'sound/effects/hit_kick.ogg', 50, TRUE, -1)
 	else
 		A.do_attack_animation(D, ATTACK_EFFECT_PUNCH)
-		playsound(get_turf(D), 'sound/effects/hit_punch.ogg', 50, 1, -1)
+		playsound(get_turf(D), 'sound/effects/hit_punch.ogg', 50, TRUE, -1)
 	D.visible_message("<span class='danger'>[A] [picked_hit_type] [D]!</span>", \
 					"<span class='userdanger'>[A] [picked_hit_type] you!</span>")
+	D.apply_damage(bonus_damage, BRUTE)
 	return TRUE
 
 /datum/martial_art/krav_maga/disarm_act(mob/living/carbon/human/A, mob/living/carbon/human/D)
@@ -132,7 +132,7 @@
 	else
 		D.visible_message("<span class='danger'>[A] attempted to disarm [D]!</span>", \
 							"<span class='userdanger'>[A] attempted to disarm [D]!</span>")
-		playsound(D, 'sound/weapons/punchmiss.ogg', 25, 1, -1)
+		playsound(D, 'sound/weapons/punchmiss.ogg', 25, TRUE, -1)
 	return TRUE
 
 //Krav Maga Gloves
@@ -171,7 +171,8 @@
 	. = ..()
 	RegisterSignal(src, COMSIG_PARENT_QDELETING, PROC_REF(alert_admins_on_destroy))
 
-/obj/item/clothing/gloves/color/black/krav_maga/combat // for nukies
+/// for nukies
+/obj/item/clothing/gloves/color/black/krav_maga/combat
 	name = "Combat gloves plus"
 	desc = "These combat gloves have been upgraded with nanochips that teach the wearer Krav Maga."
 	icon_state = "combat"

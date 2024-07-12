@@ -19,7 +19,8 @@
 	name = "armor"
 	desc = "An armored vest that protects against some damage."
 	sprite_sheets = list(
-		"Grey" = 'icons/mob/clothing/species/grey/suit.dmi'
+		"Grey" = 'icons/mob/clothing/species/grey/suit.dmi',
+		"Vox" = 'icons/mob/clothing/species/vox/suit.dmi'
 	)
 	icon_state = "armor"
 	item_state = "armor"
@@ -44,7 +45,8 @@
 	name = "security armor"
 	desc = "An armored vest that protects against some damage. This one has a clip for a holobadge."
 	sprite_sheets = list(
-		"Grey" = 'icons/mob/clothing/species/grey/suit.dmi'
+		"Grey" = 'icons/mob/clothing/species/grey/suit.dmi',
+		"Vox" = 'icons/mob/clothing/species/vox/suit.dmi'
 	)
 	icon_state = "armor"
 	item_state = "armor"
@@ -86,11 +88,18 @@
 	desc = "Perfect for when you're looking to send a message rather than performing your actual duties."
 	icon_state = "streetjudgearmor"
 
+	sprite_sheets = list(
+		"Vox" = 'icons/mob/clothing/species/vox/suit.dmi',
+		"Drask" = 'icons/mob/clothing/species/drask/suit.dmi',
+		"Grey" = 'icons/mob/clothing/species/grey/suit.dmi'
+	)
+
 /obj/item/clothing/suit/armor/vest/blueshield
 	name = "blueshield's security armor"
-	desc = "An armored vest with the badge of a Blueshield Lieutenant."
+	desc = "An armored vest with the badge of a Blueshield."
 	sprite_sheets = list(
-		"Grey" = 'icons/mob/clothing/species/grey/suit.dmi'
+		"Grey" = 'icons/mob/clothing/species/grey/suit.dmi',
+		"Vox" = 'icons/mob/clothing/species/vox/suit.dmi'
 	)
 	icon_state = "blueshield"
 	item_state = "blueshield"
@@ -115,6 +124,21 @@
 	suit_adjusted = 1
 	actions_types = list(/datum/action/item_action/openclose)
 	adjust_flavour = "unzip"
+	sprite_sheets = list(
+		"Vox" = 'icons/mob/clothing/species/vox/suit.dmi',
+		"Drask" = 'icons/mob/clothing/species/drask/suit.dmi',
+		"Grey" = 'icons/mob/clothing/species/grey/suit.dmi'
+		)
+
+/obj/item/clothing/suit/armor/secponcho
+	name = "security poncho"
+	desc = "A stylish black and red poncho made with reinforced fabric."
+	icon_state = "security_poncho"
+	item_state = "security_poncho"
+	body_parts_covered = UPPER_TORSO|LOWER_TORSO|ARMS
+	armor = list(MELEE = 10, BULLET = 5, LASER = 10, ENERGY = 5, BOMB = 10, RAD = 0, FIRE = 20, ACID = 20)
+	cold_protection = UPPER_TORSO|LOWER_TORSO|ARMS
+	heat_protection = UPPER_TORSO|LOWER_TORSO|ARMS
 	sprite_sheets = list(
 		"Vox" = 'icons/mob/clothing/species/vox/suit.dmi',
 		"Drask" = 'icons/mob/clothing/species/drask/suit.dmi',
@@ -190,7 +214,7 @@
 	armor = list(MELEE = 50, BULLET = 35, LASER = 50, ENERGY = 5, BOMB = 15, RAD = 0, FIRE = INFINITY, ACID = 450)
 	dog_fashion = null
 	resistance_flags = FIRE_PROOF
-	allowed = list(/obj/item/disk, /obj/item/stamp, /obj/item/reagent_containers/food/drinks/flask, /obj/item/melee, /obj/item/storage/lockbox/medal, /obj/item/flash, /obj/item/storage/box/matches, /obj/item/lighter, /obj/item/clothing/mask/cigarette, /obj/item/storage/fancy/cigarettes, /obj/item/tank/internals/emergency_oxygen, /obj/item/gun/energy, /obj/item/gun/projectile)
+	allowed = list(/obj/item/disk, /obj/item/stamp, /obj/item/reagent_containers/drinks/flask, /obj/item/melee, /obj/item/storage/lockbox/medal, /obj/item/flash, /obj/item/storage/fancy/matches, /obj/item/lighter, /obj/item/clothing/mask/cigarette, /obj/item/storage/fancy/cigarettes, /obj/item/tank/internals/emergency_oxygen, /obj/item/gun/energy, /obj/item/gun/projectile)
 
 	sprite_sheets = list(
 		"Vox" = 'icons/mob/clothing/species/vox/suit.dmi',
@@ -260,7 +284,8 @@
 	icon_state = "knight_green"
 	item_state = "knight_green"
 	slowdown = 1
-	sprite_sheets = list()
+	sprite_sheets = list("Vox" = 'icons/mob/clothing/species/vox/suit.dmi')
+	hide_tail_by_species = list("Vox")
 
 /obj/item/clothing/suit/armor/riot/knight/yellow
 	icon_state = "knight_yellow"
@@ -357,7 +382,8 @@
 	name = "armor"
 	desc = "An armored vest with a detective's badge on it."
 	sprite_sheets = list(
-		"Grey" = 'icons/mob/clothing/species/grey/suit.dmi'
+		"Grey" = 'icons/mob/clothing/species/grey/suit.dmi',
+		"Vox" = 'icons/mob/clothing/species/vox/suit.dmi'
 	)
 	icon_state = "detective-armor"
 	item_state = "armor"
@@ -419,7 +445,7 @@
 	user.update_inv_wear_suit()
 	for(var/X in actions)
 		var/datum/action/A = X
-		A.UpdateButtonIcon()
+		A.UpdateButtons()
 
 /obj/item/clothing/suit/armor/reactive/emp_act(severity)
 	var/emp_power = 5 + (severity-1 ? 0 : 5)
@@ -461,7 +487,7 @@
 
 /obj/item/clothing/suit/armor/reactive/proc/reaction_check(hitby)
 	if(prob(hit_reaction_chance))
-		if(istype(hitby, /obj/item/projectile))
+		if(isprojectile(hitby))
 			var/obj/item/projectile/P = hitby
 			if(istype(P, /obj/item/projectile/ion))
 				return FALSE
@@ -537,7 +563,7 @@
 	if(reaction_check(hitby) && use_power())
 		owner.visible_message("<span class='danger'>[src] blocks [attack_text], sending out freezing bolts!</span>")
 
-		for(var/mob/M in oview(get_turf(src), 7))
+		for(var/mob/living/M in oview(get_turf(src), 7))
 			shootAt(M)
 
 		if(prob(10)) //rarely vent gasses
@@ -599,7 +625,7 @@
 				continue
 			owner.Beam(M,icon_state="lightning[rand(1, 12)]",icon='icons/effects/effects.dmi',time=5)
 			M.adjustFireLoss(20)
-			playsound(M, 'sound/machines/defib_zap.ogg', 50, 1, -1)
+			playsound(M, 'sound/machines/defib_zap.ogg', 50, TRUE, -1)
 			add_attack_logs(owner, M, "[M] was shocked by [owner]'s [src]", ATKLOG_ALMOSTALL)
 		disable(rand(2, 5)) // let's not have buckshot set it off 4 times and do 80 burn damage.
 		return TRUE
@@ -626,9 +652,8 @@
 			for(var/atom/movable/AM in T)
 				thrown_atoms += AM
 
-		for(var/am in thrown_atoms)
-			var/atom/movable/AM = am
-			if(AM == owner || AM.anchored)
+		for(var/atom/movable/AM as anything in thrown_atoms)
+			if(AM == owner || AM.anchored || (ismob(AM) && !isliving(AM)))
 				continue
 
 			var/throw_target = get_edge_target_turf(owner, get_dir(owner, get_step_away(AM, owner)))
@@ -649,7 +674,8 @@
 		disable(rand(2, 5))
 		return TRUE
 
-/obj/item/clothing/suit/armor/reactive/random //Spawner for random reactive armor
+/// Spawner for random reactive armor
+/obj/item/clothing/suit/armor/reactive/random
 	name = "Random Reactive Armor"
 
 /obj/item/clothing/suit/armor/reactive/random/Initialize(mapload)
@@ -802,7 +828,9 @@
 	allowed = list(/obj/item/flashlight, /obj/item/tank/internals, /obj/item/pickaxe, /obj/item/spear, /obj/item/organ/internal/regenerative_core/legion, /obj/item/kitchen/knife/combat/survival)
 	armor = list(MELEE = 25, BULLET = 5, LASER = 15, ENERGY = 5, BOMB = 15, RAD = 0, FIRE = 75, ACID = 75) //a fair alternative to bone armor, requiring alternative materials and gaining a suit slot
 	hoodtype = /obj/item/clothing/head/hooded/goliath
-	body_parts_covered = UPPER_TORSO|LOWER_TORSO|ARMS
+	body_parts_covered = UPPER_TORSO|LOWER_TORSO|LEGS|ARMS|HANDS
+	heat_protection = UPPER_TORSO|LOWER_TORSO|LEGS|ARMS|HANDS
+	max_heat_protection_temperature = FIRE_IMMUNITY_MAX_TEMP_PROTECT
 
 /obj/item/clothing/head/hooded/goliath
 	name = "goliath cloak hood"
@@ -812,6 +840,9 @@
 	armor = list(MELEE = 25, BULLET = 5, LASER = 15, ENERGY = 5, BOMB = 15, RAD = 0, FIRE = 75, ACID = 75)
 	flags = BLOCKHAIR
 	flags_cover = HEADCOVERSEYES
+	body_parts_covered = HEAD
+	heat_protection = HEAD
+	max_heat_protection_temperature = FIRE_IMMUNITY_MAX_TEMP_PROTECT
 
 /obj/item/clothing/suit/armor/bone
 	name = "bone armor"
@@ -820,4 +851,6 @@
 	item_state = "bonearmor"
 	blood_overlay_type = "armor"
 	armor = list(MELEE = 25, BULLET = 15, LASER = 15, ENERGY = 5, BOMB = 15, RAD = 0, FIRE = 50, ACID = 50)
-	body_parts_covered = UPPER_TORSO|LOWER_TORSO|LEGS|FEET|ARMS
+	body_parts_covered = UPPER_TORSO|LOWER_TORSO|LEGS|FEET|ARMS|HANDS
+	heat_protection = UPPER_TORSO|LOWER_TORSO|LEGS|FEET|ARMS|HANDS
+	max_heat_protection_temperature = FIRE_IMMUNITY_MAX_TEMP_PROTECT

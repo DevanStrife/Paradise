@@ -105,7 +105,7 @@
 	add_fingerprint(usr)
 
 	if(!allowed(usr))
-		to_chat(usr, "<span class='warning'>Access denied</span>")
+		to_chat(usr, "<span class='warning'>Access denied.</span>")
 		return TRUE
 
 	switch(action)
@@ -153,11 +153,11 @@
 		//the airlock will not allow itself to continue to cycle when any of the doors are forced open.
 		stop_cycling()
 
+	var/turf/T = get_turf(src)
+	var/chamber_pressure = T.get_readonly_air().return_pressure()
 	switch(state)
 		if(CONTROL_STATE_PREPARE)
 			if(check_doors_secured())
-				var/chamber_pressure = return_air().return_pressure()
-
 				if(chamber_pressure <= target_pressure)
 					state = CONTROL_STATE_PRESSURIZE
 					signalPumps(TRUE, TRUE, target_pressure)	//send a signal to start pressurizing
@@ -171,7 +171,7 @@
 					target_pressure = ONE_ATMOSPHERE * 0.05
 
 		if(CONTROL_STATE_PRESSURIZE)
-			if(return_air().return_pressure() >= (target_pressure * 0.95))
+			if(chamber_pressure >= (target_pressure * 0.95))
 				cycleDoors(target_state)
 
 				state = CONTROL_STATE_IDLE
@@ -181,7 +181,7 @@
 
 
 		if(CONTROL_STATE_DEPRESSURIZE)
-			if(return_air().return_pressure() <= (target_pressure * 1.05))
+			if(chamber_pressure <= (target_pressure * 1.05))
 				cycleDoors(target_state)
 
 				state = CONTROL_STATE_IDLE
@@ -345,10 +345,13 @@ send an additional command to open the door again.
 	else
 		icon_state = "access_control_off"
 
-/obj/machinery/airlock_controller/access_controller/ui_interact(mob/user, ui_key = "main", datum/tgui/ui = null, force_open = FALSE, datum/tgui/master_ui = null, datum/ui_state/state = GLOB.default_state)
-	ui = SStgui.try_update_ui(user, src, ui_key, ui, force_open)
+/obj/machinery/airlock_controller/access_controller/ui_state(mob/user)
+	return GLOB.default_state
+
+/obj/machinery/airlock_controller/access_controller/ui_interact(mob/user, datum/tgui/ui = null)
+	ui = SStgui.try_update_ui(user, src, ui)
 	if(!ui)
-		ui = new(user, src, ui_key, "AirlockAccessController", name, 470, 290, master_ui, state)
+		ui = new(user, src, "AirlockAccessController", name)
 		ui.open()
 
 /obj/machinery/airlock_controller/access_controller/ui_data(mob/user)
@@ -378,16 +381,21 @@ send an additional command to open the door again.
 		stack_trace("[src] at [x],[y],[z] didnt setup any vents! Please double check the IDs!")
 
 
-/obj/machinery/airlock_controller/air_cycler/ui_interact(mob/user, ui_key = "main", datum/tgui/ui = null, force_open = FALSE, datum/tgui/master_ui = null, datum/ui_state/state = GLOB.default_state)
-	ui = SStgui.try_update_ui(user, src, ui_key, ui, force_open)
+/obj/machinery/airlock_controller/air_cycler/ui_state(mob/user)
+	return GLOB.default_state
+
+/obj/machinery/airlock_controller/air_cycler/ui_interact(mob/user, datum/tgui/ui = null)
+	ui = SStgui.try_update_ui(user, src, ui)
 	if(!ui)
-		ui = new(user, src, ui_key, "ExternalAirlockController", name, 470, 290, master_ui, state)
+		ui = new(user, src, "ExternalAirlockController", name)
 		ui.open()
 
 /obj/machinery/airlock_controller/air_cycler/ui_data(mob/user)
 	var/list/data = list()
 
-	data["chamber_pressure"] = round(return_air().return_pressure())
+	var/turf/T = get_turf(src)
+	var/chamber_pressure = T.get_readonly_air().return_pressure()
+	data["chamber_pressure"] = round(chamber_pressure, 1)
 	data["exterior_status"] = (check_doors_match_state_uid(exterior_doors, "closed") ? "closed" : "open")
 	data["interior_status"] = (check_doors_match_state_uid(interior_doors, "closed") ? "closed" : "open")
 	data["processing"] = (state != target_state)

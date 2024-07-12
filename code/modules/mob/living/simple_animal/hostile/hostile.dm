@@ -106,7 +106,7 @@
 	var/static/list/cardinal_sidestep_directions = list(-90, -45, 0, 45, 90)
 	var/static/list/diagonal_sidestep_directions = list(-45, 0, 45)
 	var/chosen_dir = 0
-	if (target_dir & (target_dir - 1))
+	if(target_dir & (target_dir - 1))
 		chosen_dir = pick(diagonal_sidestep_directions)
 	else
 		chosen_dir = pick(cardinal_sidestep_directions)
@@ -179,7 +179,7 @@
 			var/possible_target_distance = get_dist(targets_from, A)
 			if(target_dist < possible_target_distance)
 				Targets -= A
-	if(!Targets.len)//We didnt find nothin!
+	if(!length(Targets))//We didnt find nothin!
 		return
 	var/chosen_target = pick(Targets)//Pick the remaining targets (if any) at random
 	return chosen_target
@@ -315,7 +315,7 @@
 
 /mob/living/simple_animal/hostile/adjustHealth(damage, updating_health = TRUE)
 	. = ..()
-	if(!ckey && !stat && search_objects < 3 && damage > 0)//Not unconscious, and we don't ignore mobs
+	if(!ckey && stat == CONSCIOUS && search_objects < 3 && damage > 0)//Not unconscious, and we don't ignore mobs
 		if(search_objects)//Turn off item searching and ignore whatever item we were looking at, we're more concerned with fight or flight
 			target = null
 			LoseSearchObjects()
@@ -333,7 +333,7 @@
 
 /mob/living/simple_animal/hostile/proc/Aggro()
 	vision_range = aggro_vision_range
-	if(target && emote_taunt.len && prob(taunt_chance))
+	if(target && length(emote_taunt) && prob(taunt_chance))
 		custom_emote(EMOTE_VISIBLE, "[pick(emote_taunt)] at [target].")
 		taunt_chance = max(taunt_chance-7,2)
 
@@ -349,6 +349,11 @@
 	walk(src, 0)
 	LoseAggro()
 
+/// Shortcut proc to allow initiating combat slightly faster than waiting for normal processing.
+/mob/living/simple_animal/hostile/proc/aggro_fast(known_target)
+	FindTarget(list(known_target), TRUE)
+	MoveToTarget(list(known_target))
+
 //////////////END HOSTILE MOB TARGETTING AND AGGRESSION////////////
 
 /mob/living/simple_animal/hostile/death(gibbed)
@@ -358,19 +363,9 @@
 		return FALSE
 	LoseTarget()
 
-/mob/living/simple_animal/hostile/proc/summon_backup(distance)
-	do_alert_animation(src)
-	playsound(loc, 'sound/machines/chime.ogg', 50, 1, -1)
-	for(var/mob/living/simple_animal/hostile/M in oview(distance, targets_from))
-		if(faction_check_mob(M, TRUE))
-			if(M.AIStatus == AI_OFF)
-				return
-			else
-				M.Goto(src,M.move_to_delay,M.minimum_distance)
-
 /mob/living/simple_animal/hostile/proc/CheckFriendlyFire(atom/A)
 	if(check_friendly_fire)
-		for(var/turf/T in getline(src,A)) // Not 100% reliable but this is faster than simulating actual trajectory
+		for(var/turf/T in get_line(src,A)) // Not 100% reliable but this is faster than simulating actual trajectory
 			for(var/mob/living/L in T)
 				if(L == src || L == A)
 					continue
@@ -392,7 +387,7 @@
 	ranged_cooldown = world.time + ranged_cooldown_time
 
 /mob/living/simple_animal/hostile/proc/Shoot(atom/targeted_atom)
-	if( QDELETED(targeted_atom) || targeted_atom == targets_from.loc || targeted_atom == targets_from )
+	if(QDELETED(targeted_atom) || targeted_atom == targets_from.loc || targeted_atom == targets_from)
 		return
 	var/turf/startloc = get_turf(targets_from)
 	if(casingtype)
@@ -411,7 +406,7 @@
 		if(AIStatus != AI_ON)//Don't want mindless mobs to have their movement screwed up firing in space
 			newtonian_move(get_dir(targeted_atom, targets_from))
 		P.original = targeted_atom
-		P.preparePixelProjectile(targeted_atom, get_turf(targeted_atom), src)
+		P.preparePixelProjectile(targeted_atom, startloc)
 		P.fire()
 		return P
 
@@ -542,7 +537,7 @@
 	if(!T)
 		return
 
-	if(!length(SSmobs.clients_by_zlevel[T.z])) // It's fine to use .len here but doesn't compile on 511
+	if(!length(SSmobs.clients_by_zlevel[T.z]))
 		toggle_ai(AI_Z_OFF)
 		return
 

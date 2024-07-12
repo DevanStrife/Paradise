@@ -46,60 +46,56 @@
 
 /obj/machinery/atmospherics/portable/scrubber/process_atmos()
 	..()
+	var/datum/milla_safe/portable_scrubber_process/milla = new()
+	milla.invoke_async(src)
 
-	if(!on)
+/datum/milla_safe/portable_scrubber_process
+
+/datum/milla_safe/portable_scrubber_process/on_run(obj/machinery/atmospherics/portable/scrubber/scrubber)
+	if(!scrubber.on)
 		return
-	scrub(loc)
-	if(widenet)
-		var/turf/T = loc
-		if(istype(T))
-			for(var/turf/simulated/tile in T.GetAtmosAdjacentTurfs(alldir=1))
-				scrub(tile)
+	if(scrubber.holding_tank)
+		scrubber.scrub(scrubber.holding_tank.air_contents)
+		return
 
-/obj/machinery/atmospherics/portable/scrubber/proc/scrub(turf/simulated/tile)
-	var/datum/gas_mixture/environment
-	if(holding_tank)
-		environment = holding_tank.air_contents
-	else
-		environment = tile.return_air()
-	var/transfer_moles = min(1,volume_rate/environment.volume)*environment.total_moles()
+	var/turf/T = get_turf(scrubber)
+	scrubber.scrub(get_turf_air(T))
+	if(scrubber.widenet)
+		for(var/turf/simulated/tile in T.GetAtmosAdjacentTurfs(alldir=1))
+			scrubber.scrub(get_turf_air(tile))
+
+/obj/machinery/atmospherics/portable/scrubber/proc/scrub(datum/gas_mixture/environment)
+	var/transfer_moles = min(1, volume_rate / environment.volume) * environment.total_moles()
 
 	//Take a gas sample
 	var/datum/gas_mixture/removed
-	if(holding_tank)
-		removed = environment.remove(transfer_moles)
-	else
-		removed = loc.remove_air(transfer_moles)
+	removed = environment.remove(transfer_moles)
 
 	//Filter it
 	if(removed)
 		var/datum/gas_mixture/filtered_out = new
 
-		filtered_out.temperature = removed.temperature
+		filtered_out.set_temperature(removed.temperature())
 
 
-		filtered_out.toxins = removed.toxins
-		removed.toxins = 0
+		filtered_out.set_toxins(removed.toxins())
+		removed.set_toxins(0)
 
-		filtered_out.carbon_dioxide = removed.carbon_dioxide
-		removed.carbon_dioxide = 0
+		filtered_out.set_carbon_dioxide(removed.carbon_dioxide())
+		removed.set_carbon_dioxide(0)
 
-		filtered_out.sleeping_agent = removed.sleeping_agent
-		removed.sleeping_agent = 0
+		filtered_out.set_sleeping_agent(removed.sleeping_agent())
+		removed.set_sleeping_agent(0)
 
-		filtered_out.agent_b = removed.agent_b
-		removed.agent_b = 0
+		filtered_out.set_agent_b(removed.agent_b())
+		removed.set_agent_b(0)
 
-	//Remix the resulting gases
+		//Remix the resulting gases
 		air_contents.merge(filtered_out)
 
-		if(holding_tank)
-			environment.merge(removed)
-		else
-			tile.assume_air(removed)
-			tile.air_update_turf()
+		environment.merge(removed)
 
-/obj/machinery/atmospherics/portable/scrubber/return_air()
+/obj/machinery/atmospherics/portable/scrubber/return_obj_air()
 	RETURN_TYPE(/datum/gas_mixture)
 	return air_contents
 
@@ -108,16 +104,21 @@
 	return attack_hand(user)
 
 /obj/machinery/atmospherics/portable/scrubber/attack_ghost(mob/user)
+	if(..())
+		return
 	return attack_hand(user)
 
 /obj/machinery/atmospherics/portable/scrubber/attack_hand(mob/user)
 	ui_interact(user)
 	return
 
-/obj/machinery/atmospherics/portable/scrubber/ui_interact(mob/user, ui_key = "main", datum/tgui/ui = null, force_open = FALSE, datum/tgui/master_ui = null, datum/ui_state/state = GLOB.default_state)
-	ui = SStgui.try_update_ui(user, src, ui_key, ui, force_open)
+/obj/machinery/atmospherics/portable/scrubber/ui_state(mob/user)
+	return GLOB.default_state
+
+/obj/machinery/atmospherics/portable/scrubber/ui_interact(mob/user, datum/tgui/ui = null)
+	ui = SStgui.try_update_ui(user, src, ui)
 	if(!ui)
-		ui = new(user, src, ui_key, "PortableScrubber", "Portable Scrubber", 433, 346, master_ui, state)
+		ui = new(user, src, "PortableScrubber", "Portable Scrubber")
 		ui.open()
 		ui.set_autoupdate(TRUE)
 
@@ -151,9 +152,7 @@
 			return TRUE
 
 		if("remove_tank")
-			if(holding_tank)
-				holding_tank.forceMove(get_turf(src))
-				holding_tank = null
+			replace_tank(ui.user, TRUE)
 			update_icon()
 			return TRUE
 
@@ -188,12 +187,6 @@
 /obj/machinery/atmospherics/portable/scrubber/huge/update_icon_state()
 	icon_state = "scrubber:[on]"
 
-/obj/machinery/atmospherics/portable/scrubber/huge/attackby(obj/item/W, mob/user, params)
-	if((istype(W, /obj/item/analyzer)) && get_dist(user, src) <= 1)
-		atmosanalyzer_scan(air_contents, user)
-		return
-	return ..()
-
 /obj/machinery/atmospherics/portable/scrubber/huge/wrench_act(mob/user, obj/item/I)
 	. = TRUE
 	if(stationary)
@@ -202,10 +195,7 @@
 	if(on)
 		to_chat(user, "<span class='warning'>Turn it off first!</span>")
 		return
-	if(!I.use_tool(src, user, 0, volume = I.tool_volume))
-		return
-	anchored = !anchored
-	to_chat(user, "<span class='notice'>You [anchored ? "wrench" : "unwrench"] [src].</span>")
+	default_unfasten_wrench(user, I, 4 SECONDS)
 
 /obj/machinery/atmospherics/portable/scrubber/huge/stationary
 	name = "Stationary Air Scrubber"

@@ -40,7 +40,7 @@
 /obj/effect/mapping_helpers/airlock/access/any/command/eva
 	access = ACCESS_EVA
 
-/obj/effect/mapping_helpers/airlock/access/any/command/expedition
+/obj/effect/mapping_helpers/airlock/access/any/supply/expedition
 	access = ACCESS_EXPEDITION
 
 /obj/effect/mapping_helpers/airlock/access/any/command/hop
@@ -171,7 +171,7 @@
 	access = ACCESS_HOS
 
 /obj/effect/mapping_helpers/airlock/access/any/security/iaa
-	access = ACCESS_LAWYER
+	access = ACCESS_INTERNAL_AFFAIRS
 
 // -------------------- Service access helpers
 /obj/effect/mapping_helpers/airlock/access/any/service
@@ -212,7 +212,14 @@
 	icon_state = "access_helper_sup"
 
 /obj/effect/mapping_helpers/airlock/access/any/supply/general
+	name = "cargo office"
 	access = ACCESS_CARGO
+
+/obj/effect/mapping_helpers/airlock/access/any/supply/cargo_bay
+	access = ACCESS_CARGO_BAY
+
+/obj/effect/mapping_helpers/airlock/access/any/supply/supply_shuttle
+	access = ACCESS_SUPPLY_SHUTTLE
 
 /obj/effect/mapping_helpers/airlock/access/any/supply/mail_sorting
 	access = ACCESS_MAILSORTING
@@ -252,7 +259,7 @@
 /obj/effect/mapping_helpers/airlock/access/all/command/eva
 	access = ACCESS_EVA
 
-/obj/effect/mapping_helpers/airlock/access/all/command/expedition
+/obj/effect/mapping_helpers/airlock/access/all/supply/expedition
 	access = ACCESS_EXPEDITION
 
 /obj/effect/mapping_helpers/airlock/access/all/command/hop
@@ -383,7 +390,7 @@
 	access = ACCESS_HOS
 
 /obj/effect/mapping_helpers/airlock/access/all/security/iaa
-	access = ACCESS_LAWYER
+	access = ACCESS_INTERNAL_AFFAIRS
 
 // -------------------- Service access helpers
 /obj/effect/mapping_helpers/airlock/access/all/service
@@ -404,8 +411,6 @@
 /obj/effect/mapping_helpers/airlock/access/all/service/chapel_office
 	access = ACCESS_CHAPEL_OFFICE
 
-/obj/effect/mapping_helpers/airlock/access/all/service/crematorium
-	access = ACCESS_CREMATORIUM
 
 /obj/effect/mapping_helpers/airlock/access/all/service/crematorium
 	access = ACCESS_CREMATORIUM
@@ -427,7 +432,14 @@
 	icon_state = "access_helper_sup"
 
 /obj/effect/mapping_helpers/airlock/access/all/supply/general
+	name = "cargo office"
 	access = ACCESS_CARGO
+
+/obj/effect/mapping_helpers/airlock/access/all/supply/cargo_bay
+	access = ACCESS_CARGO_BAY
+
+/obj/effect/mapping_helpers/airlock/access/all/supply/supply_shuttle
+	access = ACCESS_SUPPLY_SHUTTLE
 
 /obj/effect/mapping_helpers/airlock/access/all/supply/mail_sorting
 	access = ACCESS_MAILSORTING

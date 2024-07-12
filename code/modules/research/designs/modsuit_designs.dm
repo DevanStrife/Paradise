@@ -261,6 +261,13 @@
 	materials = list(MAT_METAL = 2500, MAT_GLASS = 5000)
 	build_path = /obj/item/mod/module/injector
 
+/datum/design/module/mod_monitor
+	name = "Crew Monitor Module"
+	id = "mod_monitor"
+	req_tech = list("biotech" = 3, "materials" = 5, "magnets" = 4)
+	materials = list(MAT_METAL = 1500, MAT_GLASS = 3000)
+	build_path = /obj/item/mod/module/monitor
+
 /datum/design/module/defibrillator
 	name = "Defibrillator Module"
 	id = "mod_defib"
@@ -338,6 +345,13 @@
 	materials = list(MAT_METAL = 10000, MAT_GLASS = 4000, MAT_SILVER = 2000)
 	build_path = /obj/item/mod/module/plasma_stabilizer
 
+/datum/design/module/smoke_grenade
+	name = "Smoke Grenade Module"
+	id = "mod_smokegrenade"
+	req_tech = list("materials" = 5, "engineering" = 6, "syndicate" = 2)
+	materials = list(MAT_METAL = 12500, MAT_SILVER = 12050, MAT_GOLD = 2000, MAT_PLASMA = 5000)
+	build_path = /obj/item/mod/module/dispenser/smoke
+
 /datum/design/module/plate_compression
 	name = "Plate Compression Module"
 	id = "mod_compression"
@@ -365,3 +379,31 @@
 	req_tech = list("combat" = 5, "engineering" = 5, "bluespace" = 7, "plasmatech" = 6)
 	materials = list(MAT_METAL = 12000, MAT_GLASS = 2000, MAT_SILVER = 4000, MAT_PLASMA = 4000, MAT_TITANIUM = 4000, MAT_BLUESPACE = 6000) //Requires Gravitational anomaly core to function.
 	build_path = /obj/item/mod/module/anomaly_locked/kinesis
+
+/datum/design/module/mod_firewall
+	name = "Firewall Module"
+	id = "mod_firewall"
+	req_tech = list("combat" = 5, "engineering" = 5, "bluespace" = 7, "plasmatech" = 6)
+	materials = list(MAT_METAL = 12000, MAT_GLASS = 2000, MAT_SILVER = 4000, MAT_PLASMA = 4000, MAT_TITANIUM = 4000, MAT_BLUESPACE = 6000) //Requires Pyroclastic anomaly core to function.
+	build_path = /obj/item/mod/module/anomaly_locked/firewall
+
+/datum/design/module/mod_arcshield
+	name = "Arc-Shield Module"
+	id = "mod_arcshield"
+	req_tech = list("combat" = 5, "engineering" = 5, "bluespace" = 7, "plasmatech" = 6)
+	materials = list(MAT_METAL = 12000, MAT_GLASS = 2000, MAT_SILVER = 4000, MAT_PLASMA = 4000, MAT_TITANIUM = 4000, MAT_BLUESPACE = 6000) //Requires Flux anomaly core to function.
+	build_path = /obj/item/mod/module/anomaly_locked/teslawall
+
+/datum/design/module/mod_vortex
+	name = "Vortex Shotgun Module"
+	id = "mod_vortex"
+	req_tech = list("combat" = 5, "engineering" = 5, "bluespace" = 7, "plasmatech" = 6)
+	materials = list(MAT_METAL = 12000, MAT_GLASS = 2000, MAT_SILVER = 4000, MAT_PLASMA = 4000, MAT_TITANIUM = 4000, MAT_BLUESPACE = 6000) //Requires Vortex anomaly core to function.
+	build_path = /obj/item/mod/module/anomaly_locked/vortex_shotgun
+
+/datum/design/module/mod_cryogrenade
+	name = "Cryogrenade Module"
+	id = "mod_cryo"
+	req_tech = list("combat" = 5, "engineering" = 5, "bluespace" = 7, "plasmatech" = 6)
+	materials = list(MAT_METAL = 12000, MAT_GLASS = 2000, MAT_SILVER = 4000, MAT_PLASMA = 4000, MAT_TITANIUM = 4000, MAT_BLUESPACE = 6000) //Requires Cryonic anomaly core to function.
+	build_path = /obj/item/mod/module/anomaly_locked/cryogrenade

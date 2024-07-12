@@ -44,7 +44,7 @@
 			var/datum/reagent/R = X
 			if(R.id in required_reagents)
 				continue
-			if(R in GLOB.blocked_chems)
+			if(R.id in GLOB.blocked_chems)
 				continue
 			beeagents += R
 		var/bee_amount = round(created_volume * 0.2)
@@ -225,7 +225,8 @@
 	result_amount = 2
 	mix_message = "The substance becomes a pile of burning dust."
 
-/datum/chemical_reaction/phlogiston_fire //This MUST be above the smoke recipe.
+/// This MUST be above the smoke recipe.
+/datum/chemical_reaction/phlogiston_fire
 	name = "Phlogiston Fire"
 	id = "phlogiston_fire"
 	result = "phlogiston"
@@ -259,14 +260,14 @@
 	required_reagents = list("potassium" = 1, "sugar" = 1, "phosphorus" = 1)
 	result_amount = 1
 	mix_message = "The mixture quickly turns into a pall of smoke!"
-	var/forbidden_reagents = list("sugar", "phosphorus", "potassium", "stimulants", "smoke_powder") //Do not transfer this stuff through smoke.
+	var/forbidden_reagents = list("sugar", "phosphorus", "potassium", "stimulants", "smoke_powder", "fishwater", "toiletwater") //Do not transfer this stuff through smoke.
 
 /datum/chemical_reaction/smoke/on_reaction(datum/reagents/holder, created_volume)
 	for(var/f_reagent in forbidden_reagents)
 		holder.del_reagent(f_reagent)
 	var/location = get_turf(holder.my_atom)
 	var/datum/effect_system/smoke_spread/chem/S = new
-	playsound(location, 'sound/effects/smoke.ogg', 50, 1, -3)
+	playsound(location, 'sound/effects/smoke.ogg', 50, TRUE, -3)
 	if(S)
 		S.set_up(holder, location)
 		if(created_volume < 5)

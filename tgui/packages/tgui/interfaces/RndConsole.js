@@ -36,7 +36,7 @@ export const RndConsole = (properties, context) => {
   const { wait_message } = data;
 
   return (
-    <Window>
+    <Window width={800} height={550}>
       <Window.Content>
         <Box className="RndConsole">
           <RndNavbar />
@@ -44,10 +44,7 @@ export const RndConsole = (properties, context) => {
           <RndRoute menu={MENU.LEVELS} render={() => <CurrentLevels />} />
           <RndRoute menu={MENU.DISK} render={() => <DataDiskMenu />} />
           <RndRoute menu={MENU.DESTROY} render={() => <DeconstructionMenu />} />
-          <RndRoute
-            menu={(n) => n === MENU.LATHE || n === MENU.IMPRINTER}
-            render={() => <LatheMenu />}
-          />
+          <RndRoute menu={(n) => n === MENU.LATHE || n === MENU.IMPRINTER} render={() => <LatheMenu />} />
           <RndRoute menu={MENU.SETTINGS} render={() => <SettingsMenu />} />
           {wait_message ? (
             <Box className="RndConsole__Overlay">

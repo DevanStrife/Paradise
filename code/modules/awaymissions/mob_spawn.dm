@@ -2,7 +2,12 @@
 
 //If someone can do this in a neater way, be my guest-Kor
 
-//To do: Allow corpses to appear mangled, bloody, etc. Allow customizing the bodies appearance (they're all bald and white right now).
+// To do: Allow customizing the bodies appearance (they're all bald and white right now).
+
+/// this mob spawn creates the corpse instantly
+#define CORPSE_INSTANT 1
+/// this mob spawn creates the corpse during GAME_STATE_PLAYING
+#define CORPSE_ROUNDSTART 2
 
 /obj/effect/mob_spawn
 	name = "Unknown"
@@ -34,14 +39,16 @@
 	var/ghost_usable = TRUE
 	var/offstation_role = TRUE // If set to true, the role of the user's mind will be set to offstation
 	var/death_cooldown = 0 // How long you have to wait after dying before using it again, in deciseconds. People that join as observers are not included.
+	///If antagbanned people are prevented from using it, only false for the ghost bar spawner.
+	var/restrict_antagban = TRUE
 
 /obj/effect/mob_spawn/attack_ghost(mob/user)
 	if(!valid_to_spawn(user))
 		return
-	var/ghost_role = alert("Become [mob_name]? (Warning, You can no longer be cloned!)",,"Yes","No")
-	if(ghost_role == "No")
+	var/ghost_role = tgui_alert(user, "Become [mob_name]? (Warning, You can no longer be cloned!)", "Respawn", list("Yes", "No"))
+	if(ghost_role != "Yes")
 		return
-	if(!species_prompt())
+	if(!species_prompt(user))
 		return
 	if(!loc || !uses && !permanent || QDELETED(src) || QDELETED(user))
 		to_chat(user, "<span class='warning'>The [name] is no longer usable!</span>")
@@ -79,12 +86,17 @@
 	if(!uses && !permanent)
 		to_chat(user, "<span class='warning'>This spawner is out of charges!</span>")
 		return FALSE
-	if(jobban_isbanned(user, banType) || jobban_isbanned(user, ROLE_SYNDICATE))
+	if((jobban_isbanned(user, banType) || (restrict_antagban && jobban_isbanned(user, ROLE_SYNDICATE))))
 		to_chat(user, "<span class='warning'>You are jobanned!</span>")
 		return FALSE
-	if(cannotPossess(user))
-		to_chat(user, "<span class='warning'>Upon using the antagHUD you forfeited the ability to join the round.</span>")
+	if(!HAS_TRAIT(user, TRAIT_RESPAWNABLE))
+		to_chat(user, "<span class='warning'>You currently do not have respawnability!</span>")
 		return FALSE
+	if(isobserver(user))
+		var/mob/dead/observer/O = user
+		if(!O.check_ahud_rejoin_eligibility())
+			to_chat(user, "<span class='warning'>Upon using the antagHUD you forfeited the ability to join the round.</span>")
+			return FALSE
 	if(time_check(user))
 		return FALSE
 	return TRUE
@@ -147,6 +159,8 @@
 		M.mind.offstation_role = offstation_role
 		special(M, name)
 		MM.name = M.real_name
+	else
+		special(M)
 	if(uses > 0)
 		uses--
 	if(!permanent && !uses)
@@ -171,6 +185,8 @@
 	assignedrole = "Ghost Role"
 
 	var/husk = null
+	/// Should we fully dna-scramble these humans?
+	var/dna_scrambled = FALSE
 	//these vars are for lazy mappers to override parts of the outfit
 	//these cannot be null by default, or mappers cannot set them to null if they want nothing in that slot
 	var/uniform = -1
@@ -207,9 +223,9 @@
 		mob_name = id_job
 	return ..()
 
-/obj/effect/mob_spawn/human/species_prompt()
+/obj/effect/mob_spawn/human/species_prompt(mob/user)
 	if(allow_species_pick)
-		var/selected_species = input("Select a species", "Species Selection") as null|anything in pickable_species
+		var/selected_species = tgui_input_list(user, "Select a species", "Species Selection", pickable_species)
 		if(!selected_species)
 			return	TRUE	// You didn't pick, so just continue on with the spawning process as a human
 		var/datum/species/S = GLOB.all_species[selected_species]
@@ -246,6 +262,9 @@
 	else
 		H.s_tone = random_skin_tone()
 		H.skin_colour = rand_hex_color()
+
+	if(dna_scrambled)
+		H.get_dna_scrambled()
 
 	H.update_body(rebuild_base = TRUE)
 
@@ -319,8 +338,8 @@
 	assignedrole = "Space Bar Patron"
 
 /obj/effect/mob_spawn/human/alive/space_bar_patron/attack_hand(mob/user)
-	var/despawn = alert("Return to cryosleep? (Warning, Your mob will be deleted!)",,"Yes","No")
-	if(despawn == "No" || !loc || !Adjacent(user))
+	var/despawn = tgui_alert(user, "Return to cryosleep? (Warning, Your mob will be deleted!)", "Leave Bar", list("Yes", "No"))
+	if(despawn != "Yes" || !loc || !Adjacent(user))
 		return
 	user.visible_message("<span class='notice'>[user.name] climbs back into cryosleep...</span>")
 	qdel(user)
@@ -523,23 +542,6 @@
 	id_job = "Engineer"
 	outfit = /datum/outfit/job/engineer
 
-//Hardsuit Engineer corpse.
-/obj/effect/mob_spawn/human/corpse/engineer/hardsuit
-	outfit = /datum/outfit/job/engineer/suit
-
-/datum/outfit/job/engineer/suit
-	name = "Station Engineer"
-
-	uniform = /obj/item/clothing/under/rank/engineering/engineer
-	belt = /obj/item/storage/belt/utility/full
-	suit = /obj/item/clothing/suit/space/hardsuit/engine
-	shoes = /obj/item/clothing/shoes/workboots
-	mask = /obj/item/clothing/mask/breath
-	id = /obj/item/card/id/engineering
-	l_pocket = /obj/item/t_scanner
-
-	backpack = /obj/item/storage/backpack/industrial
-
 //Mime corpse.
 /obj/effect/mob_spawn/human/corpse/mime
 	name = "Mime"
@@ -564,13 +566,13 @@
 
 /datum/outfit/job/mining/suit
 	name = "Shaft Miner"
-	suit = /obj/item/clothing/suit/space/hardsuit/mining
+	back = /obj/item/mod/control/pre_equipped/mining/asteroid
 	uniform = /obj/item/clothing/under/rank/cargo/miner
 	gloves = /obj/item/clothing/gloves/fingerless
 	shoes = /obj/item/clothing/shoes/workboots
 	l_ear = /obj/item/radio/headset/headset_cargo/mining
 	id = /obj/item/card/id/shaftminer
-	l_pocket = /obj/item/reagent_containers/food/pill/patch/styptic
+	l_pocket = /obj/item/reagent_containers/patch/styptic
 	r_pocket = /obj/item/flashlight/seclite
 
 //Scientist corpse.
@@ -585,6 +587,74 @@
 	mob_name = "skeleton"
 	mob_species = /datum/species/skeleton/brittle
 	mob_gender = NEUTER
+
+/datum/outfit/randomizer
+	name = "randomizer"
+
+/datum/outfit/randomizer/pre_equip(mob/living/carbon/human/H, visualsOnly)
+	. = ..()
+	// Add picks for more slots as necessary for your needs
+	if(islist(uniform))
+		uniform = pick(uniform)
+	if(islist(shoes))
+		shoes = pick(shoes)
+
+/datum/outfit/randomizer/gambler
+	name = "gambler"
+	shoes = list(
+		/obj/item/clothing/shoes/laceup,
+		/obj/item/clothing/shoes/leather
+	)
+	uniform = list(
+		/obj/item/clothing/under/suit/navy,
+		/obj/item/clothing/under/suit/really_black,
+		/obj/item/clothing/under/suit/checkered,
+	)
+
+/obj/effect/mob_spawn/human/corpse/random_species/Initialize(mapload)
+	mob_species = pick(
+		/datum/species/human,
+		/datum/species/unathi,
+		/datum/species/moth,
+		/datum/species/skrell,
+		/datum/species/vox,
+		/datum/species/vulpkanin,
+		/datum/species/tajaran,
+		/datum/species/slime,
+		/datum/species/kidan,
+		/datum/species/drask,
+		/datum/species/grey,
+		/datum/species/diona,
+	)
+
+	return ..()
+
+/obj/effect/mob_spawn/human/corpse/random_species/gambler
+	name = "Gambler"
+	mob_name = "Gambler"
+	outfit = /datum/outfit/randomizer/gambler
+
+/obj/effect/mob_spawn/human/alive/zombie
+	name = "NPC Zombie (Infectious)"
+	icon = 'icons/mob/human.dmi'
+	icon_state = "zombie_s"
+	roundstart = TRUE
+	dna_scrambled = TRUE
+
+/obj/effect/mob_spawn/human/alive/zombie/equip(mob/living/carbon/human/H)
+	ADD_TRAIT(H, TRAIT_NPC_ZOMBIE, ROUNDSTART_TRAIT)
+	H.ForceContractDisease(new /datum/disease/zombie)
+	for(var/datum/disease/zombie/zomb in H.viruses)
+		zomb.stage = 8
+
+	return ..()
+
+/obj/effect/mob_spawn/human/alive/zombie/non_infectious
+	name = "NPC Zombie (Non-infectious)"
+
+/obj/effect/mob_spawn/human/alive/zombie/non_infectious/equip(mob/living/carbon/human/H)
+	ADD_TRAIT(H, TRAIT_NON_INFECTIOUS_ZOMBIE, ROUNDSTART_TRAIT)
+	return ..()
 
 ////////Non-human spawners////////
 
@@ -609,8 +679,49 @@
 	icon_state = "sleeper"
 	flavour_text = "Moo!"
 
+/// these mob spawn subtypes trigger immediately (New or Initialize) and are not player controlled... since they're dead, you know?
+/obj/effect/mob_spawn/corpse
+	/// when this mob spawn should auto trigger.
+	var/spawn_when = CORPSE_INSTANT
+
+	/// what environmental storytelling script should this corpse have
+	var/corpse_description = ""
+	/// optionally different text to display if the target is a clown
+	var/naive_corpse_description = ""
+
+/obj/effect/mob_spawn/corpse/Initialize(mapload, no_spawn)
+	. = ..()
+	if(no_spawn)
+		return
+	switch(spawn_when)
+		if(CORPSE_INSTANT)
+			INVOKE_ASYNC(src, PROC_REF(create))
+		if(CORPSE_ROUNDSTART)
+			if(mapload || (SSticker && SSticker.current_state > GAME_STATE_SETTING_UP))
+				INVOKE_ASYNC(src, PROC_REF(create))
+
+/obj/effect/mob_spawn/corpse/special(mob/living/spawned_mob)
+	. = ..()
+	spawned_mob.death(TRUE)
+	if(corpse_description)
+		spawned_mob.AddComponent(/datum/component/corpse_description, corpse_description, naive_corpse_description)
+
+/obj/effect/mob_spawn/corpse/create(ckey, flavour, name, user)
+	. = ..()
+	qdel(src)
+
+/obj/effect/mob_spawn/corpse/watcher
+	mob_type = /mob/living/simple_animal/hostile/asteroid/basilisk/watcher
+	icon = 'icons/mob/lavaland/watcher.dmi'
+	icon_state = "watcher_dead"
+	pixel_x = -12
+
+/obj/effect/mob_spawn/corpse/goliath
+	mob_type = /mob/living/simple_animal/hostile/asteroid/goliath/beast
+	icon = 'icons/mob/lavaland/lavaland_monsters.dmi'
+	icon_state = "goliath_dead"
+	pixel_x = -12
 
 
-
-
-
+#undef CORPSE_INSTANT
+#undef CORPSE_ROUNDSTART

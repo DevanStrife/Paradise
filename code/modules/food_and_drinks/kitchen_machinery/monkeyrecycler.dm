@@ -14,7 +14,7 @@ GLOBAL_LIST_EMPTY(monkey_recyclers)
 	var/required_grind = 5
 	var/cube_production = 1
 	var/cycle_through = 0
-	var/obj/item/reagent_containers/food/snacks/monkeycube/cube_type = /obj/item/reagent_containers/food/snacks/monkeycube
+	var/obj/item/food/snacks/monkeycube/cube_type = /obj/item/food/snacks/monkeycube
 	var/list/connected = list()
 
 /obj/machinery/monkey_recycler/Initialize(mapload)
@@ -73,15 +73,17 @@ GLOBAL_LIST_EMPTY(monkey_recyclers)
 			cycle_through++
 			switch(cycle_through)
 				if(1)
-					cube_type = /obj/item/reagent_containers/food/snacks/monkeycube/farwacube
+					cube_type = /obj/item/food/snacks/monkeycube/nian_wormecube
 				if(2)
-					cube_type = /obj/item/reagent_containers/food/snacks/monkeycube/wolpincube
+					cube_type = /obj/item/food/snacks/monkeycube/farwacube
 				if(3)
-					cube_type = /obj/item/reagent_containers/food/snacks/monkeycube/stokcube
+					cube_type = /obj/item/food/snacks/monkeycube/wolpincube
 				if(4)
-					cube_type = /obj/item/reagent_containers/food/snacks/monkeycube/neaeracube
+					cube_type = /obj/item/food/snacks/monkeycube/stokcube
 				if(5)
-					cube_type = /obj/item/reagent_containers/food/snacks/monkeycube
+					cube_type = /obj/item/food/snacks/monkeycube/neaeracube
+				if(6)
+					cube_type = /obj/item/food/snacks/monkeycube
 					cycle_through = 0
 			to_chat(user, "<span class='notice'>You change the monkeycube type to [initial(cube_type.name)].</span>")
 		else
@@ -97,7 +99,7 @@ GLOBAL_LIST_EMPTY(monkey_recyclers)
 		if(ishuman(grabbed))
 			var/mob/living/carbon/human/target = grabbed
 			if(issmall(target))
-				if(target.stat == 0)
+				if(target.stat == CONSCIOUS)
 					to_chat(user, "<span class='warning'>The monkey is struggling far too much to put it in the recycler.</span>")
 				else
 					user.drop_item()

@@ -1,12 +1,12 @@
 GLOBAL_LIST_EMPTY(gas_sensors)
 
-#define SENSOR_PRESSURE 1
-#define SENSOR_TEMPERATURE 2
-#define SENSOR_O2 4
-#define SENSOR_PLASMA 8
-#define SENSOR_N2 16
-#define SENSOR_CO2 32
-#define SENSOR_N2O 64
+#define SENSOR_PRESSURE		(1<<0)
+#define SENSOR_TEMPERATURE	(1<<1)
+#define SENSOR_O2			(1<<2)
+#define SENSOR_PLASMA		(1<<3)
+#define SENSOR_N2			(1<<4)
+#define SENSOR_CO2			(1<<5)
+#define SENSOR_N2O			(1<<6)
 
 /obj/machinery/atmospherics/air_sensor
 	icon = 'icons/obj/stationobjs.dmi'
@@ -70,7 +70,7 @@ GLOBAL_LIST_EMPTY(gas_sensors)
 			"-SAVE TO BUFFER-" = "multitool"
 		)
 
-		var/temp_answer = input(user, "Select an option to adjust", "Options!", null) as null|anything in options
+		var/temp_answer = tgui_input_list(user, "Select an option to adjust", "Options!", options)
 
 		if(!Adjacent(user))
 			break
@@ -145,15 +145,18 @@ GLOBAL_LIST_EMPTY(gas_sensors)
 /obj/machinery/computer/general_air_control/attack_hand(mob/user)
 	ui_interact(user)
 
-/obj/machinery/computer/general_air_control/ui_interact(mob/user, ui_key = "main", datum/tgui/ui = null, force_open = FALSE, datum/tgui/master_ui = null, datum/ui_state/state = GLOB.default_state)
+/obj/machinery/computer/general_air_control/ui_state(mob/user)
+	return GLOB.default_state
+
+/obj/machinery/computer/general_air_control/ui_interact(mob/user, datum/tgui/ui = null)
 	if(!isprocessing)
 		START_PROCESSING(SSmachines, src)
 		refresh_all()
 
-	ui = SStgui.try_update_ui(user, src, ui_key, ui, force_open)
+	ui = SStgui.try_update_ui(user, src, ui)
 	if(!ui)
 		// We can use the same template here for sensors and for tanks with inlets/outlets with TGUI memes
-		ui = new(user, src, ui_key, "AtmosTankControl", name, 400, 400, master_ui, state)
+		ui = new(user, src, "AtmosTankControl", name)
 		ui.open()
 
 /obj/machinery/computer/general_air_control/ui_data(mob/user)
@@ -170,8 +173,8 @@ GLOBAL_LIST_EMPTY(gas_sensors)
 
 // This is its own proc so it can be modified in child types
 /obj/machinery/computer/general_air_control/proc/configure_sensors(mob/living/user, obj/item/multitool/M)
-	var/choice = alert(user, "Would you like to add or remove a sensor/meter", "Configuration", "Add", "Remove", "Cancel")
-	if((choice == "Cancel") || !Adjacent(user))
+	var/choice = tgui_alert(user, "Would you like to add or remove a sensor/meter", "Configuration", list("Add", "Remove", "Cancel"))
+	if(!choice || (choice == "Cancel") || !Adjacent(user))
 		return
 
 	switch(choice)
@@ -191,11 +194,11 @@ GLOBAL_LIST_EMPTY(gas_sensors)
 			to_chat(user, "<span class='notice'>Successfully added a new sensor/meter with name <code>[new_name]</code></span>")
 
 		if("Remove")
-			var/to_remove = input(user, "Select a sensor/meter to remove", "Sensor/Meter Removal") as null|anything in sensor_name_uid_map
+			var/to_remove = tgui_input_list(user, "Select a sensor/meter to remove", "Sensor/Meter Removal", sensor_name_uid_map)
 			if(!to_remove)
 				return
 
-			var/confirm = alert(user, "Are you sure you want to remove the sensor/meter '[to_remove]'?", "Warning", "Yes", "No")
+			var/confirm = tgui_alert(user, "Are you sure you want to remove the sensor/meter '[to_remove]'?", "Warning", list("Yes", "No"))
 			if((confirm != "Yes") || !Adjacent(user))
 				return
 
@@ -220,7 +223,8 @@ GLOBAL_LIST_EMPTY(gas_sensors)
 			// Cache here to avoid a ton of list lookups
 			var/obj/machinery/atmospherics/air_sensor/AS = AM
 			var/list/sensor_data = sensor_name_data_map[sensor_name]
-			var/datum/gas_mixture/air_sample = AS.return_air()
+			var/turf/T = get_turf(AS)
+			var/datum/gas_mixture/air_sample = T.get_readonly_air()
 
 			// We remove it from the list incase sensor reporting is ever disabled
 			// We only want to show the information available
@@ -230,7 +234,7 @@ GLOBAL_LIST_EMPTY(gas_sensors)
 				sensor_data -= "pressure"
 
 			if(AS.output & SENSOR_TEMPERATURE)
-				sensor_data["temperature"] = air_sample.return_temperature()
+				sensor_data["temperature"] = air_sample.temperature()
 			else
 				sensor_data -= "temperature"
 
@@ -238,27 +242,27 @@ GLOBAL_LIST_EMPTY(gas_sensors)
 
 			if(total_moles > 0)
 				if(AS.output & SENSOR_O2)
-					sensor_data["o2"] = round(100 * air_sample.oxygen / total_moles, 0.1)
+					sensor_data["o2"] = round(100 * air_sample.oxygen() / total_moles, 0.1)
 				else
 					sensor_data -= "o2"
 
 				if(AS.output & SENSOR_PLASMA)
-					sensor_data["plasma"] = round(100 * air_sample.toxins / total_moles, 0.1)
+					sensor_data["plasma"] = round(100 * air_sample.toxins() / total_moles, 0.1)
 				else
 					sensor_data -= "plasma"
 
 				if(AS.output & SENSOR_N2)
-					sensor_data["n2"] = round(100 * air_sample.nitrogen / total_moles, 0.1)
+					sensor_data["n2"] = round(100 * air_sample.nitrogen() / total_moles, 0.1)
 				else
 					sensor_data -= "n2"
 
 				if(AS.output & SENSOR_CO2)
-					sensor_data["co2"] = round(100 * air_sample.carbon_dioxide / total_moles, 0.1)
+					sensor_data["co2"] = round(100 * air_sample.carbon_dioxide() / total_moles, 0.1)
 				else
 					sensor_data -= "co2"
 
 				if(AS.output & SENSOR_N2O)
-					sensor_data["n2o"] = round(100 * air_sample.sleeping_agent / total_moles, 0.1)
+					sensor_data["n2o"] = round(100 * air_sample.sleeping_agent() / total_moles, 0.1)
 				else
 					sensor_data -= "n2o"
 
@@ -266,18 +270,19 @@ GLOBAL_LIST_EMPTY(gas_sensors)
 			var/list/meter_data = sensor_name_data_map[sensor_name]
 			var/obj/machinery/atmospherics/meter/the_meter = AM
 			if(the_meter.target)
-				var/datum/gas_mixture/meter_env = the_meter.target.return_air()
+				var/datum/gas_mixture/meter_env = the_meter.target.return_obj_air()
 				if(meter_env)
 					meter_data["pressure"] = meter_env.return_pressure()
-					meter_data["temperature"] = meter_env.return_temperature()
+					meter_data["temperature"] = meter_env.temperature()
 
 
 /obj/machinery/computer/general_air_control/process()
 	// We only care about refreshing if people are looking at us
-	if(SStgui.get_open_ui_count(src) < 1)
-		return PROCESS_KILL
+	if(src in SStgui.open_uis_by_src)
+		refresh_all()
+		return
 
-	refresh_all()
+	return PROCESS_KILL
 
 /obj/machinery/computer/general_air_control/large_tank_control
 	circuit = /obj/item/circuitboard/large_tank_control
@@ -323,7 +328,8 @@ GLOBAL_LIST_EMPTY(gas_sensors)
 		for(var/obj/machinery/atmospherics/unary/vent_pump/VP as anything in GLOB.all_vent_pumps)
 			if(VP.autolink_id == outlet_vent_autolink_id)
 				outlet_vent_uid = VP.UID()
-				get_area(VP).vents -= VP
+				var/area/our_area = get_area(src)
+				our_area.vents -= VP
 				VP.on = TRUE
 				VP.releasing = FALSE
 				VP.internal_pressure_bound = outlet_setting
@@ -334,7 +340,7 @@ GLOBAL_LIST_EMPTY(gas_sensors)
 	if(!ismultitool(I)) // Should never happen
 		return
 
-	var/choice = input(user, "Configure what", "Configuration") in list("Inlet", "Outlet", "Sensors", "Cancel")
+	var/choice = tgui_input_list(user, "Configure what", "Configuration", list("Inlet", "Outlet", "Sensors", "Cancel"))
 	if((!choice) || (choice == "Cancel") || !Adjacent(user))
 		return
 
@@ -349,8 +355,8 @@ GLOBAL_LIST_EMPTY(gas_sensors)
 	return TRUE
 
 /obj/machinery/computer/general_air_control/large_tank_control/proc/configure_inlet(mob/living/user, obj/item/multitool/M)
-	var/choice = alert(user, "Would you like to add/replace the existing inlet or clear it?", "Configuration", "Add/Replace", "Clear", "Cancel")
-	if((choice == "Cancel") || !Adjacent(user))
+	var/choice = tgui_alert(user, "Would you like to add/replace the existing inlet or clear it?", "Configuration", list("Add/Replace", "Clear", "Cancel"))
+	if(!choice || (choice == "Cancel") || !Adjacent(user))
 		return
 
 	switch(choice)
@@ -385,8 +391,8 @@ GLOBAL_LIST_EMPTY(gas_sensors)
 
 
 /obj/machinery/computer/general_air_control/large_tank_control/proc/configure_outlet(mob/living/user, obj/item/multitool/M)
-	var/choice = alert(user, "Would you like to add/replace the existing outlet or clear it?", "Configuration", "Add/Replace", "Clear", "Cancel")
-	if((choice == "Cancel") || !Adjacent(user))
+	var/choice = tgui_alert(user, "Would you like to add/replace the existing outlet or clear it?", "Configuration", list("Add/Replace", "Clear", "Cancel"))
+	if(!choice || (choice == "Cancel") || !Adjacent(user))
 		return
 
 	switch(choice)
@@ -400,7 +406,8 @@ GLOBAL_LIST_EMPTY(gas_sensors)
 			outlet_vent_uid = linked_datum.UID() // Make sure the multitool ref didnt change while they had the menu open
 			var/obj/machinery/atmospherics/unary/vent_pump/VP = linked_datum
 			// Setup some defaults
-			get_area(VP).vents -= VP
+			var/area/our_area = get_area(src)
+			our_area.vents -= VP
 			VP.on = TRUE
 			VP.releasing = FALSE
 			VP.internal_pressure_bound = outlet_setting
@@ -491,7 +498,7 @@ GLOBAL_LIST_EMPTY(gas_sensors)
 
 // Central atmos control //
 /obj/machinery/computer/atmoscontrol
-	name = "\improper central atmospherics computer"
+	name = "central atmospherics computer"
 	icon = 'icons/obj/computer.dmi'
 	icon_keyboard = "atmos_key"
 	icon_screen = "tank"
@@ -516,5 +523,16 @@ GLOBAL_LIST_EMPTY(gas_sensors)
 		return
 	ui_interact(user)
 
-/obj/machinery/computer/atmoscontrol/ui_interact(mob/user, ui_key = "main", datum/tgui/ui = null, force_open = FALSE, datum/tgui/master_ui = null, datum/ui_state/state = GLOB.default_state)
-	atmos_control.ui_interact(user, ui_key, ui, force_open)
+/obj/machinery/computer/atmoscontrol/ui_state(mob/user)
+	return GLOB.default_state
+
+/obj/machinery/computer/atmoscontrol/ui_interact(mob/user, datum/tgui/ui = null)
+	atmos_control.ui_interact(user, ui)
+
+#undef SENSOR_PRESSURE
+#undef SENSOR_TEMPERATURE
+#undef SENSOR_O2
+#undef SENSOR_PLASMA
+#undef SENSOR_N2
+#undef SENSOR_CO2
+#undef SENSOR_N2O

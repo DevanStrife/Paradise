@@ -183,9 +183,14 @@
 	path = /obj/item/clothing/under/rank/cargo/tech/skirt
 	allowed_roles = list("Quartermaster","Cargo Technician")
 
+/datum/gear/uniform/skirt/job/expedition
+	display_name = "Skirt, expedition"
+	path = /obj/item/clothing/under/rank/cargo/expedition/skirt
+	allowed_roles = list("Quartermaster", "Explorer")
+
 /datum/gear/uniform/skirt/job/qm
-	display_name = "Skirt, QM"
-	path = /obj/item/clothing/under/rank/cargo/quartermaster/skirt
+	display_name = "Skirt, quartermaster"
+	path = /obj/item/clothing/under/rank/cargo/qm/skirt
 	allowed_roles = list("Quartermaster")
 
 /datum/gear/uniform/skirt/job/warden
@@ -202,6 +207,26 @@
 	display_name = "Skirt, hos"
 	path = /obj/item/clothing/under/rank/security/head_of_security/skirt
 	allowed_roles = list("Head of Security")
+
+/datum/gear/uniform/skirt/job/clown
+	display_name = "Skirt, clown"
+	path = /obj/item/clothing/under/rank/civilian/clown/skirt
+	allowed_roles = list("Clown")
+
+/datum/gear/uniform/skirt/job/mime
+	display_name = "Skirt, mime"
+	path = /obj/item/clothing/under/rank/civilian/mime/skirt
+	allowed_roles = list("Mime")
+
+/datum/gear/uniform/skirt/job/janitor
+	display_name = "Skirt, janitor"
+	path = /obj/item/clothing/under/rank/civilian/janitor/skirt
+	allowed_roles = list("Janitor")
+
+/datum/gear/uniform/skirt/job/head_of_personnel
+	display_name = "Skirt, hop"
+	path = /obj/item/clothing/under/rank/civilian/hop/skirt
+	allowed_roles = list("Head of Personnel")
 
 /datum/gear/uniform/skirt/job/magistrate
 	display_name = "Skirt, magistrate"
@@ -236,8 +261,8 @@
 	main_typepath = /datum/gear/uniform/cargo
 
 /datum/gear/uniform/cargo/delivery
-	display_name = "Uniform, delivery boy"
-	path = /obj/item/clothing/under/rank/cargo/deliveryboy
+	display_name = "Cargo uniform, delivery"
+	path = /obj/item/clothing/under/rank/cargo/tech/delivery
 	allowed_roles = list("Quartermaster", "Cargo Technician")
 
 /datum/gear/uniform/sec
@@ -341,6 +366,11 @@
 	display_name = "Tacticool turtleneck"
 	description = "A sleek black turtleneck paired with some khakis (WARNING DOES NOT HAVE SUIT SENSORS)"
 	path = /obj/item/clothing/under/syndicate/tacticool
+
+/datum/gear/uniform/suit/greyman
+	display_name = "Greyman Henley"
+	description = "Khaki henley paired up with some grey cargo pants (WARNING DOES NOT HAVE SUIT SENSORS)"
+	path = /obj/item/clothing/under/syndicate/greyman
 
 /datum/gear/uniform/suit/assistantformal
 	display_name = "Assistant's Formal Uniform"

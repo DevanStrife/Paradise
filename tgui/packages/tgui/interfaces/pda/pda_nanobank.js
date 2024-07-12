@@ -11,9 +11,8 @@ import {
   Tabs,
   Table,
   Divider,
-  Flex,
+  Stack,
 } from '../../components';
-import { FlexItem } from '../../components/Flex';
 
 export const pda_nanobank = (props, context) => {
   const { act, data } = useBackend(context);
@@ -41,22 +40,29 @@ export const pda_nanobank = (props, context) => {
 
 const NanoBankNavigation = (properties, context) => {
   const { data } = useBackend(context);
+  const { is_premium } = data;
   const [tabIndex, setTabIndex] = useLocalState(context, 'tabIndex', 1);
 
   return (
     <Tabs mt={2}>
       <Tabs.Tab selected={1 === tabIndex} onClick={() => setTabIndex(1)}>
-        <Icon name="list" />
+        <Icon mr={1} name="list" />
         Transfers
       </Tabs.Tab>
       <Tabs.Tab selected={2 === tabIndex} onClick={() => setTabIndex(2)}>
-        <Icon name="list" />
+        <Icon mr={1} name="list" />
         Account Actions
       </Tabs.Tab>
       <Tabs.Tab selected={3 === tabIndex} onClick={() => setTabIndex(3)}>
-        <Icon name="list" />
+        <Icon mr={1} name="list" />
         Transaction History
       </Tabs.Tab>
+      {Boolean(is_premium) && (
+        <Tabs.Tab selected={4 === tabIndex} onClick={() => setTabIndex(4)}>
+          <Icon mr={1} name="list" />
+          Supply Orders
+        </Tabs.Tab>
+      )}
     </Tabs>
   );
 };
@@ -77,6 +83,8 @@ const NanoBankTabContent = (props, context) => {
       return <AccountActions />;
     case 3:
       return <Transactions />;
+    case 4:
+      return <SupplyOrders />;
     default:
       return "You are somehow on a tab that doesn't exist! Please let a coder know.";
   }
@@ -86,14 +94,8 @@ const Transfer = (props, context) => {
   const { act, data } = useBackend(context);
 
   const { requests, available_accounts, money } = data;
-  const [selectedAccount, setSelectedAccount] = useLocalState(
-    context,
-    'selectedAccount'
-  );
-  const [transferAmount, setTransferAmount] = useLocalState(
-    context,
-    'transferAmount'
-  );
+  const [selectedAccount, setSelectedAccount] = useLocalState(context, 'selectedAccount');
+  const [transferAmount, setTransferAmount] = useLocalState(context, 'transferAmount');
   const [searchText, setSearchText] = useLocalState(context, 'searchText', '');
 
   let accountMap = [];
@@ -103,10 +105,7 @@ const Transfer = (props, context) => {
     <>
       <LabeledList>
         <LabeledList.Item label="Account">
-          <Input
-            placeholder="Search by account name"
-            onInput={(e, value) => setSearchText(value)}
-          />
+          <Input placeholder="Search by account name" onInput={(e, value) => setSearchText(value)} />
           <Dropdown
             mt={0.6}
             width="190px"
@@ -117,19 +116,12 @@ const Transfer = (props, context) => {
                 })
               )
               .map((account) => account.name)}
-            selected={
-              available_accounts.filter(
-                (account) => account.UID === selectedAccount
-              )[0]?.name
-            }
+            selected={available_accounts.filter((account) => account.UID === selectedAccount)[0]?.name}
             onSelected={(val) => setSelectedAccount(accountMap[val])}
           />
         </LabeledList.Item>
         <LabeledList.Item label="Amount">
-          <Input
-            placeholder="Up to 5000"
-            onInput={(e, value) => setTransferAmount(value)}
-          />
+          <Input placeholder="Up to 5000" onInput={(e, value) => setTransferAmount(value)} />
         </LabeledList.Item>
         <LabeledList.Item label="Actions">
           <Button.Confirm
@@ -165,12 +157,8 @@ const Transfer = (props, context) => {
           <Box key={request.UID} mt={1} ml={1}>
             <b>Request from {request.requester}</b>
             <LabeledList>
-              <LabeledList.Item label="Amount">
-                {request.amount}
-              </LabeledList.Item>
-              <LabeledList.Item label="Time">
-                {request.time} Minutes ago
-              </LabeledList.Item>
+              <LabeledList.Item label="Amount">{request.amount}</LabeledList.Item>
+              <LabeledList.Item label="Time">{request.time} Minutes ago</LabeledList.Item>
               <LabeledList.Item label="Actions">
                 <Button.Confirm
                   icon="thumbs-up"
@@ -205,13 +193,8 @@ const Transfer = (props, context) => {
 
 const AccountActions = (props, context) => {
   const { act, data } = useBackend(context);
-  const {
-    security_level,
-    department_members,
-    auto_approve,
-    auto_approve_amount,
-    is_department_account,
-  } = data;
+  const { security_level, department_members, auto_approve, auto_approve_amount, is_department_account, is_premium } =
+    data;
 
   return (
     <>
@@ -241,15 +224,19 @@ const AccountActions = (props, context) => {
           />
         </LabeledList.Item>
         <LabeledList.Item label="Logout">
+          <Button icon="sign-out-alt" width="auto" content="Logout" onClick={() => act('logout')} />
+        </LabeledList.Item>
+        <LabeledList.Item label="NanoBank Premium">
           <Button
-            icon="sign-out-alt"
+            icon="coins"
             width="auto"
-            content="Logout"
-            onClick={() => act('logout')}
+            tooltip="Upgrade your NanoBank to Premium for 250 Credits! Allows you to remotely approve department cargo orders on the supply console!"
+            color={is_premium ? 'yellow' : 'good'}
+            content={is_premium ? 'Already Purchased' : 'Purchase Premium'}
+            onClick={() => act('purchase_premium')}
           />
         </LabeledList.Item>
       </LabeledList>
-
       {Boolean(is_department_account) && (
         <>
           <Divider />
@@ -261,10 +248,8 @@ const AccountActions = (props, context) => {
                 onClick={() => act('toggle_auto_approve')}
               />
             </LabeledList.Item>
-          </LabeledList>
-          <Flex mt={1}>
-            <FlexItem mr={0.5}>{'Auto Approve Purchases when <='}</FlexItem>
-            <FlexItem>
+
+            <LabeledList.Item label="Auto Approve Purchases when">
               <Input
                 placeholder="# Credits"
                 value={auto_approve_amount}
@@ -274,9 +259,8 @@ const AccountActions = (props, context) => {
                   })
                 }
               />
-            </FlexItem>
-          </Flex>
-
+            </LabeledList.Item>
+          </LabeledList>
           <Divider />
           <Table>
             <Table.Row header>
@@ -324,9 +308,7 @@ const Transactions = (props, context) => {
         <Table.Row key={t}>
           <Table.Cell>{t.time}</Table.Cell>
           <Table.Cell>{t.purpose}</Table.Cell>
-          <Table.Cell color={t.is_deposit ? 'green' : 'red'}>
-            ${t.amount}
-          </Table.Cell>
+          <Table.Cell color={t.is_deposit ? 'green' : 'red'}>${t.amount}</Table.Cell>
           <Table.Cell>{t.target_name}</Table.Cell>
         </Table.Row>
       ))}
@@ -337,26 +319,16 @@ const Transactions = (props, context) => {
 const LoginScreen = (props, context) => {
   const { act, data } = useBackend(context);
   const [accountID, setAccountID] = useLocalState(context, 'accountID', null);
-  const [accountPin, setAccountPin] = useLocalState(
-    context,
-    'accountPin',
-    null
-  );
+  const [accountPin, setAccountPin] = useLocalState(context, 'accountPin', null);
   const { card_account_num } = data;
   let account_num = accountID ? accountID : card_account_num;
   return (
     <LabeledList>
       <LabeledList.Item label="Account ID">
-        <Input
-          placeholder="Account ID"
-          onInput={(e, value) => setAccountID(value)}
-        />
+        <Input placeholder="Account ID" onInput={(e, value) => setAccountID(value)} />
       </LabeledList.Item>
       <LabeledList.Item label="Pin">
-        <Input
-          placeholder="Account Pin"
-          onInput={(e, value) => setAccountPin(value)}
-        />
+        <Input placeholder="Account Pin" onInput={(e, value) => setAccountPin(value)} />
       </LabeledList.Item>
       <LabeledList.Item>
         <Button
@@ -372,5 +344,123 @@ const LoginScreen = (props, context) => {
         />
       </LabeledList.Item>
     </LabeledList>
+  );
+};
+
+const GetRequestNotice = (_properties, context) => {
+  const { request } = _properties;
+
+  let head_color;
+  let head_name;
+
+  switch (request.department) {
+    case 'Engineering':
+      head_name = 'CE';
+      head_color = 'orange';
+      break;
+    case 'Medical':
+      head_name = 'CMO';
+      head_color = 'teal';
+      break;
+    case 'Science':
+      head_name = 'RD';
+      head_color = 'purple';
+      break;
+    case 'Supply':
+      head_name = 'CT'; // cargo tech
+      head_color = 'brown';
+      break;
+    case 'Service':
+      head_name = 'HOP';
+      head_color = 'olive';
+      break;
+    case 'Security':
+      head_name = 'HOS';
+      head_color = 'red';
+      break;
+    case 'Command':
+      head_name = 'CAP';
+      head_color = 'blue';
+      break;
+    case 'Assistant':
+      head_name = 'Any Head';
+      head_color = 'grey';
+      break;
+    default:
+      head_name = 'None';
+      head_color = 'grey';
+      break;
+  }
+
+  return (
+    <Stack fill>
+      <Stack.Item mt={0.5}>Approval Required:</Stack.Item>
+      {Boolean(request.req_cargo_approval) && (
+        <Stack.Item>
+          <Button color="brown" content="QM" icon="user-tie" tooltip="This Order requires approval from the QM still" />
+        </Stack.Item>
+      )}
+      {Boolean(request.req_head_approval) && (
+        <Stack.Item>
+          <Button
+            color={head_color}
+            content={head_name}
+            disabled={request.req_cargo_approval}
+            icon="user-tie"
+            tooltip={
+              request.req_cargo_approval
+                ? `This Order first requires approval from the QM before the ${head_name} can approve it`
+                : `This Order requires approval from the ${head_name} still`
+            }
+          />
+        </Stack.Item>
+      )}
+    </Stack>
+  );
+};
+
+const SupplyOrders = (_properties, context) => {
+  const { act, data } = useBackend(context);
+  const { supply_requests } = data;
+  return (
+    <>
+      <Box bold>Requests</Box>
+      <Table>
+        {supply_requests.map((r) => (
+          <Table.Row key={r.ordernum} className="Cargo_RequestList">
+            <Table.Cell mb={1}>
+              <Box>
+                Order #{r.ordernum}: {r.supply_type} ({r.cost} credits) for <b>{r.orderedby}</b> with{' '}
+                {r.department ? `The ${r.department} Department` : 'Their Personal'} Account
+              </Box>
+              <Box italic>Reason: {r.comment}</Box>
+              <GetRequestNotice request={r} />
+            </Table.Cell>
+            <Stack.Item textAlign="right">
+              <Button
+                content="Approve"
+                color="green"
+                disabled={!r.can_approve}
+                onClick={() =>
+                  act('approve_crate', {
+                    ordernum: r.ordernum,
+                  })
+                }
+              />
+              <Button
+                content="Deny"
+                color="red"
+                disabled={!r.can_deny}
+                onClick={() =>
+                  act('deny_crate', {
+                    ordernum: r.ordernum,
+                  })
+                }
+              />
+            </Stack.Item>
+          </Table.Row>
+        ))}
+      </Table>
+    </>
   );
 };

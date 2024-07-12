@@ -22,6 +22,8 @@ GLOBAL_DATUM_INIT(configuration, /datum/server_configuration, new())
 	var/datum/configuration_section/gamemode_configuration/gamemode
 	/// Holder for the general configuration datum
 	var/datum/configuration_section/general_configuration/general
+	/// Holder for the lighting effects configuration datum
+	var/datum/configuration_section/lighting_effects_configuration/lighting_effects
 	/// Holder for the IPIntel configuration datum
 	var/datum/configuration_section/ipintel_configuration/ipintel
 	/// Holder for the job configuration datum
@@ -46,6 +48,8 @@ GLOBAL_DATUM_INIT(configuration, /datum/server_configuration, new())
 	var/datum/configuration_section/url_configuration/url
 	/// Holder for the voting configuration datum
 	var/datum/configuration_section/vote_configuration/vote
+	/// Holder for the asset cache configuration datum
+	var/datum/configuration_section/asset_cache_configuration/asset_cache
 	/// Raw data. Stored here to avoid passing data between procs constantly
 	var/list/raw_data = list()
 
@@ -80,6 +84,7 @@ GLOBAL_DATUM_INIT(configuration, /datum/server_configuration, new())
 	event = new()
 	gamemode = new()
 	general = new()
+	lighting_effects = new()
 	ipintel = new()
 	jobs = new()
 	logging = new()
@@ -92,6 +97,7 @@ GLOBAL_DATUM_INIT(configuration, /datum/server_configuration, new())
 	system = new()
 	url = new()
 	vote = new()
+	asset_cache = new()
 
 	// Load our stuff up
 	var/config_file = "config/config.toml"
@@ -117,6 +123,7 @@ GLOBAL_DATUM_INIT(configuration, /datum/server_configuration, new())
 	safe_load(event, "event_configuration")
 	safe_load(gamemode, "gamemode_configuration")
 	safe_load(general, "general_configuration")
+	safe_load(lighting_effects, "lighting_effects_configuration")
 	safe_load(ipintel, "ipintel_configuration")
 	safe_load(jobs, "job_configuration")
 	safe_load(logging, "logging_configuration")
@@ -129,6 +136,7 @@ GLOBAL_DATUM_INIT(configuration, /datum/server_configuration, new())
 	safe_load(system, "system_configuration")
 	safe_load(url, "url_configuration")
 	safe_load(vote, "voting_configuration")
+	safe_load(asset_cache, "asset_cache_configuration")
 
 // Proc to load up instance-specific overrides
 /datum/server_configuration/proc/load_overrides()

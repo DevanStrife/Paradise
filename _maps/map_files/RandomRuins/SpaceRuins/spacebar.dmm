@@ -165,7 +165,9 @@
 /turf/simulated/floor/plasteel,
 /area/ruin/space/powered/bar)
 "aP" = (
-/obj/effect/decal/warning_stripes/north,
+/obj/effect/turf_decal/stripes/line{
+	dir = 1
+	},
 /obj/structure/marker_beacon/dock_marker,
 /turf/simulated/floor/plating/airless,
 /area/ruin/space/powered)
@@ -226,9 +228,9 @@
 /turf/simulated/floor/plating/asteroid/ancient,
 /area/space/nearstation)
 "aZ" = (
-/obj/item/radio/beacon,
-/turf/simulated/floor/plasteel,
-/area/ruin/space/powered/bar)
+/mob/living/simple_animal/hostile/carp,
+/turf/template_noop,
+/area/space)
 "ba" = (
 /obj/machinery/door/airlock/multi_tile/glass{
 	dir = 1
@@ -321,7 +323,9 @@
 /turf/simulated/floor/plating,
 /area/ruin/space/powered/bar)
 "bo" = (
-/obj/effect/decal/warning_stripes/north,
+/obj/effect/turf_decal/stripes/line{
+	dir = 1
+	},
 /turf/simulated/floor/plating/airless,
 /area/ruin/space/powered)
 "bq" = (
@@ -332,7 +336,7 @@
 /turf/template_noop,
 /area/space/nearstation)
 "bt" = (
-/obj/effect/decal/warning_stripes/south,
+/obj/effect/turf_decal/stripes/line,
 /turf/simulated/floor/plating,
 /area/ruin/space/powered)
 "bF" = (
@@ -365,7 +369,7 @@
 	pixel_y = -3
 	},
 /obj/item/clothing/suit/hgpirate,
-/obj/item/reagent_containers/food/drinks/cans/beer/sleepy_beer,
+/obj/item/reagent_containers/drinks/cans/beer/sleepy_beer,
 /obj/item/clothing/gloves/ring/gold,
 /obj/item/id_decal/gold,
 /obj/item/screwdriver,
@@ -462,7 +466,7 @@
 /area/space/nearstation)
 "mb" = (
 /obj/structure/table/wood,
-/obj/item/reagent_containers/food/drinks/shaker,
+/obj/item/reagent_containers/drinks/shaker,
 /turf/simulated/floor/wood,
 /area/ruin/space/powered/bar)
 "mu" = (
@@ -488,6 +492,12 @@
 	icon_state = "dark"
 	},
 /area/ruin/space/powered/bar)
+"rC" = (
+/mob/living/simple_animal/hostile/pirate,
+/turf/simulated/floor/plasteel{
+	icon_state = "dark"
+	},
+/area/ruin/space/powered/bar)
 "rN" = (
 /obj/machinery/atmospherics/portable/canister/air{
 	filled = 1
@@ -498,6 +508,7 @@
 /obj/structure/chair/stool{
 	dir = 4
 	},
+/mob/living/simple_animal/hostile/pirate,
 /turf/simulated/floor/plasteel,
 /area/ruin/space/powered/bar)
 "sq" = (
@@ -538,7 +549,7 @@
 /area/ruin/space/powered/bar)
 "vD" = (
 /obj/structure/table,
-/obj/item/reagent_containers/food/drinks/cans/beer,
+/obj/item/reagent_containers/drinks/cans/beer,
 /turf/simulated/floor/wood,
 /area/ruin/space/powered/bar)
 "vE" = (
@@ -559,6 +570,10 @@
 	},
 /turf/simulated/floor/plating/asteroid/ancient,
 /area/ruin/space/powered)
+"wo" = (
+/mob/living/simple_animal/hostile/pirate/ranged,
+/turf/simulated/floor/wood,
+/area/ruin/space/powered/bar)
 "wy" = (
 /obj/effect/landmark/damageturf,
 /obj/structure/holosign/barrier/engineering,
@@ -573,6 +588,12 @@
 "wQ" = (
 /obj/structure/mopbucket/full,
 /obj/item/mop,
+/turf/simulated/floor/plasteel{
+	icon_state = "dark"
+	},
+/area/ruin/space/powered/bar)
+"xZ" = (
+/obj/item/beacon,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -640,6 +661,7 @@
 /obj/structure/chair/stool{
 	dir = 8
 	},
+/mob/living/simple_animal/hostile/pirate,
 /turf/simulated/floor/plasteel,
 /area/ruin/space/powered/bar)
 "Cx" = (
@@ -660,8 +682,10 @@
 	id_tag = "pod cycle";
 	name = "airlock dock"
 	},
-/obj/effect/decal/warning_stripes/south,
-/obj/effect/decal/warning_stripes/north,
+/obj/effect/turf_decal/stripes/line,
+/obj/effect/turf_decal/stripes/line{
+	dir = 1
+	},
 /turf/simulated/floor/plating/airless,
 /area/ruin/space/powered)
 "DT" = (
@@ -884,12 +908,16 @@
 /obj/structure/falsewall,
 /turf/simulated/floor/plating/asteroid/airless,
 /area/ruin/space/powered/bar)
+"Rc" = (
+/mob/living/simple_animal/hostile/carp,
+/turf/template_noop,
+/area/space/nearstation)
 "RL" = (
 /obj/structure/girder,
 /turf/simulated/floor/plating,
 /area/ruin/space/powered/bar)
 "RX" = (
-/obj/effect/decal/warning_stripes/south,
+/obj/effect/turf_decal/stripes/line,
 /obj/structure/marker_beacon/dock_marker,
 /turf/simulated/floor/plating,
 /area/ruin/space/powered)
@@ -955,8 +983,10 @@
 	id_tag = "pod cycle";
 	name = "airlock dock"
 	},
-/obj/effect/decal/warning_stripes/north,
-/obj/effect/decal/warning_stripes/south,
+/obj/effect/turf_decal/stripes/line{
+	dir = 1
+	},
+/obj/effect/turf_decal/stripes/line,
 /turf/simulated/floor/plating/airless,
 /area/ruin/space/powered)
 "ZM" = (
@@ -1315,7 +1345,7 @@ ad
 ad
 ad
 ad
-ad
+aZ
 ad
 ad
 ad
@@ -1472,7 +1502,7 @@ br
 br
 br
 br
-ad
+aZ
 ad
 ad
 ad
@@ -1522,7 +1552,7 @@ au
 bo
 br
 br
-br
+Rc
 br
 ad
 ad
@@ -1576,7 +1606,7 @@ br
 br
 br
 br
-ad
+aZ
 ad
 ad
 ad
@@ -1731,7 +1761,7 @@ ad
 ad
 ad
 ad
-ad
+aZ
 ad
 ad
 ad
@@ -2176,11 +2206,11 @@ am
 aE
 as
 as
-as
+wo
 aK
 ap
 aO
-aZ
+aO
 aV
 aO
 yC
@@ -2343,7 +2373,7 @@ LU
 lO
 bg
 bk
-bk
+rC
 bk
 bk
 bk
@@ -2498,7 +2528,7 @@ Is
 bf
 am
 bk
-bk
+xZ
 qZ
 bk
 Ad

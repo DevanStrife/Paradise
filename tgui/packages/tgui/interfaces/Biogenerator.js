@@ -1,28 +1,21 @@
 import { useBackend, useSharedState } from '../backend';
-import {
-  Button,
-  Section,
-  Box,
-  Flex,
-  Icon,
-  Collapsible,
-  NumberInput,
-  ProgressBar,
-  Dimmer,
-} from '../components';
+import { Button, Section, Box, Stack, Icon, Collapsible, NumberInput, ProgressBar } from '../components';
 import { Window } from '../layouts';
+import { Operating } from '../interfaces/common/Operating';
 
 export const Biogenerator = (props, context) => {
-  const { data } = useBackend(context);
-  const { container } = data;
-
+  const { data, config } = useBackend(context);
+  const { container, processing } = data;
+  const { title } = config;
   return (
-    <Window>
-      <Window.Content display="flex" className="Layout__content--flexColumn">
-        <Processing />
-        <Storage />
-        <Controls />
-        {!container ? <MissingContainer /> : <Products />}
+    <Window width={390} height={595}>
+      <Window.Content>
+        <Stack fill vertical>
+          <Operating operating={processing} name={title} />
+          <Storage />
+          <Controls />
+          {!container ? <MissingContainer /> : <Products />}
+        </Stack>
       </Window.Content>
     </Window>
   );
@@ -30,81 +23,43 @@ export const Biogenerator = (props, context) => {
 
 const MissingContainer = (props, context) => {
   return (
-    <Section flexGrow="1">
-      <Flex height="100%">
-        <Flex.Item
-          bold
-          grow="1"
-          textAlign="center"
-          align="center"
-          color="silver"
-        >
+    <Section fill scrollable>
+      <Stack fill>
+        <Stack.Item bold grow textAlign="center" align="center" color="silver">
           <Icon name="flask" size={5} mb="10px" />
           <br />
           The biogenerator is missing a container.
-        </Flex.Item>
-      </Flex>
+        </Stack.Item>
+      </Stack>
     </Section>
   );
 };
 
-const Processing = (props, context) => {
-  const { data } = useBackend(context);
-  const { processing } = data;
-
-  if (processing) {
-    return (
-      <Dimmer>
-        <Flex mb="30px">
-          <Flex.Item bold color="silver" textAlign="center">
-            <Icon name="spinner" spin size={4} mb="15px" />
-            <br />
-            The biogenerator is processing...
-          </Flex.Item>
-        </Flex>
-      </Dimmer>
-    );
-  }
-};
-
 const Storage = (props, context) => {
   const { act, data } = useBackend(context);
-  const {
-    biomass,
-    container,
-    container_curr_reagents,
-    container_max_reagents,
-  } = data;
+  const { biomass, container, container_curr_reagents, container_max_reagents } = data;
 
   return (
     <Section title="Storage">
-      <Flex>
-        <Flex.Item mr="20px" color="silver">
+      <Stack>
+        <Stack.Item mr="20px" color="silver">
           Biomass:
-        </Flex.Item>
-        <Flex.Item mr="5px">{biomass}</Flex.Item>
+        </Stack.Item>
+        <Stack.Item mr="5px">{biomass}</Stack.Item>
         <Icon name="leaf" size={1.2} color="#3d8c40" />
-      </Flex>
-      <Flex height="21px" mt="8px" align="center">
-        <Flex.Item mr="10px" color="silver">
+      </Stack>
+      <Stack height="21px" mt="8px" align="center">
+        <Stack.Item mr="10px" color="silver">
           Container:
-        </Flex.Item>
+        </Stack.Item>
         {container ? (
-          <ProgressBar
-            value={container_curr_reagents}
-            maxValue={container_max_reagents}
-          >
-            <Box textAlign="center">
-              {container_curr_reagents +
-                ' / ' +
-                container_max_reagents +
-                ' units'}
-            </Box>
+          <ProgressBar value={container_curr_reagents} maxValue={container_max_reagents}>
+            <Box textAlign="center">{container_curr_reagents + ' / ' + container_max_reagents + ' units'}</Box>
           </ProgressBar>
         ) : (
-          <Flex.Item>None</Flex.Item>
+          <Stack.Item>None</Stack.Item>
         )}
-      </Flex>
+      </Stack>
     </Section>
   );
 };
@@ -115,48 +70,44 @@ const Controls = (props, context) => {
 
   return (
     <Section title="Controls">
-      <Flex>
-        <Flex.Item width="30%" mr="3px">
+      <Stack>
+        <Stack.Item width="30%">
           <Button
             fluid
             textAlign="center"
             icon="power-off"
             disabled={!has_plants}
-            tooltip={
-              has_plants ? '' : 'There are no plants in the biogenerator.'
-            }
-            tooltipPosition="top-right"
+            tooltip={has_plants ? '' : 'There are no plants in the biogenerator.'}
+            tooltipPosition="top-start"
             content="Activate"
             onClick={() => act('activate')}
           />
-        </Flex.Item>
-        <Flex.Item width="40%" mr="3px">
+        </Stack.Item>
+        <Stack.Item width="40%">
           <Button
             fluid
             textAlign="center"
             icon="flask"
             disabled={!container}
-            tooltip={
-              container ? '' : 'The biogenerator does not have a container.'
-            }
+            tooltip={container ? '' : 'The biogenerator does not have a container.'}
             tooltipPosition="top"
             content="Detach Container"
             onClick={() => act('detach_container')}
           />
-        </Flex.Item>
-        <Flex.Item width="30%">
+        </Stack.Item>
+        <Stack.Item width="30%">
           <Button
             fluid
             textAlign="center"
             icon="eject"
             disabled={!has_plants}
             tooltip={has_plants ? '' : 'There are no stored plants to eject.'}
-            tooltipPosition="top-left"
+            tooltipPosition="top-end"
             content="Eject Plants"
             onClick={() => act('eject_plants')}
           />
-        </Flex.Item>
-      </Flex>
+        </Stack.Item>
+      </Stack>
     </Section>
   );
 };
@@ -175,15 +126,15 @@ const Products = (props, context) => {
     return (
       <Collapsible key={kv[0]} title={kv[0]} open>
         {category_items.map((item) => (
-          <Flex key={item} py="2px" className="candystripe" align="center">
-            <Flex.Item width="50%" ml="2px">
+          <Stack key={item} py="2px" className="candystripe" align="center">
+            <Stack.Item width="50%" ml="2px">
               {item.name}
-            </Flex.Item>
-            <Flex.Item textAlign="right" width="20%">
+            </Stack.Item>
+            <Stack.Item textAlign="right" width="20%">
               {item.cost * vendAmount}
               <Icon ml="5px" name="leaf" size={1.2} color="#3d8c40" />
-            </Flex.Item>
-            <Flex.Item textAlign="right" width="40%">
+            </Stack.Item>
+            <Stack.Item textAlign="right" width="40%">
               <Button
                 content="Vend"
                 disabled={biomass < item.cost * vendAmount}
@@ -195,8 +146,8 @@ const Products = (props, context) => {
                   })
                 }
               />
-            </Flex.Item>
-          </Flex>
+            </Stack.Item>
+          </Stack>
         ))}
       </Collapsible>
     );
@@ -205,7 +156,9 @@ const Products = (props, context) => {
   return (
     <Section
       title="Products"
-      flexGrow="1"
+      fill
+      scrollable
+      height={32}
       buttons={
         <>
           <Box inline mr="5px" color="silver">

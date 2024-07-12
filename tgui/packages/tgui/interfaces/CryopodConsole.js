@@ -1,11 +1,5 @@
 import { useBackend } from '../backend';
-import {
-  Button,
-  Section,
-  NoticeBox,
-  LabeledList,
-  Collapsible,
-} from '../components';
+import { Button, Section, NoticeBox, LabeledList, Collapsible } from '../components';
 import { Window } from '../layouts';
 import { toTitleCase } from 'common/string';
 
@@ -14,11 +8,10 @@ export const CryopodConsole = (props, context) => {
   const { account_name, allow_items } = data;
 
   return (
-    <Window title="Cryopod Console">
+    <Window title="Cryopod Console" width={400} height={480}>
       <Window.Content>
         <Section title={`Hello, ${account_name || '[REDACTED]'}!`}>
-          This automated cryogenic freezing unit will safely store your
-          corporeal form until your next assignment.
+          This automated cryogenic freezing unit will safely store your corporeal form until your next assignment.
         </Section>
         <CrewList />
         {!!allow_items && <ItemList />}
@@ -36,7 +29,7 @@ const CrewList = (props, context) => {
       {!frozen_crew.length ? (
         <NoticeBox>No stored crew!</NoticeBox>
       ) : (
-        <Section fill scrollable>
+        <Section>
           <LabeledList>
             {frozen_crew.map((person, index) => (
               <LabeledList.Item key={index} label={person.name}>
@@ -68,7 +61,7 @@ const ItemList = (props, context) => {
         <NoticeBox>No stored items!</NoticeBox>
       ) : (
         <>
-          <Section fill scrollable>
+          <Section>
             <LabeledList>
               {frozen_items.map((item) => (
                 <LabeledList.Item
@@ -86,11 +79,7 @@ const ItemList = (props, context) => {
               ))}
             </LabeledList>
           </Section>
-          <Button
-            content="Drop All Items"
-            color="red"
-            onClick={() => act('all_items')}
-          />
+          <Button content="Drop All Items" color="red" onClick={() => act('all_items')} />
         </>
       )}
     </Collapsible>

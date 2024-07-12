@@ -7,8 +7,8 @@
 
 /datum/action/innate/slime
 	check_flags = AB_CHECK_CONSCIOUS
-	icon_icon = 'icons/mob/actions/actions_slime.dmi'
-	background_icon_state = "bg_alien"
+	button_overlay_icon = 'icons/mob/actions/actions_slime.dmi'
+	button_background_icon_state = "bg_alien"
 	var/needs_growth = NO_GROWTH_NEEDED
 
 /datum/action/innate/slime/IsAvailable()
@@ -20,10 +20,7 @@
 			return 0
 		return 1
 
-/mob/living/simple_animal/slime/verb/Feed()
-	set category = "Slime"
-	set desc = "This will let you feed on any valid creature in the surrounding area. This should also be used to halt the feeding process."
-
+/mob/living/simple_animal/slime/proc/Feed()
 	if(stat)
 		return 0
 
@@ -32,16 +29,16 @@
 		if(C!=src && Adjacent(C))
 			choices += C
 
-	var/mob/living/M = input(src,"Who do you wish to feed on?") in null|choices
+	var/mob/living/M = tgui_input_list(src, "Who do you wish to feed on?", "Feeding Selection", choices)
 	if(!M)
-		return 0
+		return FALSE
 	if(CanFeedon(M))
 		Feedon(M)
-		return 1
+		return TRUE
 
 /datum/action/innate/slime/feed
 	name = "Feed"
-	button_icon_state = "slimeeat"
+	button_overlay_icon_state = "slimeeat"
 
 
 /datum/action/innate/slime/feed/Activate()
@@ -123,10 +120,7 @@
 		layer = initial(layer)
 		buckled.unbuckle_mob(src,force=TRUE)
 
-/mob/living/simple_animal/slime/verb/Evolve()
-	set category = "Slime"
-	set desc = "This will let you evolve from baby to adult slime."
-
+/mob/living/simple_animal/slime/proc/Evolve()
 	if(stat)
 		to_chat(src, "<i>I must be conscious to do this...</i>")
 		return
@@ -146,7 +140,7 @@
 
 /datum/action/innate/slime/evolve
 	name = "Evolve"
-	button_icon_state = "slimegrow"
+	button_overlay_icon_state = "slimegrow"
 	needs_growth = GROWTH_NEEDED
 
 /datum/action/innate/slime/evolve/Activate()
@@ -156,10 +150,7 @@
 		var/datum/action/innate/slime/reproduce/A = new
 		A.Grant(S)
 
-/mob/living/simple_animal/slime/verb/Reproduce()
-	set category = "Slime"
-	set desc = "This will make you split into four Slimes."
-
+/mob/living/simple_animal/slime/proc/Reproduce()
 	if(stat)
 		to_chat(src, "<i>I must be conscious to do this...</i>")
 		return
@@ -209,9 +200,15 @@
 
 /datum/action/innate/slime/reproduce
 	name = "Reproduce"
-	button_icon_state = "slimesplit"
+	button_overlay_icon_state = "slimesplit"
 	needs_growth = GROWTH_NEEDED
 
 /datum/action/innate/slime/reproduce/Activate()
 	var/mob/living/simple_animal/slime/S = owner
 	S.Reproduce()
+
+#undef SIZE_DOESNT_MATTER
+#undef BABIES_ONLY
+#undef ADULTS_ONLY
+#undef NO_GROWTH_NEEDED
+#undef GROWTH_NEEDED

@@ -98,10 +98,10 @@
 
 	ui_interact(user)
 
-/obj/machinery/pdapainter/ui_interact(mob/user, ui_key, datum/tgui/ui, force_open, datum/tgui/master_ui, datum/ui_state/state)
-	ui = SStgui.try_update_ui(user, src, ui_key, ui, force_open)
+/obj/machinery/pdapainter/ui_interact(mob/user, datum/tgui/ui, datum/ui_state/state)
+	ui = SStgui.try_update_ui(user, src, ui)
 	if(!ui)
-		ui = new(user, src, ui_key, "PdaPainter", "PDA Painter", 510, 510)
+		ui = new(user, src, "PdaPainter", "PDA Painter")
 		ui.open()
 
 /obj/machinery/pdapainter/ui_data(mob/user)
@@ -174,7 +174,7 @@
 	if(storedpda)
 		storedpda.icon_state = preview_icon_state
 		storedpda.desc = colorlist[preview_icon_state][2]
-		playsound(loc, 'sound/effects/spray.ogg', 5, 1, 5)
+		playsound(loc, 'sound/effects/spray.ogg', 5, TRUE, 5)
 		update_pda_cache()
 
 /obj/machinery/pdapainter/proc/update_pda_cache()

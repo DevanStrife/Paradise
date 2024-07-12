@@ -7,7 +7,7 @@ GLOBAL_LIST_EMPTY(remote_signalers)
 	item_state = "signaler"
 	materials = list(MAT_METAL = 400, MAT_GLASS = 120)
 	origin_tech = "magnets=1;bluespace=1"
-	wires = WIRE_RECEIVE | WIRE_PULSE | WIRE_RADIO_PULSE | WIRE_RADIO_RECEIVE
+	wires = ASSEMBLY_WIRE_RECEIVE | ASSEMBLY_WIRE_PULSE | ASSEMBLY_WIRE_RADIO_PULSE | ASSEMBLY_WIRE_RADIO_RECEIVE
 	secured = TRUE
 	bomb_name = "remote-control bomb"
 	/// Are we set to receieve a signal?
@@ -64,11 +64,8 @@ GLOBAL_LIST_EMPTY(remote_signalers)
 
 // Activation pre-runner, handles cooldown and calls signal(), invoked from ui_act()
 /obj/item/assembly/signaler/activate()
-	if(cooldown > 0)
+	if(!..())
 		return
-
-	cooldown = 2
-	addtimer(CALLBACK(src, PROC_REF(process_cooldown)), 1 SECONDS)
 
 	signal()
 
@@ -81,10 +78,13 @@ GLOBAL_LIST_EMPTY(remote_signalers)
 /obj/item/assembly/signaler/attack_self(mob/user)
 	ui_interact(user)
 
-/obj/item/assembly/signaler/ui_interact(mob/user, ui_key = "main", datum/tgui/ui = null, force_open = FALSE, datum/tgui/master_ui = null, datum/ui_state/state = GLOB.deep_inventory_state)
-	ui = SStgui.try_update_ui(user, src, ui_key, ui, force_open)
+/obj/item/assembly/signaler/ui_state(mob/user)
+	return GLOB.deep_inventory_state
+
+/obj/item/assembly/signaler/ui_interact(mob/user, datum/tgui/ui = null)
+	ui = SStgui.try_update_ui(user, src, ui)
 	if(!ui)
-		ui = new(user, src, ui_key, "RemoteSignaler", name, 300, 200, master_ui, state)
+		ui = new(user, src, "RemoteSignaler", name)
 		ui.open()
 
 /obj/item/assembly/signaler/ui_data(mob/user)

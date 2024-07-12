@@ -147,9 +147,17 @@
 	display_name = "Cowboy shirt, short sleeved navy"
 	path = /obj/item/clothing/accessory/cowboyshirt/navy/short_sleeved
 
+/datum/gear/accessory/locket/silver
+	display_name = "Silver locket"
+	path = /obj/item/clothing/accessory/necklace/locket/silver
+
 /datum/gear/accessory/locket
 	display_name = "Gold locket"
 	path = /obj/item/clothing/accessory/necklace/locket
+
+/datum/gear/accessory/necklace/long
+	display_name = "Large necklace"
+	path = /obj/item/clothing/accessory/necklace/long
 
 /datum/gear/accessory/necklace
 	display_name = "Simple necklace"
@@ -166,6 +174,14 @@
 /datum/gear/accessory/corsetblue
 	display_name = "Corset, blue"
 	path = /obj/item/clothing/accessory/corset/blue
+
+/datum/gear/accessory/nt_pin
+	display_name = "Nanotrasen pin"
+	path = /obj/item/clothing/accessory/pin
+
+/datum/gear/accessory/pride_pin
+	display_name = "Pride pin"
+	path = /obj/item/clothing/accessory/pin/pride
 
 /datum/gear/accessory/armband_red
 	display_name = "Armband"
@@ -213,3 +229,13 @@
 	display_name = "Armband, science"
 	path = /obj/item/clothing/accessory/armband/science
 	allowed_roles = list("Research Director","Scientist", "Roboticist")
+
+/datum/gear/accessory/armband_job/procedure
+	display_name = "Armband, procedure"
+	path = /obj/item/clothing/accessory/armband/procedure
+	allowed_roles = list("Nanotrasen Representative", "Magistrate", "Internal Affairs Agent")
+
+/datum/gear/accessory/armband_job/service
+	display_name = "Armband, service"
+	path = /obj/item/clothing/accessory/armband/service
+	allowed_roles = list("Head of Personnel", "Chaplain", "Janitor", "Botanist", "Chef", "Bartender", "Clown", "Mime", "Librarian", "Barber")

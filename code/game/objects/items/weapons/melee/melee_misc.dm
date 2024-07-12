@@ -1,4 +1,5 @@
 /obj/item/melee
+	icon = 'icons/obj/weapons/melee.dmi'
 	lefthand_file = 'icons/mob/inhands/weapons_lefthand.dmi'
 	righthand_file = 'icons/mob/inhands/weapons_righthand.dmi'
 	needs_permit = TRUE
@@ -19,7 +20,7 @@
 
 
 /obj/item/melee/chainofcommand/suicide_act(mob/user)
-	to_chat(viewers(user), "<span class='suicide'>[user] is strangling [user.p_themselves()] with [src]! It looks like [user.p_theyre()] trying to commit suicide.</span>")
+	to_chat(viewers(user), "<span class='suicide'>[user] is strangling [user.p_themselves()] with [src]! It looks like [user.p_theyre()] trying to commit suicide!</span>")
 	return OXYLOSS
 
 /obj/item/melee/rapier
@@ -156,7 +157,7 @@
 
 /obj/item/melee/spellblade/examine(mob/user)
 	. = ..()
-	if(enchant && (iswizard(user) || iscultist(user))) // only wizards and cultists understand runes
+	if(enchant && (iswizard(user) || IS_CULTIST(user))) // only wizards and cultists understand runes
 		. += "The runes along the side read; [enchant.desc]."
 
 
@@ -295,7 +296,9 @@
 	if(!.)
 		return
 	var/turf/user_turf = get_turf(user)
-	if(!(target in view(7, user_turf))) // no camera shenangians
+	if(get_dist(user_turf, get_turf(target)) > 9) //blocks cameras without blocking xray or thermals
+		return
+	if(!((target in view(9, user)) || user.sight & SEE_MOBS))
 		return
 	var/list/turfs = list()
 	for(var/turf/T in orange(1, get_turf(target)))

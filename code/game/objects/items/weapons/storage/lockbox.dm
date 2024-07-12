@@ -22,28 +22,50 @@
 		if(check_access(W))
 			locked = !locked
 			if(locked)
-				icon_state = icon_locked
 				to_chat(user, "<span class='warning'>You lock \the [src]!</span>")
 				if(user.s_active)
 					user.s_active.close(user)
-				return
 			else
-				icon_state = icon_closed
 				to_chat(user, "<span class='warning'>You unlock \the [src]!</span>")
 				origin_tech = null //wipe out any origin tech if it's unlocked in any way so you can't double-dip tech levels at R&D.
-				return
+			update_icon()
+			return
 		else
 			to_chat(user, "<span class='warning'>Access denied.</span>")
 			return
 	else if((istype(W, /obj/item/card/emag) || (istype(W, /obj/item/melee/energy/blade)) && !broken))
 		emag_act(user)
-		return
+		return TRUE
 	if(!locked)
 		..()
 	else
 		to_chat(user, "<span class='warning'>It's locked!</span>")
 	return
 
+/obj/item/storage/lockbox/AltClick(mob/user)
+	if(!Adjacent(user))
+		return
+	if(broken)
+		to_chat(user, "<span class='warning'>It appears to be broken.</span>")
+		return
+	if(!locked && user.s_active != src)
+		return ..()
+	if(allowed(user))
+		locked = !locked
+		to_chat(user, "<span class='notice'>You [locked ? "lock" : "unlock"] [src].</span>")
+		update_icon()
+		if(user.s_active == src)
+			close(user)
+	else
+		to_chat(user, "<span class='warning'>Access denied.</span>")
+
+/obj/item/storage/lockbox/update_icon_state()
+	if(broken)
+		icon_state = icon_broken
+	else if(locked)
+		icon_state = icon_locked
+	else
+		icon_state = icon_closed // good variable name bro
 
 /obj/item/storage/lockbox/show_to(mob/user as mob)
 	if(locked)
@@ -64,24 +86,26 @@
 		broken = TRUE
 		locked = FALSE
 		desc = "It appears to be broken."
-		icon_state = icon_broken
 		to_chat(user, "<span class='notice'>You unlock \the [src].</span>")
 		origin_tech = null //wipe out any origin tech if it's unlocked in any way so you can't double-dip tech levels at R&D.
+		update_icon()
 		return
 
 /obj/item/storage/lockbox/hear_talk(mob/living/M as mob, list/message_pieces)
+	return
 
 /obj/item/storage/lockbox/hear_message(mob/living/M as mob, msg)
+	return
 
 /obj/item/storage/lockbox/mindshield
 	name = "Lockbox (Mindshield Implants)"
 	req_access = list(ACCESS_SECURITY)
 
 /obj/item/storage/lockbox/mindshield/populate_contents()
-	new /obj/item/implantcase/mindshield(src)
-	new /obj/item/implantcase/mindshield(src)
-	new /obj/item/implantcase/mindshield(src)
-	new /obj/item/implanter/mindshield(src)
+	new /obj/item/bio_chip_case/mindshield(src)
+	new /obj/item/bio_chip_case/mindshield(src)
+	new /obj/item/bio_chip_case/mindshield(src)
+	new /obj/item/bio_chip_implanter/mindshield(src)
 
 /obj/item/storage/lockbox/clusterbang
 	name = "lockbox (clusterbang)"
@@ -189,3 +213,30 @@
 		locked = FALSE
 		icon_state = icon_broken
 		origin_tech = null //wipe out any origin tech if it's unlocked in any way so you can't double-dip tech levels at R&D.
+
+/obj/item/storage/lockbox/experimental_weapon
+	name = "A-113 classified lockbox"
+	desc = "Contains a classifed item for experimental purposes. Looks like some acid was spilt on it."
+	req_access = list(ACCESS_SEC_DOORS) //officers, heads
+
+/obj/item/storage/lockbox/experimental_weapon/populate_contents()
+	if(prob(10))
+		new /obj/item/clothing/mask/facehugger(src) //Suprise! Storing facehuggers improperly is what lead to this mess.
+		return
+	var/spawn_type = pick(/obj/item/gun/energy/kinetic_accelerator/experimental, /obj/item/surveillance_upgrade, /obj/item/mod/module/stealth/ninja)
+	if(prob(25))
+		if(rand(1, 6) == 1) //organ time. I want this to be more balanced in distribution, so organs are under a prob 25
+			new /obj/item/organ/internal/alien/plasmavessel/drone(src)  //Disected drone before the place got wiped. No hivenode.
+			new /obj/item/organ/internal/alien/acidgland(src)
+			new /obj/item/organ/internal/alien/resinspinner(src)
+			return
+		var/list/organ_loot = list(
+			/obj/item/organ/internal/cyberimp/arm/katana,
+			/obj/item/organ/internal/cyberimp/arm/toolset_abductor,
+			/obj/item/organ/internal/cyberimp/arm/esword,
+			/obj/item/organ/internal/heart/demon/pulse,
+			/obj/item/organ/internal/eyes/cybernetic/eyesofgod
+		)
+
+		spawn_type = pick(organ_loot)
+	new spawn_type(src)

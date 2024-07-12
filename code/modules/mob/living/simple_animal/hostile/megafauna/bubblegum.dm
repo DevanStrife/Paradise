@@ -1,6 +1,7 @@
 #define BUBBLEGUM_SMASH (health <= maxHealth * 0.5 || second_life) // angery
 #define BUBBLEGUM_CAN_ENRAGE (enrage_till + (enrage_time * 2) <= world.time)
 #define BUBBLEGUM_IS_ENRAGED (enrage_till > world.time)
+#define MAXIMUM_ENRAGED_HEALING 500
 
 
 /*
@@ -61,6 +62,10 @@ Difficulty: Hard
 	var/revving_charge = FALSE
 	/// Is it on its enraged exclusive second life?
 	var/second_life = FALSE
+	/// Does it have a portal to the funny second life arena created?
+	var/obj/effect/portal/advanced/second_life_portal
+	/// Enraged healing recived
+	var/enraged_healing = 0
 	internal_gps = /obj/item/gps/internal/bubblegum
 	medal_type = BOSS_MEDAL_BUBBLEGUM
 	score_type = BUBBLEGUM_SCORE
@@ -87,29 +92,29 @@ Difficulty: Hard
 
 /datum/action/innate/megafauna_attack/triple_charge
 	name = "Triple Charge"
-	icon_icon = 'icons/mob/actions/actions.dmi'
-	button_icon_state = "sniper_zoom"
+	button_overlay_icon = 'icons/mob/actions/actions.dmi'
+	button_overlay_icon_state = "sniper_zoom"
 	chosen_message = "<span class='colossus'>You are now triple charging at the target you click on.</span>"
 	chosen_attack_num = 1
 
 /datum/action/innate/megafauna_attack/hallucination_charge
 	name = "Hallucination Charge"
-	icon_icon = 'icons/effects/bubblegum.dmi'
-	button_icon_state = "smack ya one"
+	button_overlay_icon = 'icons/effects/bubblegum.dmi'
+	button_overlay_icon_state = "smack ya one"
 	chosen_message = "<span class='colossus'>You are now charging with hallucinations at the target you click on.</span>"
 	chosen_attack_num = 2
 
 /datum/action/innate/megafauna_attack/hallucination_surround
 	name = "Surround Target"
-	icon_icon = 'icons/turf/walls/wall.dmi'
-	button_icon_state = "wall-0"
+	button_overlay_icon = 'icons/turf/walls/wall.dmi'
+	button_overlay_icon_state = "wall-0"
 	chosen_message = "<span class='colossus'>You are now surrounding the target you click on with hallucinations.</span>"
 	chosen_attack_num = 3
 
 /datum/action/innate/megafauna_attack/blood_warp
 	name = "Blood Warp"
-	icon_icon = 'icons/effects/blood.dmi'
-	button_icon_state = "floor1"
+	button_overlay_icon = 'icons/effects/blood.dmi'
+	button_overlay_icon_state = "floor1"
 	chosen_message = "<span class='colossus'>You are now warping to blood around your clicked position.</span>"
 	chosen_attack_num = 4
 
@@ -135,11 +140,12 @@ Difficulty: Hard
 	var/mob/living/carbon/human/H = target
 	H.apply_status_effect(STATUS_EFFECT_BUBBLEGUM_CURSE, src)
 	if(second_life)
-		H.clear_fullscreen("bubblegum")
-		H.overlay_fullscreen("bubblegum", /obj/screen/fullscreen/fog, 2)
+		H.clear_fullscreen("Bubblegum")
+		H.overlay_fullscreen("Bubblegum", /atom/movable/screen/fullscreen/stretch/fog, 2)
 
 
 /mob/living/simple_animal/hostile/megafauna/bubblegum/death(gibbed)
+	qdel(second_life_portal)
 	if(enraged && !second_life)
 		var/obj/structure/closet/crate/necropolis/bubblegum/bait/jebait = new /obj/structure/closet/crate/necropolis/bubblegum/bait(get_turf(src))
 		var/obj/effect/bubblegum_trigger/great_chest_ahead = new /obj/effect/bubblegum_trigger(jebait, ListTargets())
@@ -149,7 +155,7 @@ Difficulty: Hard
 		var/area/A = get_area(src)
 		for(var/mob/M in A)
 			to_chat(M, "<span class='colossus'><b>YOU FUCK... I... I'll... get you later. Enjoy the last few days of your life...</b></span>")
-			new /obj/effect/bubblegum_exit(get_turf(src))
+		new /obj/effect/bubblegum_exit(get_turf(src))
 	return ..()
 
 /mob/living/simple_animal/hostile/megafauna/bubblegum/OpenFire(atom/A)
@@ -248,12 +254,12 @@ Difficulty: Hard
 	. = list()
 	for(var/mob/living/L in targets)
 		var/list/bloodpool = get_pools(get_turf(L), 0)
-		if(bloodpool.len && (!faction_check_mob(L) || L.stat == DEAD))
+		if(length(bloodpool) && (!faction_check_mob(L) || L.stat == DEAD))
 			. += L
 
 /mob/living/simple_animal/hostile/megafauna/bubblegum/proc/try_bloodattack()
 	var/list/targets = get_mobs_on_blood()
-	if(targets.len)
+	if(length(targets))
 		INVOKE_ASYNC(src, PROC_REF(bloodattack), targets, prob(enraged ? 75 : 50))
 		return TRUE
 	return FALSE
@@ -262,7 +268,7 @@ Difficulty: Hard
 	var/mob/living/target_one = pick_n_take(targets)
 	var/turf/target_one_turf = get_turf(target_one)
 	var/mob/living/target_two
-	if(targets.len)
+	if(length(targets))
 		target_two = pick_n_take(targets)
 		var/turf/target_two_turf = get_turf(target_two)
 		if(target_two.stat != CONSCIOUS || prob(10))
@@ -272,7 +278,7 @@ Difficulty: Hard
 
 	if(target_one)
 		var/list/pools = get_pools(get_turf(target_one), 0)
-		if(pools.len)
+		if(length(pools))
 			target_one_turf = get_turf(target_one)
 			if(target_one_turf)
 				if(target_one.stat != CONSCIOUS || prob(10))
@@ -282,7 +288,7 @@ Difficulty: Hard
 
 	if(!target_two && target_one)
 		var/list/poolstwo = get_pools(get_turf(target_one), 0)
-		if(poolstwo.len)
+		if(length(poolstwo))
 			target_one_turf = get_turf(target_one)
 			if(target_one_turf)
 				if(target_one.stat != CONSCIOUS || prob(10))
@@ -327,13 +333,13 @@ Difficulty: Hard
 	if(Adjacent(target))
 		return FALSE
 	var/list/can_jaunt = get_pools(get_turf(src), 1)
-	if(!can_jaunt.len)
+	if(!length(can_jaunt))
 		return FALSE
 
 	var/list/pools = get_pools(get_turf(target), 5)
 	var/list/pools_to_remove = get_pools(get_turf(target), 4)
 	pools -= pools_to_remove
-	if(!pools.len)
+	if(!length(pools))
 		return FALSE
 
 	var/obj/effect/temp_visual/decoy/DA = new /obj/effect/temp_visual/decoy(loc,src)
@@ -351,7 +357,7 @@ Difficulty: Hard
 	pools = get_pools(get_turf(target), 5)
 	pools_to_remove = get_pools(get_turf(target), 4)
 	pools -= pools_to_remove
-	if(pools.len)
+	if(length(pools))
 		shuffle_inplace(pools)
 		found_bloodpool = pick(pools)
 	if(found_bloodpool)
@@ -367,7 +373,7 @@ Difficulty: Hard
 
 /mob/living/simple_animal/hostile/megafauna/bubblegum/proc/hit_up_narsi()
 	SetRecoveryTime(20)
-	visible_message("<span class='colossus'><b>[pick("[SSticker.cultdat.entity_name], I call on YOU for one of MY favours you owe me!", "[SSticker.cultdat.entity_title1], I call on you for some support...", "Let us see how you like the minions of [SSticker.cultdat.entity_title2]!", "Oh, [SSticker.cultdat.entity_title3] join me in RENDING THIS WHELP APART!")]</b></span>")
+	visible_message("<span class='colossus'><b>[pick("[GET_CULT_DATA(entity_name, "Nar'sie")], I call on YOU for one of MY favours you owe me!", "[GET_CULT_DATA(entity_title1, "Nar'sie")], I call on you for some support...", "Let us see how you like the minions of [GET_CULT_DATA(entity_title2, "Nar'sie")]!", "Oh, [GET_CULT_DATA(entity_title3, "Nar'sie")] join me in RENDING THIS WHELP APART!")]</b></span>")
 	var/list/turfs = list()
 	var/constructs = 0
 	for(var/turf/T in view(6, target))
@@ -376,12 +382,12 @@ Difficulty: Hard
 		if(T in range(2, target))
 			continue
 		turfs += T
-		var/amount = enraged ? 4 : 3
+		var/amount = second_life ? 4 : 3
 		while(constructs < amount && length(turfs))
 			var/turf/spot = pick_n_take(turfs)
 			if(!spot)
 				return
-			var/mob/living/simple_animal/hostile/construct/wraith/hostile/summon = new /mob/living/simple_animal/hostile/construct/wraith/hostile(spot)
+			var/mob/living/simple_animal/hostile/construct/wraith/hostile/bubblegum/summon = new /mob/living/simple_animal/hostile/construct/wraith/hostile/bubblegum(spot)
 			summon.faction = faction.Copy()
 			constructs++
 
@@ -407,7 +413,7 @@ Difficulty: Hard
 	if(!BUBBLEGUM_CAN_ENRAGE)
 		return FALSE
 	enrage_till = world.time + enrage_time
-	if(enraged)
+	if(enraged && (enraged_healing < MAXIMUM_ENRAGED_HEALING) && !second_life)
 		adjustHealth(-75)
 	update_approach()
 	change_move_delay(enraged ? 3 : 4) //3 if enraged, 4 otherwise
@@ -583,7 +589,6 @@ Difficulty: Hard
 	maxHealth = 1
 	alpha = 127.5
 	crusher_loot = null
-	loot = null
 	medal_type = null
 	score_type = null
 	deathmessage = "Explodes into a pool of blood!"
@@ -642,7 +647,22 @@ Difficulty: Hard
 
 /mob/living/simple_animal/hostile/megafauna/bubblegum/round_2/Initialize(mapload)
 	. = ..()
+	for(var/obj/effect/landmark/spawner/bubblegum_exit/E in GLOB.landmarks_list)
+		second_life_portal = new /obj/effect/portal/advanced(get_turf(E), get_turf(src), null, 2 HOURS, src, FALSE)
+		break
 	RegisterSignal(src, COMSIG_HOSTILE_FOUND_TARGET, PROC_REF(i_see_you))
 	for(var/mob/living/carbon/human/H in range(20))
-		to_chat(H, "<span class='colossus'><b>I WILL END YOU HERE AND NOW!</b></span>")
+		to_chat(H, "<span class='colossus'><b>MY HANDS WILL RELISH ENDING YOU... HERE AND NOW!</b></span>")
 		FindTarget(list(H), 1)
+
+/mob/living/simple_animal/hostile/megafauna/bubblegum/round_2/Life(seconds, times_fired)
+	. = ..()
+	if(!istype(get_area(src), /area/ruin/space/bubblegum_arena))
+		for(var/obj/effect/landmark/spawner/bubblegum/B in GLOB.landmarks_list)
+			forceMove(get_turf(B))
+			break
+
+#undef BUBBLEGUM_SMASH
+#undef BUBBLEGUM_CAN_ENRAGE
+#undef BUBBLEGUM_IS_ENRAGED
+#undef MAXIMUM_ENRAGED_HEALING

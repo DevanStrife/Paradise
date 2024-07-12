@@ -74,7 +74,7 @@
 			var/area/a = loc.loc // Gets our locations location, like a dream within a dream
 			if(!isarea(a))
 				return
-			if(!a.powernet.equipment_powered) // There's no APC in this area, don't try to cheat power!
+			if(!a.powernet.has_power(PW_CHANNEL_EQUIPMENT)) // There's no APC in this area, don't try to cheat power!
 				to_chat(user, "<span class='warning'>[src] blinks red as you try to insert the cell!</span>")
 				return
 			if(!user.drop_item())
@@ -101,13 +101,7 @@
 	if(charging)
 		to_chat(user, "<span class='warning'>Remove the cell first!</span>")
 		return
-	if(!I.use_tool(src, user, 0, volume = I.tool_volume))
-		return
-	anchored = !anchored
-	if(anchored)
-		WRENCH_ANCHOR_MESSAGE
-	else
-		WRENCH_UNANCHOR_MESSAGE
+	default_unfasten_wrench(user, I, 0)
 
 /obj/machinery/cell_charger/proc/removecell()
 	charging.update_icon()

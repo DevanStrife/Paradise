@@ -30,6 +30,10 @@
 /obj/machinery/light{
 	dir = 1
 	},
+/obj/item/clothing/glasses/hud/hydroponic,
+/obj/item/clothing/glasses/hud/hydroponic,
+/obj/item/clothing/glasses/hud/hydroponic,
+/obj/item/clothing/glasses/hud/hydroponic,
 /turf/simulated/floor/plasteel/freezer,
 /area/ruin/powered/seedvault)
 "bE" = (
@@ -82,12 +86,13 @@
 /area/ruin/powered/seedvault)
 "gf" = (
 /obj/structure/table/wood,
+/obj/item/paper_bin,
+/obj/item/storage/fancy/rollingpapers,
+/obj/item/storage/fancy/rollingpapers,
+/obj/item/storage/fancy/rollingpapers,
+/obj/item/storage/fancy/rollingpapers,
 /obj/item/lighter,
 /obj/item/lighter,
-/obj/item/storage/fancy/rollingpapers,
-/obj/item/storage/fancy/rollingpapers,
-/obj/item/storage/fancy/rollingpapers,
-/obj/item/storage/fancy/rollingpapers,
 /turf/simulated/floor/plasteel/freezer,
 /area/ruin/powered/seedvault)
 "hy" = (
@@ -101,7 +106,7 @@
 /turf/simulated/floor/plasteel/freezer,
 /area/ruin/powered/seedvault)
 "hO" = (
-/obj/effect/baseturf_helper/lava_land/surface,
+/obj/effect/baseturf_helper/lava/mapping_lava,
 /turf/simulated/floor/plasteel/freezer,
 /area/ruin/powered/seedvault)
 "im" = (
@@ -110,6 +115,16 @@
 	},
 /turf/simulated/floor/plasteel/freezer,
 /area/ruin/powered/seedvault)
+"iu" = (
+/obj/effect/mapping_helpers/no_lava,
+/obj/effect/mob_spawn/human/corpse/seed_vault_diona,
+/obj/item/pickaxe/mini,
+/obj/item/food/snacks/grown/mushroom/glowshroom{
+	pixel_x = 8;
+	pixel_y = -8
+	},
+/turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
+/area/lavaland/surface/outdoors)
 "iV" = (
 /obj/structure/closet/crate/hydroponics,
 /obj/structure/beebox,
@@ -154,6 +169,8 @@
 /obj/structure/table/glass,
 /obj/item/storage/box/beakers/bluespace,
 /obj/item/storage/box/beakers/bluespace,
+/obj/item/book/manual/wiki/hydroponics,
+/obj/item/book/manual/wiki/hydroponics,
 /turf/simulated/floor/plasteel/freezer,
 /area/ruin/powered/seedvault)
 "qI" = (
@@ -290,9 +307,8 @@
 /turf/simulated/floor/plasteel/freezer,
 /area/ruin/powered/seedvault)
 "DZ" = (
-/obj/structure/disposalpipe/segment{
-	dir = 4;
-	icon_state = "pipe-c"
+/obj/structure/disposalpipe/segment/corner{
+	dir = 4
 	},
 /turf/simulated/floor/plasteel/freezer,
 /area/ruin/powered/seedvault)
@@ -311,15 +327,15 @@
 /turf/simulated/floor/plasteel/freezer,
 /area/ruin/powered/seedvault)
 "FS" = (
-/obj/effect/spawner/window/reinforced/tinted,
+/obj/effect/spawner/window/reinforced/plasma,
 /turf/simulated/floor/plating,
 /area/ruin/powered/seedvault)
 "HL" = (
 /obj/structure/closet/crate/hydroponics,
-/obj/item/storage/bag/plants,
-/obj/item/storage/bag/plants,
-/obj/item/storage/bag/plants,
-/obj/item/storage/bag/plants,
+/obj/item/storage/bag/plants/portaseeder,
+/obj/item/storage/bag/plants/portaseeder,
+/obj/item/storage/bag/plants/portaseeder,
+/obj/item/storage/bag/plants/portaseeder,
 /obj/item/clothing/under/rank/civilian/hydroponics,
 /obj/item/clothing/under/rank/civilian/hydroponics,
 /obj/item/clothing/under/rank/civilian/hydroponics,
@@ -327,14 +343,14 @@
 /turf/simulated/floor/plasteel/freezer,
 /area/ruin/powered/seedvault)
 "IJ" = (
-/obj/machinery/computer{
+/obj/machinery/computer/nonfunctional{
 	dir = 4;
 	name = "Ship Auto-Pilot Console"
 	},
 /turf/simulated/floor/plasteel/freezer,
 /area/ruin/powered/seedvault)
 "JL" = (
-/obj/machinery/computer{
+/obj/machinery/computer/nonfunctional{
 	dir = 4;
 	name = "Auto-Pilot Traveling Logs"
 	},
@@ -363,15 +379,11 @@
 /area/lavaland/surface/outdoors)
 "Nt" = (
 /obj/structure/table/wood,
-/obj/machinery/smartfridge/disks{
-	pixel_y = 2
-	},
 /turf/simulated/floor/plasteel/freezer,
 /area/ruin/powered/seedvault)
 "OL" = (
-/obj/structure/disposalpipe/segment{
-	dir = 1;
-	icon_state = "pipe-c"
+/obj/structure/disposalpipe/segment/corner{
+	dir = 1
 	},
 /turf/simulated/floor/plasteel/freezer,
 /area/ruin/powered/seedvault)
@@ -384,9 +396,7 @@
 /turf/simulated/floor/plasteel/freezer,
 /area/ruin/powered/seedvault)
 "Pg" = (
-/obj/machinery/cryopod{
-	dir = 2
-	},
+/obj/machinery/cryopod/offstation/right,
 /turf/simulated/floor/plasteel/freezer,
 /area/ruin/powered/seedvault)
 "Qb" = (
@@ -394,7 +404,7 @@
 /obj/item/seeds/grass{
 	name = "modificated pack of grass seeds"
 	},
-/obj/item/paper/seed_vault/terraformation,
+/obj/item/paper/seed_vault/terraforming_introduction,
 /turf/simulated/floor/plasteel/freezer,
 /area/ruin/powered/seedvault)
 "QX" = (
@@ -414,7 +424,6 @@
 /area/ruin/powered/seedvault)
 "VI" = (
 /obj/structure/table/wood,
-/obj/item/paper_bin,
 /obj/item/paper/seed_vault,
 /obj/item/pen,
 /turf/simulated/floor/plasteel/freezer,
@@ -446,11 +455,19 @@
 /turf/simulated/floor/plasteel/freezer,
 /area/ruin/powered/seedvault)
 "XO" = (
-/obj/structure/table/wood,
+/obj/structure/closet/crate/internals,
 /obj/item/pickaxe/mini,
 /obj/item/pickaxe/mini,
 /obj/item/pickaxe/mini,
 /obj/item/pickaxe/mini,
+/obj/item/clothing/mask/breath,
+/obj/item/clothing/mask/breath,
+/obj/item/clothing/mask/breath,
+/obj/item/clothing/mask/breath,
+/obj/item/tank/internals/emergency_oxygen/engi,
+/obj/item/tank/internals/emergency_oxygen/engi,
+/obj/item/tank/internals/emergency_oxygen/engi,
+/obj/item/tank/internals/emergency_oxygen/engi,
 /turf/simulated/floor/plasteel/freezer,
 /area/ruin/powered/seedvault)
 "ZQ" = (
@@ -986,7 +1003,7 @@ BC
 "}
 (21,1,1) = {"
 yZ
-yZ
+iu
 yZ
 yZ
 no

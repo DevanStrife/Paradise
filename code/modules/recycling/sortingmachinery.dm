@@ -198,7 +198,7 @@
 			return FALSE
 		D.init_welded = C.welded
 		C.welded = TRUE
-	else if (target.GetComponent(/datum/component/two_handed))
+	else if(target.GetComponent(/datum/component/two_handed))
 		to_chat(user, "<span class='notice'>[target] is too unwieldy to wrap effectively.</span>")
 		return FALSE
 	else
@@ -256,7 +256,10 @@
 	add_fingerprint(user)
 	ui_interact(user)
 
-/obj/item/destTagger/ui_interact(mob/user, ui_key = "main", datum/tgui/ui = null, force_open = FALSE, datum/tgui/master_ui = null, datum/ui_state/state = GLOB.default_state)
+/obj/item/destTagger/ui_state(mob/user)
+	return GLOB.default_state
+
+/obj/item/destTagger/ui_interact(mob/user, datum/tgui/ui = null)
 	destination_tagger.ui_interact(user)
 
 /obj/machinery/disposal/deliveryChute
@@ -282,8 +285,16 @@
 	return
 
 /obj/machinery/disposal/deliveryChute/Bumped(atom/movable/AM) //Go straight into the chute
-	if(istype(AM, /obj/item/projectile)	|| isAI(AM) || QDELETED(AM))
+	if(isprojectile(AM)	|| isAI(AM) || QDELETED(AM))
 		return
+
+	// We may already contain the object because thrown objects
+	// call CanPass which has a chance to immediately forceMove
+	// them into us.
+	if(AM.loc == src)
+		flush()
+		return
+
 	switch(dir)
 		if(NORTH)
 			if(AM.loc.y != loc.y + 1) return
@@ -321,7 +332,7 @@
 
 	sleep(10)
 	if(last_sound + DISPOSAL_SOUND_COOLDOWN < world.time)
-		playsound(src, 'sound/machines/disposalflush.ogg', 50, 0, FALSE)
+		playsound(src, 'sound/machines/disposalflush.ogg', 50, FALSE, FALSE)
 		last_sound = world.time
 	sleep(5) // wait for animation to finish
 
@@ -365,7 +376,7 @@
 /obj/item/shippingPackage
 	name = "Shipping package"
 	desc = "A pre-labeled package for shipping an item to coworkers."
-	icon = 'icons/obj/storage.dmi'
+	icon = 'icons/obj/boxes.dmi'
 	icon_state = "shippack"
 	var/obj/item/wrapped = null
 	var/sortTag = 1
@@ -374,7 +385,7 @@
 /obj/item/shippingPackage/attackby(obj/item/O, mob/user, params)
 	if(sealed)
 		if(is_pen(O))
-			var/str = copytext(sanitize(input(user, "Intended recipient?", "Address", "")), 1, MAX_NAME_LEN)
+			var/str = tgui_input_text(user, "Intended recipient?", "Address", max_length = MAX_NAME_LEN)
 			if(!str || !length(str))
 				to_chat(user, "<span class='notice'>Invalid text.</span>")
 				return
@@ -407,7 +418,7 @@
 		wrapped = null
 		qdel(src)
 	else if(wrapped)
-		switch(alert("Select an action:",, "Remove Object", "Seal Package", "Cancel"))
+		switch(tgui_alert(user, "Select an action:", "Shipping", list("Remove Object", "Seal Package", "Cancel")))
 			if("Remove Object")
 				to_chat(user, "<span class='notice'>You shake out [src]'s contents onto the floor.</span>")
 				wrapped.forceMove(get_turf(user))
@@ -418,7 +429,7 @@
 				sealed = 1
 				update_desc()
 	else
-		if(alert("Do you want to tear up the package?",, "Yes", "No") == "Yes")
+		if(tgui_alert(user, "Do you want to tear up the package?", "Shipping", list("Yes", "No")) == "Yes")
 			to_chat(user, "<span class='notice'>You shred [src].</span>")
 			playsound(loc, 'sound/items/poster_ripped.ogg', 50, 1)
 			user.unEquip(src)

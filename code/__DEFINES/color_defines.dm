@@ -86,6 +86,8 @@
 #define COLOR_DIAMOND          "#d8d4ea"
 #define COLOR_ANCIENT_ROCK     "#575757"
 #define COLOR_COLD_ANCIENT_ROCK "#575764"
+#define COLOR_HARD_ROCK    "#363636"
+#define COLOR_FLOOR_HARD_ROCK    "#bdbdbd"
 #define COLOR_HEALING_GREEN    "#375637"
 
 //Color defines used by the assembly detailer.
@@ -151,3 +153,6 @@
 #define COMPLEMENTARY_COLOR_CRYOGENIC_LIQUID "#a8b7df"
 #define COMPLEMENTARY_COLOR_SORIUM "#a2a256"
 #define COMPLEMENTARY_COLOR_TESLIUM_PASTE "#412968"
+
+/// Color for dead external organs/zombies
+#define	COLORTONE_DEAD_EXT_ORGAN "#0A3200"

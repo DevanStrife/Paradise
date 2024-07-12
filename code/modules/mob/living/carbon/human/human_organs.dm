@@ -4,9 +4,6 @@
 		eyes.update_colour()
 		update_body()
 
-/mob/living/carbon/human/var/list/bodyparts = list()
-/mob/living/carbon/human/var/list/bodyparts_by_name = list() // map organ names to organs
-
 // Takes care of organ related updates, such as broken and missing limbs
 /mob/living/carbon/human/handle_organs()
 	..()
@@ -21,12 +18,12 @@
 
 		if(!IS_HORIZONTAL(src) && world.time - l_move_time < 15)
 		//Moving around with fractured ribs won't do you any good
-			if(E.is_broken() && E.internal_organs && E.internal_organs.len && prob(15))
+			if(E.is_broken() && E.internal_organs && length(E.internal_organs) && prob(15))
 				var/obj/item/organ/internal/I = pick(E.internal_organs)
-				custom_pain("You feel broken bones moving in your [E.name]!")
-				I.receive_damage(rand(3,5))
+				E.custom_pain("You feel broken bones moving in your [E.name]!")
+				I.receive_damage(rand(3, 5))
 			if((E.status & ORGAN_BURNT) && !(E.status & ORGAN_SALVED))
-				custom_pain("You feel the skin sloughing off the burn on your [E.name]!")
+				E.custom_pain("You feel the skin sloughing off the burn on your [E.name]!")
 				E.germ_level++
 
 
@@ -51,6 +48,8 @@
 	for(var/limb_tag in list("l_leg","r_leg","l_foot","r_foot"))
 		var/obj/item/organ/external/E = bodyparts_by_name[limb_tag]
 		if(!E || (E.status & ORGAN_DEAD) || E.is_malfunctioning() || !E.properly_attached)
+			if(E?.status & ORGAN_DEAD && HAS_TRAIT(src, TRAIT_I_WANT_BRAINS))
+				continue
 			if(E && !E.properly_attached && life_tick % 24 == 0)
 				to_chat(src, "<span class='danger'>Your [E] is hanging on by a thread! You need someone to surgically attach it for you!</span>")
 			// let it fail even if just foot&leg. Also malfunctioning happens sporadically so it should impact more when it procs.
@@ -162,17 +161,6 @@ old_ue: Set this to a UE string, and this proc will overwrite the dna of organs 
 		if(assimilate || O.dna.unique_enzymes == ue_to_compare)
 			O.set_dna(dna)
 
-/*
-Given the name of an organ, returns the external organ it's contained in
-I use this to standardize shadowling dethrall code
--- Crazylemon
-*/
-/mob/living/carbon/human/proc/named_organ_parent(organ_name)
-	if(!get_int_organ_tag(organ_name))
-		return null
-	var/obj/item/organ/internal/O = get_int_organ_tag(organ_name)
-	return O.parent_organ
-
 /mob/living/carbon/human/has_organic_damage()
 	var/robo_damage = 0
 	var/perma_injury_damage = 0
@@ -189,3 +177,12 @@ I use this to standardize shadowling dethrall code
 	for(var/obj/item/organ/external/limb in bodyparts)
 		if(limb.status & ORGAN_SPLINTED)
 			splinted_limbs += limb
+
+/mob/living/carbon/human/rename_character(oldname, newname)
+	. = ..()
+	if(!.)
+		return
+
+	for(var/obj/item/organ/external/BP in bodyparts)
+		if(BP.dna?.real_name == oldname)
+			BP.dna.real_name = newname

@@ -1,6 +1,8 @@
 // NUCLEAR AGENT ONLY GEAR
 
-// DANGEROUS WEAPONS
+////////////////////////////////////////
+// MARK: DANGEROUS WEAPONS
+////////////////////////////////////////
 
 /datum/uplink_item/dangerous/aps
 	name = "Stechkin APS Pistol"
@@ -59,7 +61,7 @@
 	desc = "A flamethrower, fuelled by a portion of highly flammable bio-toxins stolen previously from Nanotrasen stations. Make a statement by roasting the filth in their own greed. Use with caution."
 	reference = "FT"
 	item = /obj/item/flamethrower/full/tank
-	cost = 5
+	cost = 3
 	uplinktypes = list(UPLINK_TYPE_NUCLEAR, UPLINK_TYPE_SST)
 	surplus = 40
 
@@ -89,7 +91,9 @@
 	uplinktypes = list(UPLINK_TYPE_NUCLEAR, UPLINK_TYPE_SST)
 	surplus = 0
 
-// SUPPORT AND MECHAS
+////////////////////////////////////////
+// MARK: SUPPORT AND MECHAS
+////////////////////////////////////////
 
 /datum/uplink_item/support
 	category = "Support and Mechanized Exosuits"
@@ -102,14 +106,14 @@
 	This model lacks a method of space propulsion, and therefore it is advised to repair the mothership's teleporter if you wish to make use of it."
 	reference = "GE"
 	item = /obj/mecha/combat/gygax/dark/loaded
-	cost = 450
+	cost = 400
 
 /datum/uplink_item/support/mauler
 	name = "Mauler Exosuit"
 	desc = "A massive and incredibly deadly Syndicate exosuit. Features long-range targeting, thrust vectoring, and deployable smoke."
 	reference = "ME"
 	item = /obj/mecha/combat/marauder/mauler/loaded
-	cost = 700
+	cost = 599 // Today only 599 TC! Get yours today!
 
 /datum/uplink_item/support/reinforcement
 	name = "Reinforcement"
@@ -120,7 +124,7 @@
 	refund_path = /obj/item/antag_spawner/nuke_ops
 	cost = 100
 	refundable = TRUE
-	cant_discount = TRUE
+	can_discount = FALSE
 
 /datum/uplink_item/support/reinforcement/assault_borg
 	name = "Syndicate Assault Cyborg"
@@ -129,7 +133,7 @@
 	reference = "SAC"
 	item = /obj/item/antag_spawner/nuke_ops/borg_tele/assault
 	refund_path = /obj/item/antag_spawner/nuke_ops/borg_tele/assault
-	cost = 325
+	cost = 250
 
 /datum/uplink_item/support/reinforcement/medical_borg
 	name = "Syndicate Medical Cyborg"
@@ -150,7 +154,9 @@
 	refund_path = /obj/item/antag_spawner/nuke_ops/borg_tele/saboteur
 	cost = 125
 
-// AMMUNITION
+////////////////////////////////////////
+// MARK: AMMUNITION
+////////////////////////////////////////
 
 /datum/uplink_item/ammo/aps
 	name = "Stechkin APS - 10mm Magazine"
@@ -337,9 +343,9 @@
 	uplinktypes = list(UPLINK_TYPE_NUCLEAR, UPLINK_TYPE_SST)
 	surplus = 0
 
-// STEALTHY WEAPONS
-
-// EXPLOSIVES
+////////////////////////////////////////
+// MARK: EXPLOSIVES
+////////////////////////////////////////
 
 /datum/uplink_item/explosives/c4bag
 	name = "Bag of C-4 explosives"
@@ -347,7 +353,7 @@
 	reference = "C4B"
 	item = /obj/item/storage/backpack/duffel/syndie/c4
 	cost = 40 //20% discount!
-	cant_discount = TRUE
+	can_discount = FALSE
 	uplinktypes = list(UPLINK_TYPE_NUCLEAR, UPLINK_TYPE_SST)
 
 /datum/uplink_item/explosives/breaching_charge
@@ -366,7 +372,7 @@
 	reference = "X4B"
 	item = /obj/item/storage/backpack/duffel/syndie/x4
 	cost = 20
-	cant_discount = TRUE
+	can_discount = FALSE
 	uplinktypes = list(UPLINK_TYPE_NUCLEAR, UPLINK_TYPE_SST)
 
 /datum/uplink_item/explosives/grenadier
@@ -374,7 +380,7 @@
 	desc = "A belt containing 26 lethally dangerous and destructive grenades."
 	reference = "GRB"
 	item = /obj/item/storage/belt/grenade/full
-	cost = 150
+	cost = 120
 	surplus = 0
 	uplinktypes = list(UPLINK_TYPE_NUCLEAR, UPLINK_TYPE_SST)
 
@@ -383,11 +389,19 @@
 	desc = "A unique grenade that deploys a swarm of viscerators upon activation, which will chase down and shred any non-operatives in the area."
 	reference = "VDG"
 	item = /obj/item/grenade/spawnergrenade/manhacks
-	cost = 25
+	cost = 10
 	uplinktypes = list(UPLINK_TYPE_NUCLEAR, UPLINK_TYPE_SST)
 	surplus = 35
 
-// STEALTHY TOOLS
+////////////////////////////////////////
+// MARK: STEALTHY WEAPONS
+////////////////////////////////////////
+
+// There's no nukie only stealthy weapons right now, but if you want to add one, put it here.
+
+////////////////////////////////////////
+// MARK: STEALTHY TOOLS
+////////////////////////////////////////
 
 /datum/uplink_item/stealthy_tools/clownkit
 	name = "Honk Brand Infiltration Kit"
@@ -398,7 +412,9 @@
 	uplinktypes = list(UPLINK_TYPE_NUCLEAR, UPLINK_TYPE_SST)
 	surplus = 0
 
-// DEVICES AND TOOLS
+////////////////////////////////////////
+// MARK: DEVICES AND TOOLS
+////////////////////////////////////////
 
 /datum/uplink_item/device_tools/diamond_drill
 	name = "Amplifying Diamond Tipped Thermal Safe Drill"
@@ -414,7 +430,7 @@
 	and other medical supplies helpful for a medical field operative."
 	reference = "SCMK"
 	item = /obj/item/storage/firstaid/tactical
-	cost = 20
+	cost = 30
 	uplinktypes = list(UPLINK_TYPE_NUCLEAR, UPLINK_TYPE_SST)
 
 /datum/uplink_item/device_tools/vtec
@@ -466,7 +482,7 @@
 	desc = "An incredibly useful personal shield projector, capable of reflecting energy projectiles, but it cannot block other attacks. Pair with an Energy Sword for a killer combination."
 	item = /obj/item/shield/energy
 	reference = "ESD"
-	cost = 80
+	cost = 40
 	uplinktypes = list(UPLINK_TYPE_NUCLEAR, UPLINK_TYPE_SST)
 	surplus = 20
 
@@ -486,9 +502,11 @@
 	cost = 75
 	uplinktypes = list(UPLINK_TYPE_NUCLEAR, UPLINK_TYPE_SST)
 
-// SPACE SUITS
+////////////////////////////////////////
+// MARK: SPACE SUITS
+////////////////////////////////////////
 
-/datum/uplink_item/suits/hardsuit/elite
+/datum/uplink_item/suits/elite_nukie
 	name = "Elite Syndicate MODsuit"
 	desc = "An advanced MODsuit with superior armor and mobility to the standard Syndicate MODsuit."
 	item = /obj/item/mod/control/pre_equipped/elite
@@ -497,56 +515,56 @@
 	excludefrom = list()
 	uplinktypes = list(UPLINK_TYPE_NUCLEAR, UPLINK_TYPE_SST)
 
-/datum/uplink_item/suits/hardsuit/shielded
-	name = "Shielded Hardsuit"
-	desc = "An advanced hardsuit with built in energy shielding. The shields will rapidly recharge when not under fire."
-	item = /obj/item/clothing/suit/space/hardsuit/shielded/syndi
-	cost = 150
+/datum/uplink_item/suits/shielded
+	name = "Energy Shield Module"
+	desc = "A personal, protective forcefield typically seen in military applications. \
+		This advanced deflector shield is essentially a scaled down version of those seen on starships, \
+		and the power cost can be an easy indicator of this. However, it is capable of blocking nearly any incoming attack, \
+		though with its' low amount of separate charges, the user remains mortal."
+	item = /obj/item/mod/module/energy_shield
+	cost = 200
 	reference = "SHS"
 	excludefrom = list()
 	uplinktypes = list(UPLINK_TYPE_NUCLEAR, UPLINK_TYPE_SST)
 
-// IMPLANTS
+////////////////////////////////////////
+// MARK: IMPLANTS
+////////////////////////////////////////
 
-/datum/uplink_item/implants/krav_implant
+/datum/uplink_item/bio_chips/krav_implant
 	name = "Krav Maga Implant"
 	desc = "A biochip that teaches you Krav Maga when implanted, great as a cheap backup weapon. Warning: the biochip will override any other fighting styles such as CQC while active."
 	reference = "KMI"
-	item = /obj/item/implanter/krav_maga
+	item = /obj/item/bio_chip_implanter/krav_maga
 	cost = 25
 	uplinktypes = list(UPLINK_TYPE_NUCLEAR, UPLINK_TYPE_SST)
 
-/datum/uplink_item/implants/uplink/nuclear
+/datum/uplink_item/bio_chips/uplink/nuclear
 	name = "Nuclear Uplink Bio-chip"
 	reference = "UIN"
-	item = /obj/item/implanter/nuclear
+	item = /obj/item/bio_chip_implanter/nuclear
 	excludefrom = list()
 	uplinktypes = list(UPLINK_TYPE_NUCLEAR, UPLINK_TYPE_SST)
 
-/datum/uplink_item/implants/microbomb
+/datum/uplink_item/bio_chips/microbomb
 	name = "Microbomb Bio-chip"
 	desc = "A bio-chip injected into the body, and later activated either manually or automatically upon death. The more implants inside of you, the higher the explosive power. \
 	This will permanently destroy your body, however."
 	reference = "MBI"
-	item = /obj/item/implanter/explosive
+	item = /obj/item/bio_chip_implanter/explosive
 	cost = 10
 	uplinktypes = list(UPLINK_TYPE_NUCLEAR, UPLINK_TYPE_SST)
 
-/datum/uplink_item/implants/macrobomb
+/datum/uplink_item/bio_chips/macrobomb
 	name = "Macrobomb Bio-chip"
 	desc = "A bio-chip injected into the body, and later activated either manually or automatically upon death. Upon death, releases a massive explosion that will wipe out everything nearby."
 	reference = "HAB"
-	item = /obj/item/implanter/explosive_macro
+	item = /obj/item/bio_chip_implanter/explosive_macro
 	cost = 50
 	uplinktypes = list(UPLINK_TYPE_NUCLEAR, UPLINK_TYPE_SST)
 
 
 // CYBERNETICS
-
-/datum/uplink_item/cyber_implants
-	category = "Cybernetic Implants"
-	surplus = 0
-	uplinktypes = list(UPLINK_TYPE_NUCLEAR, UPLINK_TYPE_SST)
 
 /datum/uplink_item/cyber_implants/thermals
 	name = "Thermal Vision Implant"
@@ -554,6 +572,8 @@
 	reference = "CIT"
 	item = /obj/item/autosurgeon/organ/syndicate/thermal_eyes
 	cost = 40
+	surplus = 0
+	uplinktypes = list(UPLINK_TYPE_NUCLEAR, UPLINK_TYPE_SST)
 
 /datum/uplink_item/cyber_implants/xray
 	name = "X-Ray Vision Implant"
@@ -561,6 +581,8 @@
 	reference = "CIX"
 	item = /obj/item/autosurgeon/organ/syndicate/xray_eyes
 	cost = 50
+	surplus = 0
+	uplinktypes = list(UPLINK_TYPE_NUCLEAR, UPLINK_TYPE_SST)
 
 /datum/uplink_item/cyber_implants/antistun
 	name = "Hardened CNS Rebooter Implant"
@@ -568,6 +590,8 @@
 	reference = "CIAS"
 	item = /obj/item/autosurgeon/organ/syndicate/anti_stam
 	cost = 60
+	surplus = 0
+	uplinktypes = list(UPLINK_TYPE_NUCLEAR, UPLINK_TYPE_SST)
 
 /datum/uplink_item/cyber_implants/reviver
 	name = "Hardened Reviver Implant"
@@ -575,8 +599,12 @@
 	reference = "CIR"
 	item = /obj/item/autosurgeon/organ/syndicate/reviver
 	cost = 40
+	surplus = 0
+	uplinktypes = list(UPLINK_TYPE_NUCLEAR, UPLINK_TYPE_SST)
 
-// BUNDLES
+////////////////////////////////////////
+// MARK: BUNDLES
+////////////////////////////////////////
 
 /datum/uplink_item/bundles_TC/bulldog
 	name = "Bulldog Bundle"
@@ -622,10 +650,9 @@
 	cost = 90 // normally 115
 	uplinktypes = list(UPLINK_TYPE_NUCLEAR, UPLINK_TYPE_SST)
 
-
-// ---------------------------------
-// PRICES OVERRIDE FOR TRAITOR ITEMS
-// ---------------------------------
+////////////////////////////////////////
+// MARK: PRICES OVERRIDE FOR TRAITOR ITEMS
+////////////////////////////////////////
 
 /datum/uplink_item/stealthy_weapons/cqc/nuke
 	reference = "NCQC"
@@ -637,7 +664,7 @@
 	cost = 55
 	excludefrom = list(UPLINK_TYPE_TRAITOR, UPLINK_TYPE_SIT)
 	surplus = 0
-	cant_discount = TRUE
+	can_discount = FALSE
 	hijack_only = FALSE
 
 /datum/uplink_item/explosives/emp_bomb/nuke
@@ -645,7 +672,7 @@
 	cost = 50
 	excludefrom = list(UPLINK_TYPE_TRAITOR, UPLINK_TYPE_SIT)
 	surplus = 0
-	cant_discount = TRUE
+	can_discount = FALSE
 
 /datum/uplink_item/explosives/atmosfiregrenades/nuke
 	reference = "NAPG"
@@ -653,10 +680,11 @@
 	cost = 60
 	excludefrom = list(UPLINK_TYPE_TRAITOR, UPLINK_TYPE_SIT)
 	surplus = 0
-	cant_discount = TRUE
+	can_discount = FALSE
 
 /datum/uplink_item/stealthy_tools/chameleon/nuke
 	reference = "NCHAM"
+	item = /obj/item/storage/box/syndie_kit/chameleon/nuke
 	cost = 30
 	excludefrom = list(UPLINK_TYPE_TRAITOR, UPLINK_TYPE_SIT)
 
@@ -672,9 +700,9 @@
 	excludefrom = list()
 	uplinktypes = list(UPLINK_TYPE_NUCLEAR, UPLINK_TYPE_SST)
 
-// ---------------------------------
-// NUKIE ONLY POINTLESS BADASSERY
-// ---------------------------------
+////////////////////////////////////////
+// MARK: NUKIE ONLY POINTLESS BADASSERY
+////////////////////////////////////////
 
 /datum/uplink_item/badass/confettidrum
 	name = "Bulldog - 12g party Magazine"

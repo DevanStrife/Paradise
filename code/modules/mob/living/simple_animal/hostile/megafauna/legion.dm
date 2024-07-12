@@ -48,7 +48,6 @@ Difficulty: Medium
 	enraged_loot = /obj/item/disk/fauna_research/legion
 	vision_range = 13
 	elimination = TRUE
-	appearance_flags = 0
 	mouse_opacity = MOUSE_OPACITY_ICON
 	stat_attack = UNCONSCIOUS // Overriden from /tg/ - otherwise Legion starts chasing its minions
 	appearance_flags = 512
@@ -69,13 +68,14 @@ Difficulty: Medium
 	legiontwo.crusher_loot = list(/datum/nothing)
 	legiontwo.health = 1250
 	legiontwo.maxHealth = 1250
+	legiontwo.enraged = TRUE
 
 /mob/living/simple_animal/hostile/megafauna/legion/unrage()
 	. = ..()
 	for(var/mob/living/simple_animal/hostile/megafauna/legion/other in GLOB.mob_list)
 		if(other != src)
-			other.loot = initial(loot)
-			other.crusher_loot = initial(crusher_loot)
+			other.loot = list(/obj/item/storm_staff) //Initial does not work with lists.
+			other.crusher_loot = list(/obj/item/storm_staff, /obj/item/crusher_trophy/empowered_legion_skull)
 			other.maxHealth = 2500
 			other.health = 2500
 	qdel(src) //Suprise, it's the one on lavaland that regrows to full.
@@ -83,8 +83,8 @@ Difficulty: Medium
 /mob/living/simple_animal/hostile/megafauna/legion/death(gibbed)
 	for(var/mob/living/simple_animal/hostile/megafauna/legion/other in GLOB.mob_list)
 		if(other != src)
-			other.loot = initial(loot)
-			other.crusher_loot = initial(crusher_loot)
+			other.loot = list(/obj/item/storm_staff) //Initial does not work with lists.
+			other.crusher_loot = list(/obj/item/storm_staff, /obj/item/crusher_trophy/empowered_legion_skull)
 	. = ..()
 
 /mob/living/simple_animal/hostile/megafauna/legion/AttackingTarget()
@@ -167,10 +167,13 @@ Difficulty: Medium
 /mob/living/simple_animal/hostile/megafauna/legion/proc/fire_disintegration_laser(location)
 	playsound(loc, 'sound/weapons/marauder.ogg', 200, TRUE)
 	Beam(location, icon_state = "death_laser", time = 2 SECONDS, maxdistance = INFINITY, beam_type = /obj/effect/ebeam/disintegration)
-	for(var/turf/t in getline(src, location))
+	for(var/turf/t in get_line(src, location))
 		if(ismineralturf(t))
 			var/turf/simulated/mineral/M = t
 			M.gets_drilled(src)
+		if(iswallturf(t))
+			var/turf/simulated/wall/W = t
+			W.thermitemelt(speed = 1 SECONDS) //Melt that shit DOWN
 		for(var/mob/living/M in t)
 			if(faction_check(M.faction, faction, FALSE))
 				continue
@@ -192,6 +195,8 @@ Difficulty: Medium
 	. = ..()
 	if(QDELETED(src))
 		return
+	if(GLOB.necropolis_gate && !GLOB.necropolis_gate.open)
+		GLOB.necropolis_gate.toggle_the_gate(src)
 	if(.)
 		var/matrix/M = new
 		resize = (enraged ? 0.33 : 1) + (health / maxHealth)
@@ -203,7 +208,13 @@ Difficulty: Medium
 				A = new /mob/living/simple_animal/hostile/asteroid/hivelordbrood/legion/advanced(loc)
 			else
 				A = new /mob/living/simple_animal/hostile/asteroid/hivelordbrood/legion(loc)
-			A.GiveTarget(target)
+			if(!enraged || prob(33))
+				A.GiveTarget(target)
+			else
+				for(var/mob/living/carbon/human/H in range(7, src))
+					if(H.stat == DEAD)
+						A.GiveTarget(H)
+						break
 			A.friends = friends
 			A.faction = faction
 

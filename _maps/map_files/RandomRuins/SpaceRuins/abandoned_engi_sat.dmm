@@ -8,11 +8,15 @@
 /turf/simulated/floor/plasteel,
 /area/ruin/space/abandoned_engi_sat)
 "aN" = (
-/obj/machinery/computer,
+/obj/machinery/computer/nonfunctional,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
 /area/ruin/space/abandoned_engi_sat)
+"aR" = (
+/mob/living/simple_animal/hostile/carp/megacarp,
+/turf/template_noop,
+/area/template_noop)
 "bi" = (
 /obj/structure/chair/comfy/black{
 	dir = 8
@@ -42,7 +46,9 @@
 	dir = 8;
 	name = "Construction Driver"
 	},
-/obj/effect/decal/warning_stripes/west,
+/obj/effect/turf_decal/stripes/line{
+	dir = 8
+	},
 /obj/effect/mapping_helpers/airlock/windoor/access/all/engineering/construction{
 	dir = 8
 	},
@@ -51,15 +57,16 @@
 "cz" = (
 /obj/machinery/status_display{
 	mode = 0;
-	pixel_x = 32;
-	pixel_y = 0
+	pixel_x = 32
 	},
 /turf/simulated/floor/plasteel{
 	icon_state = "delivery"
 	},
 /area/ruin/space/abandoned_engi_sat)
 "cD" = (
-/obj/effect/decal/warning_stripes/east,
+/obj/effect/turf_decal/stripes/line{
+	dir = 4
+	},
 /turf/simulated/floor/plasteel,
 /area/ruin/space/abandoned_engi_sat)
 "cH" = (
@@ -68,7 +75,6 @@
 	},
 /obj/machinery/status_display{
 	mode = 0;
-	pixel_x = 0;
 	pixel_y = 32
 	},
 /turf/simulated/floor/plasteel{
@@ -77,18 +83,15 @@
 	},
 /area/ruin/space/abandoned_engi_sat)
 "cK" = (
-/obj/structure/disposalpipe/segment{
-	dir = 8;
-	icon_state = "pipe-c"
+/obj/structure/disposalpipe/segment/corner{
+	dir = 8
 	},
 /obj/effect/spawner/random_spawners/wall_rusted_probably,
 /turf/simulated/wall,
 /area/ruin/space/abandoned_engi_sat)
 "dk" = (
 /obj/machinery/power/solar,
-/obj/structure/cable{
-	icon_state = "0-1"
-	},
+/obj/structure/cable,
 /turf/simulated/floor/plasteel/airless{
 	icon_state = "solarpanel";
 	name = "floor"
@@ -150,7 +153,6 @@
 "ex" = (
 /obj/item/radio/intercom{
 	dir = 1;
-	name = "station intercom (General)";
 	pixel_y = -28
 	},
 /turf/simulated/floor/plasteel,
@@ -189,9 +191,7 @@
 	icon_state = "0-4";
 	d2 = 4
 	},
-/obj/machinery/power/apc/off_station/empty_charge{
-	pixel_y = -24
-	},
+/obj/machinery/power/apc/off_station/empty_charge/directional/south,
 /obj/effect/landmark/burnturf,
 /turf/simulated/floor/plating,
 /area/ruin/space/abandoned_engi_sat)
@@ -208,7 +208,6 @@
 /area/ruin/space/abandoned_engi_sat)
 "gi" = (
 /turf/simulated/floor/plasteel{
-	dir = 2;
 	icon_state = "cmo"
 	},
 /area/ruin/space/abandoned_engi_sat)
@@ -244,19 +243,18 @@
 /area/ruin/space/abandoned_engi_sat)
 "hB" = (
 /obj/structure/table,
+/obj/item/salvage/ruin/nanotrasen,
 /turf/simulated/floor/carpet/airless,
 /area/ruin/space/abandoned_engi_sat)
 "hE" = (
-/obj/structure/disposalpipe/segment{
-	dir = 8;
-	icon_state = "pipe-c"
+/obj/structure/disposalpipe/segment/corner{
+	dir = 8
 	},
 /turf/template_noop,
 /area/template_noop)
 "hP" = (
 /obj/machinery/status_display{
 	mode = 0;
-	pixel_x = 0;
 	pixel_y = 32
 	},
 /obj/effect/landmark/damageturf,
@@ -279,17 +277,17 @@
 "jk" = (
 /obj/machinery/shower{
 	dir = 4;
-	icon_state = "shower";
 	pixel_x = 5
 	},
 /obj/structure/curtain/open/shower/engineering,
 /turf/simulated/floor/plasteel{
-	dir = 2;
 	icon_state = "cmo"
 	},
 /area/ruin/space/abandoned_engi_sat)
 "jm" = (
-/obj/effect/decal/warning_stripes/east,
+/obj/effect/turf_decal/stripes/line{
+	dir = 4
+	},
 /obj/effect/landmark/damageturf,
 /turf/simulated/floor/plating,
 /area/ruin/space/abandoned_engi_sat)
@@ -299,7 +297,9 @@
 /area/ruin/space/abandoned_engi_sat)
 "jK" = (
 /obj/effect/decal/cleanable/dirt,
-/obj/effect/decal/warning_stripes/east,
+/obj/effect/turf_decal/stripes/line{
+	dir = 4
+	},
 /turf/simulated/floor/plasteel,
 /area/ruin/space/abandoned_engi_sat)
 "jR" = (
@@ -316,7 +316,6 @@
 /obj/machinery/light,
 /obj/item/radio/intercom{
 	dir = 1;
-	name = "station intercom (General)";
 	pixel_y = -28
 	},
 /turf/simulated/floor/plasteel,
@@ -328,8 +327,7 @@
 "kg" = (
 /obj/structure/cable{
 	d2 = 2;
-	icon_state = "0-2";
-	pixel_y = 0
+	icon_state = "0-2"
 	},
 /obj/machinery/constructable_frame/machine_frame,
 /turf/simulated/floor/plasteel{
@@ -360,7 +358,9 @@
 /turf/simulated/floor/carpet/airless,
 /area/ruin/space/abandoned_engi_sat)
 "kJ" = (
-/obj/effect/decal/warning_stripes/east,
+/obj/effect/turf_decal/stripes/line{
+	dir = 4
+	},
 /obj/structure/sign/poster/ripped{
 	pixel_y = 32;
 	name = "torn sign";
@@ -389,7 +389,9 @@
 	d2 = 2;
 	icon_state = "1-2"
 	},
-/obj/effect/decal/warning_stripes/north,
+/obj/effect/turf_decal/stripes/line{
+	dir = 1
+	},
 /turf/simulated/floor/plating,
 /area/ruin/space/abandoned_engi_sat)
 "lu" = (
@@ -469,7 +471,9 @@
 	dir = 8
 	},
 /obj/structure/cable,
-/obj/effect/decal/warning_stripes/west,
+/obj/effect/turf_decal/stripes/line{
+	dir = 8
+	},
 /turf/simulated/floor/plating,
 /area/ruin/space/abandoned_engi_sat)
 "ne" = (
@@ -506,8 +510,7 @@
 /obj/structure/cable{
 	d1 = 4;
 	d2 = 8;
-	icon_state = "4-8";
-	pixel_y = 0
+	icon_state = "4-8"
 	},
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
@@ -534,9 +537,9 @@
 /obj/item/poster/random_contraband,
 /obj/item/poster/random_contraband,
 /obj/item/poster/random_contraband,
-/obj/item/reagent_containers/food/drinks/bottle/whiskey,
-/obj/item/reagent_containers/food/drinks/bottle/vodka,
-/obj/item/reagent_containers/food/drinks/bottle/vodka,
+/obj/item/reagent_containers/drinks/bottle/whiskey,
+/obj/item/reagent_containers/drinks/bottle/vodka,
+/obj/item/reagent_containers/drinks/bottle/vodka,
 /turf/simulated/floor/plasteel,
 /area/ruin/space/abandoned_engi_sat)
 "pb" = (
@@ -569,7 +572,6 @@
 "pX" = (
 /obj/structure/closet{
 	icon_state = "eng_secure";
-	opened = 1;
 	open_door_sprite = "eng_secure_door";
 	name = "engineer's locker"
 	},
@@ -579,6 +581,10 @@
 /obj/effect/spawner/random_spawners/wall_rusted_always,
 /turf/simulated/wall/r_wall,
 /area/ruin/space/abandoned_engi_sat)
+"rn" = (
+/mob/living/simple_animal/hostile/carp,
+/turf/template_noop,
+/area/template_noop)
 "rr" = (
 /obj/structure/lattice,
 /turf/template_noop,
@@ -598,7 +604,6 @@
 	desc = "A warning sign which reads 'HIGH VOLTAGE'";
 	icon_state = "shock";
 	name = "HIGH VOLTAGE";
-	pixel_x = 0;
 	pixel_y = -32
 	},
 /turf/simulated/floor/plasteel{
@@ -656,14 +661,14 @@
 /turf/simulated/floor/wood/airless,
 /area/ruin/space/abandoned_engi_sat)
 "to" = (
-/obj/effect/decal/warning_stripes/south,
+/obj/effect/turf_decal/stripes/line,
 /obj/effect/landmark/damageturf,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
 /area/ruin/space/abandoned_engi_sat)
 "tO" = (
-/obj/machinery/computer{
+/obj/machinery/computer/nonfunctional{
 	dir = 4
 	},
 /turf/simulated/floor/plasteel,
@@ -680,7 +685,6 @@
 /obj/machinery/light,
 /obj/item/radio/intercom{
 	dir = 1;
-	name = "station intercom (General)";
 	pixel_y = -28
 	},
 /turf/simulated/floor/plating,
@@ -691,10 +695,11 @@
 	icon_state = "space";
 	layer = 4;
 	name = "EXTERNAL AIRLOCK";
-	pixel_x = 0;
 	pixel_y = 32
 	},
-/obj/effect/decal/warning_stripes/east,
+/obj/effect/turf_decal/stripes/line{
+	dir = 4
+	},
 /turf/simulated/floor/plating,
 /area/ruin/space/abandoned_engi_sat)
 "vn" = (
@@ -728,25 +733,22 @@
 /obj/structure/cable{
 	d1 = 4;
 	d2 = 8;
-	icon_state = "4-8";
-	pixel_y = 0
+	icon_state = "4-8"
 	},
 /obj/structure/cable{
 	d1 = 1;
 	d2 = 8;
 	icon_state = "1-8"
 	},
-/obj/effect/decal/warning_stripes/south,
+/obj/effect/turf_decal/stripes/line,
 /turf/simulated/floor/plating,
 /area/ruin/space/abandoned_engi_sat)
 "xp" = (
 /obj/machinery/light{
-	icon_state = "tube1";
 	dir = 1
 	},
 /obj/machinery/status_display{
 	mode = 0;
-	pixel_x = 0;
 	pixel_y = 32
 	},
 /obj/structure/closet/crate/internals,
@@ -819,9 +821,7 @@
 "zb" = (
 /obj/item/radio/intercom{
 	dir = 1;
-	name = "station intercom (General)";
-	pixel_x = -28;
-	pixel_y = 0
+	pixel_x = -28
 	},
 /turf/simulated/floor/plasteel,
 /area/ruin/space/abandoned_engi_sat)
@@ -921,21 +921,20 @@
 /turf/template_noop,
 /area/ruin/space/abandoned_engi_sat)
 "CY" = (
-/obj/machinery/computer{
+/obj/machinery/computer/nonfunctional{
 	dir = 8
 	},
 /turf/simulated/floor/plasteel,
 /area/ruin/space/abandoned_engi_sat)
 "Db" = (
-/obj/effect/decal/warning_stripes/south,
+/obj/effect/turf_decal/stripes/line,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
 /area/ruin/space/abandoned_engi_sat)
 "De" = (
-/obj/structure/disposalpipe/segment{
-	dir = 4;
-	icon_state = "pipe-c"
+/obj/structure/disposalpipe/segment/corner{
+	dir = 4
 	},
 /obj/effect/spawner/random_spawners/wall_rusted_always,
 /turf/simulated/wall/r_wall,
@@ -952,7 +951,9 @@
 	},
 /area/ruin/space/abandoned_engi_sat)
 "DJ" = (
-/obj/effect/decal/warning_stripes/east,
+/obj/effect/turf_decal/stripes/line{
+	dir = 4
+	},
 /obj/effect/landmark/burnturf,
 /turf/simulated/floor/plasteel,
 /area/ruin/space/abandoned_engi_sat)
@@ -1021,8 +1022,7 @@
 /obj/structure/cable{
 	d1 = 4;
 	d2 = 8;
-	icon_state = "4-8";
-	pixel_y = 0
+	icon_state = "4-8"
 	},
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
@@ -1037,8 +1037,7 @@
 /obj/structure/cable{
 	d1 = 4;
 	d2 = 8;
-	icon_state = "4-8";
-	pixel_x = 0
+	icon_state = "4-8"
 	},
 /turf/simulated/floor/plating,
 /area/ruin/space/abandoned_engi_sat)
@@ -1052,13 +1051,14 @@
 /turf/template_noop,
 /area/ruin/space/abandoned_engi_sat)
 "GP" = (
-/obj/effect/decal/warning_stripes/southeast,
+/obj/effect/turf_decal/stripes/line{
+	dir = 6
+	},
 /turf/simulated/floor/plasteel,
 /area/ruin/space/abandoned_engi_sat)
 "Ha" = (
 /obj/item/radio/intercom{
 	dir = 1;
-	name = "station intercom (General)";
 	pixel_y = -28
 	},
 /turf/simulated/floor/plating,
@@ -1067,7 +1067,6 @@
 /obj/machinery/light,
 /obj/item/radio/intercom{
 	dir = 1;
-	name = "station intercom (General)";
 	pixel_y = -28
 	},
 /turf/simulated/floor/plasteel{
@@ -1082,13 +1081,16 @@
 	},
 /area/ruin/space/abandoned_engi_sat)
 "HX" = (
-/obj/structure/cable{
-	icon_state = "0-1"
-	},
+/obj/structure/cable,
 /turf/simulated/floor/plasteel/airless{
 	icon_state = "solarpanel";
 	name = "floor"
 	},
+/area/ruin/space/abandoned_engi_sat)
+"Ig" = (
+/obj/structure/table,
+/obj/item/salvage/ruin/nanotrasen,
+/turf/simulated/floor/plasteel,
 /area/ruin/space/abandoned_engi_sat)
 "Iz" = (
 /obj/structure/disposalpipe/segment,
@@ -1107,10 +1109,9 @@
 	},
 /obj/structure/cable{
 	icon_state = "0-2";
-	pixel_y = 1;
 	d2 = 2
 	},
-/obj/machinery/computer,
+/obj/machinery/computer/nonfunctional,
 /turf/simulated/floor/plasteel{
 	dir = 8;
 	icon_state = "vault"
@@ -1126,7 +1127,6 @@
 	},
 /obj/item/soap/nanotrasen,
 /turf/simulated/floor/plasteel{
-	dir = 2;
 	icon_state = "cmo"
 	},
 /area/ruin/space/abandoned_engi_sat)
@@ -1173,7 +1173,9 @@
 	dir = 8;
 	name = "Construction Driver"
 	},
-/obj/effect/decal/warning_stripes/west,
+/obj/effect/turf_decal/stripes/line{
+	dir = 8
+	},
 /obj/effect/mapping_helpers/airlock/windoor/access/all/engineering/construction{
 	dir = 8
 	},
@@ -1214,6 +1216,10 @@
 	icon_state = "blue"
 	},
 /area/ruin/space/abandoned_engi_sat)
+"OW" = (
+/mob/living/simple_animal/hostile/asteroid/hivelord,
+/turf/simulated/floor/plating,
+/area/ruin/space/abandoned_engi_sat)
 "OZ" = (
 /obj/structure/lattice/catwalk,
 /obj/structure/cable{
@@ -1235,8 +1241,7 @@
 /obj/structure/cable{
 	d1 = 4;
 	d2 = 8;
-	icon_state = "4-8";
-	pixel_y = 0
+	icon_state = "4-8"
 	},
 /obj/structure/cable{
 	d1 = 2;
@@ -1265,8 +1270,7 @@
 /obj/structure/cable{
 	d1 = 4;
 	d2 = 8;
-	icon_state = "4-8";
-	pixel_y = 0
+	icon_state = "4-8"
 	},
 /obj/structure/cable{
 	d1 = 2;
@@ -1280,8 +1284,7 @@
 /obj/structure/cable{
 	d1 = 4;
 	d2 = 8;
-	icon_state = "4-8";
-	pixel_x = 0
+	icon_state = "4-8"
 	},
 /obj/effect/mapping_helpers/airlock/access/all/engineering/general,
 /obj/effect/mapping_helpers/airlock/access/all/engineering/external,
@@ -1304,9 +1307,7 @@
 "QJ" = (
 /obj/structure/sink{
 	dir = 4;
-	icon_state = "sink";
-	pixel_x = 11;
-	pixel_y = 0
+	pixel_x = 11
 	},
 /turf/simulated/floor/plasteel{
 	icon_state = "vault";
@@ -1425,6 +1426,11 @@
 /obj/structure/bed,
 /turf/simulated/floor/carpet/airless,
 /area/ruin/space/abandoned_engi_sat)
+"Xq" = (
+/obj/effect/decal/cleanable/dirt,
+/mob/living/simple_animal/hostile/asteroid/hivelord,
+/turf/simulated/floor/plating,
+/area/ruin/space/abandoned_engi_sat)
 "XP" = (
 /obj/effect/decal/cleanable/dirt,
 /turf/simulated/floor/plating,
@@ -1473,12 +1479,10 @@
 	dir = 1
 	},
 /obj/structure/window/reinforced/tinted{
-	dir = 4;
-	icon_state = "twindow"
+	dir = 4
 	},
 /obj/item/bikehorn/rubberducky,
 /turf/simulated/floor/plasteel{
-	dir = 2;
 	icon_state = "cmo"
 	},
 /area/ruin/space/abandoned_engi_sat)
@@ -1492,14 +1496,18 @@
 	dir = 8;
 	name = "Construction Driver"
 	},
-/obj/effect/decal/warning_stripes/west,
+/obj/effect/turf_decal/stripes/line{
+	dir = 8
+	},
 /obj/effect/mapping_helpers/airlock/windoor/access/all/engineering/construction{
 	dir = 8
 	},
 /turf/simulated/floor/plating,
 /area/ruin/space/abandoned_engi_sat)
 "Zs" = (
-/obj/effect/decal/warning_stripes/east,
+/obj/effect/turf_decal/stripes/line{
+	dir = 4
+	},
 /obj/effect/landmark/damageturf,
 /turf/simulated/floor/plasteel,
 /area/ruin/space/abandoned_engi_sat)
@@ -1512,17 +1520,14 @@
 /obj/structure/cable{
 	d1 = 4;
 	d2 = 8;
-	icon_state = "4-8";
-	pixel_y = 0
+	icon_state = "4-8"
 	},
 /turf/simulated/floor/plating,
 /area/ruin/space/abandoned_engi_sat)
 "ZS" = (
 /obj/structure/sink{
 	dir = 4;
-	icon_state = "sink";
-	pixel_x = 11;
-	pixel_y = 0
+	pixel_x = 11
 	},
 /obj/structure/sign/poster/random{
 	pixel_x = 32
@@ -1566,13 +1571,13 @@ LP
 "}
 (2,1,1) = {"
 LP
+rn
 LP
 LP
 LP
 LP
 LP
-LP
-LP
+rn
 LP
 LP
 LP
@@ -1602,9 +1607,9 @@ LP
 LP
 LP
 LP
+rn
 LP
-LP
-LP
+rn
 LP
 LP
 LP
@@ -1796,7 +1801,7 @@ Iz
 hE
 LP
 LP
-LP
+aR
 LP
 LP
 LP
@@ -1990,7 +1995,7 @@ kt
 eP
 fA
 XP
-et
+OW
 et
 Yz
 CP
@@ -2056,7 +2061,7 @@ kZ
 Tw
 YE
 jG
-XP
+Xq
 XP
 Ud
 fA
@@ -2324,7 +2329,7 @@ oL
 mW
 NM
 mW
-BR
+Ig
 IC
 IC
 ao
@@ -2373,11 +2378,11 @@ LP
 Gi
 LP
 LP
+rn
 LP
 LP
 LP
-LP
-LP
+rn
 LP
 "}
 (26,1,1) = {"
@@ -2443,7 +2448,7 @@ px
 LP
 LP
 LP
-LP
+rn
 LP
 LP
 LP
@@ -2502,7 +2507,7 @@ uQ
 qu
 LP
 LP
-LP
+rn
 LP
 LP
 LP
@@ -2539,7 +2544,7 @@ LP
 LP
 LP
 LP
-LP
+rn
 LP
 LP
 LP

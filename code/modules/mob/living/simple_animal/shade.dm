@@ -22,25 +22,16 @@
 	atmos_requirements = list("min_oxy" = 0, "max_oxy" = 0, "min_tox" = 0, "max_tox" = 0, "min_co2" = 0, "max_co2" = 0, "min_n2" = 0, "max_n2" = 0)
 	speed = -1
 	stop_automated_movement = TRUE
-	status_flags = 0
 	pull_force = 0
 	see_invisible = SEE_INVISIBLE_HIDDEN_RUNES
 	universal_speak = TRUE
 	faction = list("cult")
 	status_flags = CANPUSH
 	flying = TRUE
-	loot = list(/obj/item/reagent_containers/food/snacks/ectoplasm)
+	loot = list(/obj/item/food/snacks/ectoplasm)
 	del_on_death = TRUE
 	deathmessage = "lets out a contented sigh as their form unwinds."
 	var/holy = FALSE
-
-/mob/living/simple_animal/shade/cult/Initialize(mapload)
-	. = ..()
-	icon_state = SSticker.cultdat?.shade_icon_state
-
-/mob/living/simple_animal/shade/death(gibbed)
-	. = ..()
-	SSticker.mode.remove_cultist(show_message = FALSE, target_mob = src)
 
 /mob/living/simple_animal/shade/attackby(obj/item/O, mob/user)  //Marker -Agouri
 	if(istype(O, /obj/item/soulstone))
@@ -56,16 +47,24 @@
 	holy = TRUE
 	icon_state = "shade_angelic"
 
+/mob/living/simple_animal/shade/cult
+
+/mob/living/simple_animal/shade/cult/Initialize(mapload)
+	. = ..()
+	icon_state = GET_CULT_DATA(shade_icon_state, initial(icon_state))
+
 /mob/living/simple_animal/shade/sword
 	faction = list("neutral")
 	a_intent = INTENT_HARM // scuffed sword mechanics bad
 	can_change_intents = FALSE // same here
 	health = 100
 	maxHealth = 100
+	weather_immunities = list("ash")
+	hud_type = /datum/hud/sword
 
 /mob/living/simple_animal/shade/sword/Initialize(mapload)
 	.=..()
-	AddSpell(new /obj/effect/proc_holder/spell/sentient_sword_lunge)
+	AddSpell(new /datum/spell/sentient_sword_lunge)
 	var/obj/item/nullrod/scythe/talking/host_sword = loc
 	if(istype(host_sword))
 		health = host_sword.obj_integrity

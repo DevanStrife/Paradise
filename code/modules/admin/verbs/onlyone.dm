@@ -26,7 +26,7 @@
 		to_chat(H, chat_box_red(messages.Join("<br>")))
 
 		for(var/obj/item/I in H)
-			if(istype(I, /obj/item/implant))
+			if(istype(I, /obj/item/bio_chip))
 				continue
 			qdel(I)
 
@@ -66,7 +66,7 @@
 		return
 
 	for(var/mob/living/carbon/human/H in GLOB.player_list)
-		if(H.stat == 2 || !(H.client)) continue
+		if(H.stat == DEAD || !(H.client)) continue
 		if(is_special_character(H)) continue
 
 		SSticker.mode.traitors += H.mind

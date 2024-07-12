@@ -1,7 +1,7 @@
 /obj
 	//var/datum/module/mod		//not used
 	var/origin_tech = null	//Used by R&D to determine what research bonuses it grants.
-	animate_movement = 2
+	animate_movement = SLIDE_STEPS
 	var/list/species_exception = null	// list() of species types, if a species cannot put items in a certain slot, but species type is in list, it will be able to wear that item
 	var/sharp = FALSE		// whether this object cuts
 	var/in_use = FALSE // If we have a user using us, this will be set on. We will check if the user has stopped using us, and thus stop updating and LAGGING EVERYTHING!
@@ -33,16 +33,11 @@
 	/// Is it emagged or not?
 	var/emagged = FALSE
 
-/obj/New()
-	..()
-	if(obj_integrity == null)
-		obj_integrity = max_integrity
-	if(on_blueprints && isturf(loc))
-		var/turf/T = loc
-		if(force_blueprints)
-			T.add_blueprints(src)
-		else
-			T.add_blueprints_preround(src)
+	// Access-related fields
+	var/list/req_access = null
+	var/req_access_txt = "0"
+	var/list/req_one_access = null
+	var/req_one_access_txt = "0"
 
 /obj/Initialize(mapload)
 	. = ..()
@@ -55,6 +50,15 @@
 	if(sharp)
 		AddComponent(/datum/component/surgery_initiator)
 
+	if(obj_integrity == null)
+		obj_integrity = max_integrity
+	if(on_blueprints && isturf(loc))
+		var/turf/T = loc
+		if(force_blueprints)
+			T.add_blueprints(src)
+		else
+			T.add_blueprints_preround(src)
+
 /obj/Topic(href, href_list, nowindow = FALSE, datum/ui_state/state = GLOB.default_state)
 	// Calling Topic without a corresponding window open causes runtime errors
 	if(!nowindow && ..())
@@ -62,7 +66,7 @@
 
 	// In the far future no checks are made in an overriding Topic() beyond if(..()) return
 	// Instead any such checks are made in CanUseTopic()
-	if(ui_status(usr, state, href_list) == STATUS_INTERACTIVE)
+	if(ui_status(usr, state, href_list) == UI_INTERACTIVE)
 		CouldUseTopic(usr)
 		return FALSE
 
@@ -74,12 +78,13 @@
 	host.add_fingerprint(user)
 
 /obj/proc/CouldNotUseTopic(mob/user)
-	// Nada
+	return
 
 /obj/Destroy()
 	if(!ismachinery(src))
 		if(!speed_process)
 			STOP_PROCESSING(SSobj, src) // TODO: Have a processing bitflag to reduce on unnecessary loops through the processing lists
+			// AA 2024-05-20 - processing var?????
 		else
 			STOP_PROCESSING(SSfastprocess, src)
 	return ..()
@@ -97,35 +102,21 @@
 /obj/proc/suicide_act(mob/user)
 	return FALSE
 
-/obj/assume_air(datum/gas_mixture/giver)
-	if(loc)
-		return loc.assume_air(giver)
-	else
-		return null
-
-/obj/remove_air(amount)
-	if(loc)
-		return loc.remove_air(amount)
-	else
-		return null
-
-/obj/return_air()
-	RETURN_TYPE(/datum/gas_mixture)
-	if(loc)
-		return loc.return_air()
-	else
-		return null
-
-/obj/proc/handle_internal_lifeform(mob/lifeform_inside_me, breath_request)
+/obj/proc/handle_internal_lifeform(mob/lifeform_inside_me, breath_request, datum/gas_mixture/environment)
 	//Return: (NONSTANDARD)
 	//		null if object handles breathing logic for lifeform
 	//		datum/air_group to tell lifeform to process using that breath return
 	//DEFAULT: Take air from turf to give to have mob process
 
 	if(breath_request > 0)
-		var/datum/gas_mixture/environment = return_air()
-		var/breath_percentage = BREATH_VOLUME / environment.return_volume()
-		return remove_air(environment.total_moles() * breath_percentage)
+		var/datum/gas_mixture/air = return_obj_air()
+		if(isnull(air))
+			air = environment
+		if(isnull(air))
+			return
+
+		var/breath_percentage = BREATH_VOLUME / air.return_volume()
+		return air.remove(air.total_moles() * breath_percentage)
 	else
 		return null
 
@@ -134,7 +125,7 @@
 		var/is_in_use = FALSE
 		var/list/nearby = viewers(1, src)
 		for(var/mob/M in nearby)
-			if((M.client && M.machine == src))
+			if(M.client && M.machine == src)
 				is_in_use = TRUE
 				src.attack_hand(M)
 		if(isAI(usr) || isrobot(usr))
@@ -159,7 +150,7 @@
 		var/list/nearby = viewers(1, src)
 		var/is_in_use = FALSE
 		for(var/mob/M in nearby)
-			if((M.client && M.machine == src))
+			if(M.client && M.machine == src)
 				is_in_use = TRUE
 				src.interact(M)
 		var/ai_in_use = AutoUpdateAI(src)
@@ -297,7 +288,7 @@
 	// In the event that the object doesn't have an overriden version of this proc to do it, log a runtime so one can be added.
 	CRASH("Proc force_eject_occupant() is not overridden on a machine containing a mob.")
 
-/obj/hit_by_thrown_carbon(mob/living/carbon/human/C, datum/thrownthing/throwingdatum, damage, mob_hurt, self_hurt)
+/obj/hit_by_thrown_mob(mob/living/C, datum/thrownthing/throwingdatum, damage, mob_hurt, self_hurt)
 	damage *= 0.75 //Define this probably somewhere, we want objects to hurt less than walls, unless special impact effects.
 	playsound(src, 'sound/weapons/punch1.ogg', 35, 1)
 	if(mob_hurt) //Density check probably not needed, one should only bump into something if it is dense, and blob tiles are not dense, because of course they are not.
@@ -306,4 +297,21 @@
 	C.take_organ_damage(damage)
 	if(!self_hurt)
 		take_damage(damage, BRUTE)
-	C.KnockDown(3 SECONDS)
+	if(issilicon(C))
+		C.Weaken(3 SECONDS)
+	else
+		C.KnockDown(3 SECONDS)
+
+/obj/handle_ricochet(obj/item/projectile/P)
+	. = ..()
+	if(. && receive_ricochet_damage_coeff)
+		// pass along receive_ricochet_damage_coeff damage to the structure for the ricochet
+		take_damage(P.damage * receive_ricochet_damage_coeff, P.damage_type, P.flag, 0, REVERSE_DIR(P.dir), P.armour_penetration_flat, P.armour_penetration_percentage)
+
+/obj/proc/return_obj_air()
+	RETURN_TYPE(/datum/gas_mixture)
+	if(isobj(loc))
+		var/obj/O = loc
+		return O.return_obj_air()
+	else
+		return null

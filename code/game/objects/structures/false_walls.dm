@@ -15,6 +15,7 @@
 	base_icon_state = "wall"
 	flags_2 = RAD_PROTECT_CONTENTS_2 | RAD_NO_CONTAMINATE_2
 	rad_insulation = RAD_MEDIUM_INSULATION
+	layer = TURF_LAYER
 
 	var/mineral = /obj/item/stack/sheet/metal
 	var/mineral_amount = 2
@@ -34,7 +35,7 @@
 
 /obj/structure/falsewall/Initialize(mapload)
 	. = ..()
-	air_update_turf(1)
+	recalculate_atmos_connectivity()
 
 /obj/structure/falsewall/examine_status(mob/user)
 	var/healthpercent = (obj_integrity/max_integrity) * 100
@@ -51,10 +52,10 @@
 
 /obj/structure/falsewall/Destroy()
 	density = FALSE
-	air_update_turf(1)
+	recalculate_atmos_connectivity()
 	return ..()
 
-/obj/structure/falsewall/CanAtmosPass(turf/T)
+/obj/structure/falsewall/CanAtmosPass(direction)
 	return !density
 
 /obj/structure/falsewall/attack_ghost(mob/user)
@@ -83,7 +84,7 @@
 		density = TRUE
 		set_opacity(TRUE)
 		icon_state = "fwall_closing"
-	air_update_turf(TRUE)
+	recalculate_atmos_connectivity()
 	opening = FALSE
 	update_icon()
 
@@ -283,7 +284,7 @@
 	canSmoothWith = list(SMOOTH_GROUP_PLASMA_WALLS)
 
 /obj/structure/falsewall/plasma/attackby(obj/item/W, mob/user, params)
-	if(is_hot(W) > 300)
+	if(W.get_heat() > 300)
 		var/turf/T = locate(user)
 		message_admins("Plasma falsewall ignited by [key_name_admin(user)] in [ADMIN_VERBOSEJMP(T)]")
 		log_game("Plasma falsewall ignited by [key_name(user)] in [AREACOORD(T)]")
@@ -432,3 +433,5 @@
 	canSmoothWith = list(SMOOTH_GROUP_ASTEROID_WALLS)
 	mineral = /obj/item/stack/ore/glass/basalt/ancient
 	walltype = /turf/simulated/mineral/ancient
+
+#undef FALSEDOOR_MAX_PRESSURE_DIFF

@@ -79,7 +79,6 @@
 	air3.volume = 300
 
 /obj/machinery/atmospherics/trinary/mixer/process_atmos()
-	..()
 	if(!on)
 		return 0
 
@@ -95,11 +94,11 @@
 	var/transfer_moles1 = 0
 	var/transfer_moles2 = 0
 
-	if(air1.temperature > 0)
-		transfer_moles1 = (node1_concentration*pressure_delta)*air3.volume/(air1.temperature * R_IDEAL_GAS_EQUATION)
+	if(air1.temperature() > 0)
+		transfer_moles1 = (node1_concentration*pressure_delta)*air3.volume/(air1.temperature() * R_IDEAL_GAS_EQUATION)
 
-	if(air2.temperature > 0)
-		transfer_moles2 = (node2_concentration*pressure_delta)*air3.volume/(air2.temperature * R_IDEAL_GAS_EQUATION)
+	if(air2.temperature() > 0)
+		transfer_moles2 = (node2_concentration*pressure_delta)*air3.volume/(air2.temperature() * R_IDEAL_GAS_EQUATION)
 
 	var/air1_moles = air1.total_moles()
 	var/air2_moles = air2.total_moles()
@@ -145,10 +144,13 @@
 	add_fingerprint(user)
 	ui_interact(user)
 
-/obj/machinery/atmospherics/trinary/mixer/ui_interact(mob/user, ui_key = "main", datum/tgui/ui = null, force_open = FALSE, datum/tgui/master_ui = null, datum/ui_state/state = GLOB.default_state)
-	ui = SStgui.try_update_ui(user, src, ui_key, ui, force_open)
+/obj/machinery/atmospherics/trinary/mixer/ui_state(mob/user)
+	return GLOB.default_state
+
+/obj/machinery/atmospherics/trinary/mixer/ui_interact(mob/user, datum/tgui/ui = null)
+	ui = SStgui.try_update_ui(user, src, ui)
 	if(!ui)
-		ui = new(user, src, ui_key, "AtmosMixer", name, 330, 165, master_ui, state)
+		ui = new(user, src, "AtmosMixer", name)
 		ui.open()
 
 /obj/machinery/atmospherics/trinary/mixer/ui_data(mob/user)

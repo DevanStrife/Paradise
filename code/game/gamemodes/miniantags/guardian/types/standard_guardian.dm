@@ -10,13 +10,9 @@
 	bio_fluff_string = "Your scarab swarm stirs to life, ready to tear apart your enemies."
 	var/battlecry = "AT"
 
-/mob/living/simple_animal/hostile/guardian/punch/verb/Battlecry()
-	set name = "Set Battlecry"
-	set category = "Guardian"
-	set desc = "Choose what you shout as you punch"
-	var/input = stripped_input(src,"What do you want your battlecry to be? Max length of 5 characters.", ,"", 6)
-	if(input)
-		battlecry = input
+/mob/living/simple_animal/hostile/guardian/punch/Initialize(mapload, mob/living/host)
+	. = ..()
+	AddSpell(new /datum/spell/choose_battlecry(null))
 
 /mob/living/simple_animal/hostile/guardian/punch/AttackingTarget()
 	. = ..()
@@ -25,10 +21,10 @@
 			visible_message("<span class='danger'>[src] punches [target]!</span>")
 		else
 			say("[battlecry][battlecry][battlecry][battlecry][battlecry]", TRUE)
-		playsound(loc, attack_sound, 50, 1, 1)
-		playsound(loc, attack_sound, 50, 1, 1)
-		playsound(loc, attack_sound, 50, 1, 1)
-		playsound(loc, attack_sound, 50, 1, 1)
+		playsound(loc, attack_sound, 50, TRUE, 1)
+		playsound(loc, attack_sound, 50, TRUE, 1)
+		playsound(loc, attack_sound, 50, TRUE, 1)
+		playsound(loc, attack_sound, 50, TRUE, 1)
 
 /mob/living/simple_animal/hostile/guardian/punch/sealpunch
 	name = "Seal Sprit"

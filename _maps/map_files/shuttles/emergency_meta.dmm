@@ -283,13 +283,6 @@
 /obj/effect/mapping_helpers/airlock/access/all/command/general,
 /turf/simulated/floor/mineral/titanium/blue,
 /area/shuttle/escape)
-"aS" = (
-/obj/machinery/economy/vending/wallmed{
-	name = "Emergency NanoMed";
-	power_state = 0
-	},
-/turf/simulated/wall/mineral/titanium,
-/area/shuttle/escape)
 "aT" = (
 /obj/structure/extinguisher_cabinet,
 /turf/simulated/wall/mineral/titanium,
@@ -378,6 +371,7 @@
 /obj/machinery/light{
 	dir = 4
 	},
+/obj/machinery/economy/vending/wallmed/directional/east,
 /turf/simulated/floor/mineral/titanium,
 /area/shuttle/escape)
 "bh" = (
@@ -708,7 +702,7 @@
 	pixel_y = -30
 	},
 /obj/machinery/space_heater,
-/obj/effect/turf_decal/bot,
+/obj/effect/turf_decal/delivery/hollow,
 /turf/simulated/floor/plasteel{
 	icon_state = "floorgrime"
 	},
@@ -730,7 +724,7 @@
 /obj/item/crowbar,
 /obj/item/wrench,
 /obj/item/radio,
-/obj/effect/turf_decal/bot,
+/obj/effect/turf_decal/delivery/hollow,
 /turf/simulated/floor/plasteel{
 	icon_state = "floorgrime"
 	},
@@ -751,7 +745,7 @@
 	pixel_y = 3
 	},
 /obj/item/lazarus_injector,
-/obj/effect/turf_decal/bot,
+/obj/effect/turf_decal/delivery/hollow,
 /mob/living/simple_animal/bot/medbot{
 	name = "\improper emergency medibot";
 	pixel_x = -3;
@@ -768,7 +762,7 @@
 	},
 /obj/machinery/atmospherics/portable/canister/oxygen,
 /obj/machinery/light,
-/obj/effect/turf_decal/bot,
+/obj/effect/turf_decal/delivery/hollow,
 /turf/simulated/floor/plasteel{
 	icon_state = "floorgrime"
 	},
@@ -796,6 +790,11 @@
 	name = "Emergency Shuttle Airlock"
 	},
 /turf/simulated/floor/plating,
+/area/shuttle/escape)
+"FM" = (
+/obj/structure/closet/emcloset,
+/obj/machinery/economy/vending/wallmed/directional/west,
+/turf/simulated/floor/mineral/titanium,
 /area/shuttle/escape)
 "Rk" = (
 /turf/simulated/floor/mineral/plastitanium/red/brig,
@@ -937,7 +936,7 @@ au
 au
 au
 aZ
-at
+FM
 ab
 bs
 bs
@@ -982,7 +981,7 @@ ai
 au
 au
 aM
-aS
+ab
 aW
 au
 aL
@@ -1110,7 +1109,7 @@ ci
 au
 au
 aM
-aS
+ab
 aW
 au
 aL

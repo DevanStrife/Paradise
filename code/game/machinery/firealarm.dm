@@ -37,7 +37,7 @@ FIRE ALARM
 
 	var/last_time_pulled //used to prevent pulling spam by same persons
 
-/obj/machinery/firealarm/Initialize(mapload, location, direction, building)
+/obj/machinery/firealarm/Initialize(mapload, direction, building)
 	. = ..()
 
 	if(building)
@@ -46,7 +46,8 @@ FIRE ALARM
 		setDir(direction)
 		set_pixel_offsets_from_dir(26, -26, 26, -26)
 
-	LAZYADD(get_area(src).firealarms, src)
+	var/area/our_area = get_area(src)
+	LAZYADD(our_area.firealarms, src)
 
 	if(is_station_contact(z))
 		RegisterSignal(SSsecurity_level, COMSIG_SECURITY_LEVEL_CHANGED, PROC_REF(on_security_level_update))
@@ -103,7 +104,8 @@ FIRE ALARM
 		if(user)
 			user.visible_message("<span class='warning'>Sparks fly out of [src]!</span>",
 								"<span class='notice'>You emag [src], disabling its thermal sensors.</span>")
-		playsound(loc, 'sound/effects/sparks4.ogg', 50, 1)
+		playsound(loc, 'sound/effects/sparks4.ogg', 50, TRUE)
+		return TRUE
 
 /obj/machinery/firealarm/temperature_expose(datum/gas_mixture/air, temperature, volume)
 	..()
@@ -215,19 +217,20 @@ FIRE ALARM
 /obj/machinery/firealarm/take_damage(damage_amount, damage_type = BRUTE, damage_flag = 0, sound_effect = 1, attack_dir)
 	. = ..()
 	if(.) //damage received
-		if(obj_integrity > 0 && !(stat & BROKEN) && buildstage != 0)
+		if(obj_integrity > 0 && !(stat & BROKEN) && buildstage != 0 && !emagged)
 			if(prob(33))
 				alarm()
 
 /obj/machinery/firealarm/singularity_pull(S, current_size)
-	if (current_size >= STAGE_FIVE) // If the singulo is strong enough to pull anchored objects, the fire alarm experiences integrity failure
+	if(current_size >= STAGE_FIVE) // If the singulo is strong enough to pull anchored objects, the fire alarm experiences integrity failure
 		deconstruct()
 	..()
 
 /obj/machinery/firealarm/obj_break(damage_flag)
 	if(!(stat & BROKEN) && !(flags & NODECONSTRUCT) && buildstage != 0) //can't break the electronics if there isn't any inside.
 		stat |= BROKEN
-		LAZYREMOVE(get_area(src).firealarms, src)
+		var/area/our_area = get_area(src)
+		LAZYREMOVE(our_area.firealarms, src)
 		update_icon()
 
 /obj/machinery/firealarm/deconstruct(disassembled = TRUE)
@@ -329,8 +332,11 @@ FIRE ALARM
 
 /obj/machinery/firealarm/Destroy()
 	LAZYREMOVE(GLOB.firealarm_soundloop.output_atoms, src)
-	LAZYREMOVE(get_area(src).firealarms, src)
+	var/area/our_area = get_area(src)
+	LAZYREMOVE(our_area.firealarms, src)
 	return ..()
+
+MAPPING_DIRECTIONAL_HELPERS(/obj/machinery/firealarm, 24, 24)
 
 /*
 FIRE ALARM CIRCUIT

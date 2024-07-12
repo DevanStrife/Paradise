@@ -73,22 +73,22 @@ Difficulty: Medium
 
 /datum/action/innate/megafauna_attack/dash
 	name = "Dash To Target"
-	icon_icon = 'icons/mob/actions/actions.dmi'
-	button_icon_state = "sniper_zoom"
+	button_overlay_icon = 'icons/mob/actions/actions.dmi'
+	button_overlay_icon_state = "sniper_zoom"
 	chosen_message = "<span class='colossus'>You are now dashing to your target.</span>"
 	chosen_attack_num = 1
 
 /datum/action/innate/megafauna_attack/kinetic_accelerator
 	name = "Fire Kinetic Accelerator"
-	icon_icon = 'icons/obj/guns/energy.dmi'
-	button_icon_state = "kineticgun"
+	button_overlay_icon = 'icons/obj/guns/energy.dmi'
+	button_overlay_icon_state = "kineticgun"
 	chosen_message = "<span class='colossus'>You are now shooting your kinetic accelerator.</span>"
 	chosen_attack_num = 2
 
 /datum/action/innate/megafauna_attack/transform_weapon
 	name = "Transform Weapon"
-	icon_icon = 'icons/obj/lavaland/artefacts.dmi'
-	button_icon_state = "cleaving_saw"
+	button_overlay_icon = 'icons/obj/lavaland/artefacts.dmi'
+	button_overlay_icon_state = "cleaving_saw"
 	chosen_message = "<span class='colossus'>You are now transforming your weapon.</span>"
 	chosen_attack_num = 3
 
@@ -110,7 +110,8 @@ Difficulty: Medium
 		shoot_ka()
 	transform_weapon()
 
-/obj/item/melee/energy/cleaving_saw/miner //nerfed saw because it is very murdery
+/// nerfed saw because it is very murdery
+/obj/item/melee/energy/cleaving_saw/miner
 	force = 6
 	force_on = 10
 
@@ -142,7 +143,7 @@ Difficulty: Medium
 	return ..()
 
 /mob/living/simple_animal/hostile/megafauna/blood_drunk_miner/Move(atom/newloc)
-	if(dashing || (newloc && newloc.z == z && (islava(newloc) || ischasm(newloc)))) //we're not stupid!
+	if(dashing) //we're not stupid!
 		return FALSE
 	return ..()
 
@@ -176,7 +177,7 @@ Difficulty: Medium
 	changeNext_move(CLICK_CD_MELEE)
 	miner_saw.melee_attack_chain(src, target)
 	if(guidance)
-		adjustHealth(enraged ? -10 : -2)
+		adjustHealth(enraged ? -6 : -2)
 	if(prob(50))
 		transform_weapon() //Still follows the normal rules for cooldown between swaps.
 	return TRUE
@@ -239,7 +240,7 @@ Difficulty: Medium
 			turf_dist_to_target += get_dist(dash_target, O)
 		if(get_dist(src, O) >= MINER_DASH_RANGE && turf_dist_to_target <= self_dist_to_target && !islava(O) && !ischasm(O))
 			var/valid = TRUE
-			for(var/turf/T in getline(own_turf, O))
+			for(var/turf/T in get_line(own_turf, O))
 				if(is_blocked_turf(T, TRUE))
 					valid = FALSE
 					continue
@@ -264,14 +265,14 @@ Difficulty: Medium
 	new /obj/effect/temp_visual/small_smoke/halfsecond(step_forward_turf)
 	var/obj/effect/temp_visual/decoy/fading/halfsecond/D = new (own_turf, src)
 	forceMove(step_back_turf)
-	playsound(own_turf, 'sound/weapons/punchmiss.ogg', 40, 1, -1)
+	playsound(own_turf, 'sound/weapons/punchmiss.ogg', 40, TRUE, -1)
 	dashing = TRUE
 	alpha = 0
 	animate(src, alpha = 255, time = 5)
 	SLEEP_CHECK_DEATH(2)
 	D.forceMove(step_forward_turf)
 	forceMove(target_turf)
-	playsound(target_turf, 'sound/weapons/punchmiss.ogg', 40, 1, -1)
+	playsound(target_turf, 'sound/weapons/punchmiss.ogg', 40, TRUE, -1)
 	SLEEP_CHECK_DEATH(1)
 	dashing = FALSE
 	return TRUE

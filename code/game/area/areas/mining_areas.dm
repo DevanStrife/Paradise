@@ -4,23 +4,6 @@
 	icon_state = "mining"
 	has_gravity = TRUE
 
-/area/mine/explored
-	name = "Mine"
-	icon_state = "explored"
-	always_unpowered = TRUE
-	requires_power = TRUE
-	poweralm = FALSE
-	apc_starts_off = TRUE
-	outdoors = TRUE
-	ambientsounds = MINING_SOUNDS
-	flags = NONE
-	sound_environment = SOUND_AREA_STANDARD_STATION
-	min_ambience_cooldown = 70 SECONDS
-	max_ambience_cooldown = 220 SECONDS
-
-/area/mine/dangerous/explored/golem
-	name = "Small Asteroid"
-
 /area/mine/unexplored
 	name = "Mine"
 	icon_state = "unexplored"
@@ -46,9 +29,6 @@
 
 /area/mine/unexplored/cere/command
 	name = "Command Asteroid"
-
-/area/mine/unexplored/cere/docking
-	name = "Docking Asteroid"
 
 /area/mine/unexplored/cere/engineering
 	name = "Engineering Asteroid"
@@ -77,7 +57,8 @@
 	name = "Mining Station Cafeteria"
 	icon_state = "mining_living"
 
-/area/lavaland/surface/outdoors/outpost/catwalk //subtype of /surface so storms hit there
+/// subtype of /surface so storms hit there
+/area/lavaland/surface/outdoors/outpost/catwalk
 	name = "Mining Station Catwalk"
 	icon_state = "mining"
 
@@ -89,7 +70,8 @@
 	name = "Mining Station Custodial Storage"
 	icon_state = "janitor"
 
-/area/mine/outpost/engineering // basically engi and atmos combined. I'm keeping it as "engineering" code wise, but "Life Support" sounds cooler in-game
+/// basically engi and atmos combined. I'm keeping it as "engineering" code wise, but "Life Support" sounds cooler in-game
+/area/mine/outpost/engineering
 	name = "Mining Station Life Support"
 	icon_state = "engi"
 
@@ -169,26 +151,16 @@
 	min_ambience_cooldown = 70 SECONDS
 	max_ambience_cooldown = 220 SECONDS
 
-/area/lavaland/underground
-	name = "Lavaland Caves"
-	icon_state = "unexplored"
-	always_unpowered = TRUE
-	requires_power = TRUE
-	poweralm = FALSE
-	apc_starts_off = TRUE
-	ambientsounds = MINING_SOUNDS
-	min_ambience_cooldown = 70 SECONDS
-	max_ambience_cooldown = 220 SECONDS
-
 /area/lavaland/surface/outdoors
 	name = "Lavaland Wastes"
 	outdoors = TRUE
 
-/area/lavaland/surface/outdoors/unexplored //monsters and ruins spawn here
+/// monsters and ruins spawn here
+/area/lavaland/surface/outdoors/unexplored
 	icon_state = "unexplored"
 
-/area/lavaland/surface/outdoors/unexplored/danger //megafauna will also spawn here
+/// megafauna will also spawn here
+/area/lavaland/surface/outdoors/unexplored/danger
 	icon_state = "danger"
 
 /area/lavaland/surface/outdoors/explored
-	name = "Lavaland Labor Camp"

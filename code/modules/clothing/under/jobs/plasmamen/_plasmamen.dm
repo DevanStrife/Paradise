@@ -31,14 +31,14 @@
 			H.visible_message("<span class='warning'>[H]'s suit automatically extinguishes [H.p_them()]!</span>","<span class='warning'>Your suit automatically extinguishes you.</span>")
 			if(!extinguishes_left)
 				to_chat(H, "<span class='warning'>Onboard auto-extinguisher depleted, refill with a cartridge.</span>")
-			playsound(H.loc, 'sound/effects/spray.ogg', 10, 1, -3)
+			playsound(H.loc, 'sound/effects/spray.ogg', 10, TRUE, -3)
 			H.ExtinguishMob()
 			new /obj/effect/particle_effect/water(get_turf(H))
 	return FALSE
 
 /obj/item/clothing/under/plasmaman/attackby(obj/item/E, mob/user, params)
-	if (istype(E, /obj/item/extinguisher_refill))
-		if (extinguishes_left == 5)
+	if(istype(E, /obj/item/extinguisher_refill))
+		if(extinguishes_left == 5)
 			to_chat(user, "<span class='notice'>The inbuilt extinguisher is full.</span>")
 			return
 		else

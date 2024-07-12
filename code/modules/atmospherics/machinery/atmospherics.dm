@@ -65,6 +65,8 @@ Pipelines + Other Objects -> Pipe network
 		pipe_color = null
 
 /obj/machinery/atmospherics/proc/process_atmos() //If you dont use process why are you here
+	// Any proc that wants MILLA to be synchronous should not sleep.
+	SHOULD_NOT_SLEEP(TRUE)
 	return PROCESS_KILL
 
 /obj/machinery/atmospherics/proc/atmos_init()
@@ -73,7 +75,7 @@ Pipelines + Other Objects -> Pipe network
 
 /obj/machinery/atmospherics/Destroy()
 	SSair.atmos_machinery -= src
-	SSair.deferred_pipenet_rebuilds -= src
+	SSair.pipenets_to_build -= src
 	for(var/mob/living/L in src) //ventcrawling is serious business
 		L.remove_ventcrawl()
 		L.forceMove(get_turf(src))
@@ -175,10 +177,10 @@ Pipelines + Other Objects -> Pipe network
 /obj/machinery/atmospherics/proc/build_network(remove_deferral = FALSE)
 	// Called to build a network from this node
 	if(remove_deferral)
-		SSair.deferred_pipenet_rebuilds -= src
+		SSair.pipenets_to_build -= src
 
 /obj/machinery/atmospherics/proc/defer_build_network()
-	SSair.deferred_pipenet_rebuilds += src
+	SSair.pipenets_to_build += src
 
 /obj/machinery/atmospherics/proc/disconnect(obj/machinery/atmospherics/reference)
 	return
@@ -197,8 +199,8 @@ Pipelines + Other Objects -> Pipe network
 		if(level == 1 && isturf(T) && T.intact)
 			to_chat(user, "<span class='danger'>You must remove the plating first.</span>")
 			return
-		var/datum/gas_mixture/int_air = return_air()
-		var/datum/gas_mixture/env_air = loc.return_air()
+		var/datum/gas_mixture/int_air = return_obj_air()
+		var/datum/gas_mixture/env_air = T.get_readonly_air()
 		add_fingerprint(user)
 
 		var/unsafe_wrenching = FALSE
@@ -210,32 +212,25 @@ Pipelines + Other Objects -> Pipe network
 		playsound(loc, W.usesound, 50, 1)
 		to_chat(user, "<span class='notice'>You begin to unfasten \the [src]...</span>")
 
-		for(var/obj/item/clothing/shoes/magboots/usermagboots in user.get_equipped_items())
-			if(usermagboots.magpulse)
-				safefromgusts = TRUE
-		for(var/obj/item/clothing/shoes/mod/usermodboots in user.get_equipped_items())
-			if(usermodboots.magbooted)
-				safefromgusts = TRUE
+		if(HAS_TRAIT(user, TRAIT_MAGPULSE))
+			safefromgusts = TRUE
 
-		if(internal_pressure > 2*ONE_ATMOSPHERE)
+		if(internal_pressure > 2 * ONE_ATMOSPHERE)
 			unsafe_wrenching = TRUE //Oh dear oh dear
 			if(internal_pressure > 1750 && !safefromgusts) // 1750 is the pressure limit to do 60 damage when thrown
-				to_chat(user, "<span class='userdanger'>As you struggle to unwrench \the [src] a huge gust of gas blows in your face! This seems like a terrible idea!</span>")
+				to_chat(user, "<span class='userdanger'>As you struggle to unwrench [src] a huge gust of gas blows in your face! This seems like a terrible idea!</span>")
 			else
-				to_chat(user, "<span class='warning'>As you begin unwrenching \the [src] a gust of air blows in your face... maybe you should reconsider?</span>")
+				to_chat(user, "<span class='warning'>As you begin unwrenching [src] a gust of air blows in your face... maybe you should reconsider?</span>")
 
 		if(do_after(user, 40 * W.toolspeed, target = src) && !QDELETED(src))
 			safefromgusts = FALSE
-			for(var/obj/item/clothing/shoes/magboots/usermagboots in user.get_equipped_items())
-				if(usermagboots.magpulse) // Check again, incase they change magpulse mid-wrench
-					safefromgusts = TRUE
-			for(var/obj/item/clothing/shoes/mod/usermodboots in user.get_equipped_items())
-				if(usermodboots.magbooted)
-					safefromgusts = TRUE
+
+			if(HAS_TRAIT(user, TRAIT_MAGPULSE))
+				safefromgusts = TRUE
 
 			user.visible_message( \
-				"<span class='notice'>[user] unfastens \the [src].</span>", \
-				"<span class='notice'>You have unfastened \the [src].</span>", \
+				"<span class='notice'>[user] unfastens [src].</span>", \
+				"<span class='notice'>You have unfastened [src].</span>", \
 				"<span class='italics'>You hear ratcheting.</span>")
 			investigate_log("was <span class='warning'>REMOVED</span> by [key_name(usr)]", "atmos")
 
@@ -259,11 +254,15 @@ Pipelines + Other Objects -> Pipe network
 		return
 
 	if(!pressures)
-		var/datum/gas_mixture/int_air = return_air()
-		var/datum/gas_mixture/env_air = loc.return_air()
+		var/datum/gas_mixture/int_air = return_obj_air()
+		var/turf/T = get_turf(src)
+		var/datum/gas_mixture/env_air = T.get_readonly_air()
 		pressures = int_air.return_pressure() - env_air.return_pressure()
 
 	var/fuck_you_dir = get_dir(src, user)
+	if(!fuck_you_dir)
+		fuck_you_dir = pick(GLOB.alldirs)
+
 	var/turf/general_direction = get_edge_target_turf(user, fuck_you_dir)
 	user.visible_message("<span class='danger'>[user] is sent flying by pressure!</span>","<span class='userdanger'>The pressure sends you flying!</span>")
 	//Values based on 2*ONE_ATMOS (the unsafe pressure), resulting in 20 range and 4 speed
@@ -332,7 +331,7 @@ Pipelines + Other Objects -> Pipe network
 			user.forceMove(target_move)
 			if(world.time - user.last_played_vent > VENT_SOUND_DELAY)
 				user.last_played_vent = world.time
-				playsound(src, 'sound/machines/ventcrawl.ogg', 50, 1, -3)
+				playsound(src, 'sound/machines/ventcrawl.ogg', 50, TRUE, -3)
 	else
 		if((direction & initialize_directions) || is_type_in_list(src, GLOB.ventcrawl_machinery)) //if we move in a way the pipe can connect, but doesn't - or we're in a vent
 			user.remove_ventcrawl()
@@ -349,7 +348,11 @@ Pipelines + Other Objects -> Pipe network
 	..()
 
 /obj/machinery/atmospherics/proc/can_crawl_through()
-	return 1
+	return TRUE
+
+/obj/machinery/atmospherics/extinguish_light(force)
+	set_light(0)
+	update_icon(UPDATE_OVERLAYS)
 
 /obj/machinery/atmospherics/proc/change_color(new_color)
 	//only pass valid pipe colors please ~otherwise your pipe will turn invisible
@@ -366,21 +369,21 @@ Pipelines + Other Objects -> Pipe network
 	if(node)
 		var/node_dir = get_dir(src,node)
 		if(node.icon_connect_type == "-supply")
-			add_underlay_adapter(T, , node_dir, "")
+			add_underlay_adapter(T, null, node_dir, "")
 			add_underlay_adapter(T, node, node_dir, "-supply")
-			add_underlay_adapter(T, , node_dir, "-scrubbers")
+			add_underlay_adapter(T, null, node_dir, "-scrubbers")
 		else if(node.icon_connect_type == "-scrubbers")
-			add_underlay_adapter(T, , node_dir, "")
-			add_underlay_adapter(T, , node_dir, "-supply")
+			add_underlay_adapter(T, null, node_dir, "")
+			add_underlay_adapter(T, null, node_dir, "-supply")
 			add_underlay_adapter(T, node, node_dir, "-scrubbers")
 		else
 			add_underlay_adapter(T, node, node_dir, "")
-			add_underlay_adapter(T, , node_dir, "-supply")
-			add_underlay_adapter(T, , node_dir, "-scrubbers")
+			add_underlay_adapter(T, null, node_dir, "-supply")
+			add_underlay_adapter(T, null, node_dir, "-scrubbers")
 	else
-		add_underlay_adapter(T, , direction, "-supply")
-		add_underlay_adapter(T, , direction, "-scrubbers")
-		add_underlay_adapter(T, , direction, "")
+		add_underlay_adapter(T, null, direction, "-supply")
+		add_underlay_adapter(T, null, direction, "-scrubbers")
+		add_underlay_adapter(T, null, direction, "")
 
 /obj/machinery/atmospherics/proc/add_underlay_adapter(turf/T, obj/machinery/atmospherics/node, direction, icon_connect_type) //modified from add_underlay, does not make exposed underlays
 	if(node)
@@ -438,3 +441,5 @@ Pipelines + Other Objects -> Pipe network
 	update_icon()
 	if(user)
 		to_chat(user, "<span class='notice'>You set the target pressure of [src] to maximum.</span>")
+
+#undef VENT_SOUND_DELAY

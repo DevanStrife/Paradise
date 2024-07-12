@@ -87,7 +87,7 @@
 			unEquip(l_store, 1)
 		if(wear_id)
 			unEquip(wear_id)
-		if(belt)
+		if(belt && !(belt.flags_2 & ALLOW_BELT_NO_JUMPSUIT_2))
 			unEquip(belt)
 		w_uniform = null
 		update_inv_w_uniform()
@@ -168,9 +168,6 @@
 		update_inv_l_hand()
 	update_action_buttons_icon()
 
-
-
-
 //This is an UNSAFE proc. Use mob_can_equip() before calling this one! Or rather use equip_to_slot_if_possible() or advanced_equip_to_slot_if_possible()
 // Initial is used to indicate whether or not this is the initial equipment (job datums etc) or just a player doing it
 /mob/living/carbon/human/equip_to_slot(obj/item/I, slot, initial = FALSE)
@@ -189,6 +186,13 @@
 		update_inv_r_hand()
 
 	I.screen_loc = null
+	if(client)
+		client.screen -= I
+	if(length(observers))
+		for(var/mob/dead/observe as anything in observers)
+			if(observe.client)
+				observe.client.screen -= I
+
 	I.forceMove(src)
 	I.equipped(src, slot, initial)
 	I.layer = ABOVE_HUD_LAYER
@@ -204,7 +208,7 @@
 				update_hair()	//rebuild hair
 				update_fhair()
 				update_head_accessory()
-			if(hud_list.len)
+			if(length(hud_list))
 				sec_hud_set_ID()
 			wear_mask_update(I, toggle_off = TRUE)
 			update_inv_wear_mask()
@@ -225,7 +229,7 @@
 			update_inv_belt()
 		if(SLOT_HUD_WEAR_ID)
 			wear_id = I
-			if(hud_list.len)
+			if(length(hud_list))
 				sec_hud_set_ID()
 			update_inv_wear_id()
 		if(SLOT_HUD_WEAR_PDA)
@@ -274,8 +278,8 @@
 				var/obj/item/clothing/head/hat = I
 				if(hat.vision_flags || hat.see_in_dark || !isnull(hat.lighting_alpha))
 					update_sight()
+			// this calls update_inv_head() on its own
 			head_update(I)
-			update_inv_head()
 		if(SLOT_HUD_SHOES)
 			shoes = I
 			update_inv_shoes()
@@ -402,24 +406,6 @@
 		l_ear,
 		)
 
-// humans have their pickpocket gloves, so they get no message when stealing things
-/mob/living/carbon/human/stripPanelUnequip(obj/item/what, mob/who, where)
-	var/is_silent = 0
-	var/obj/item/clothing/gloves/G = gloves
-	if(istype(G))
-		is_silent = G.pickpocket
-
-	..(what, who, where, silent = is_silent)
-
-// humans have their pickpocket gloves, so they get no message when stealing things
-/mob/living/carbon/human/stripPanelEquip(obj/item/what, mob/who, where)
-	var/is_silent = 0
-	var/obj/item/clothing/gloves/G = gloves
-	if(istype(G))
-		is_silent = G.pickpocket
-
-	..(what, who, where, silent = is_silent)
-
 /mob/living/carbon/human/can_equip(obj/item/I, slot, disable_warning = FALSE)
 	return dna.species.can_equip(I, slot, disable_warning, src)
 
@@ -447,9 +433,14 @@
 	var/obj/item/storage/equipped_item = get_item_by_slot(slot_item)
 	if(ismecha(loc) || HAS_TRAIT(src, TRAIT_HANDS_BLOCKED))
 		return
+	if(ismodcontrol(equipped_item)) // Check if the item is a MODsuit
+		if(thing && equipped_item.can_be_inserted(thing)) // Check if the item can be inserted into the MODsuit
+			equipped_item.handle_item_insertion(thing, src) // Insert the item into the MODsuit
+			playsound(loc, "rustle", 50, TRUE, -5)
+			return
 	if(!istype(equipped_item)) // We also let you equip things like this
 		equip_to_slot_if_possible(thing, slot_item)
 		return
 	if(thing && equipped_item.can_be_inserted(thing)) // put thing in belt or bag
-		equipped_item.handle_item_insertion(thing)
-		playsound(loc, "rustle", 50, 1, -5)
+		equipped_item.handle_item_insertion(thing, src)
+		playsound(loc, "rustle", 50, TRUE, -5)

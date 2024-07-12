@@ -41,6 +41,10 @@
 
 	source_turf = top_atom
 	pixel_turf = get_turf_pixel(top_atom) || source_turf
+	if(!pixel_turf)
+		stack_trace("[src] had no pixel turf assigned to it")
+		qdel(src)
+		return // Get us out of here before we do unneded operations
 
 	light_power = source_atom.light_power
 	light_range = source_atom.light_range
@@ -53,6 +57,7 @@
 /datum/light_source/Destroy(force)
 	remove_lum()
 	if(source_atom)
+		source_atom.delete_lights()
 		LAZYREMOVE(source_atom.light_sources, src)
 
 	if(top_atom)
@@ -131,14 +136,14 @@
 /datum/light_source/proc/remove_lum()
 	applied = FALSE
 	var/thing
-	for (thing in affecting_turfs)
+	for(thing in affecting_turfs)
 		var/turf/T = thing
 		LAZYREMOVE(T.affecting_lights, src)
 
 	affecting_turfs = null
 
 	var/datum/lighting_corner/C
-	for (thing in effect_str)
+	for(thing in effect_str)
 		C = thing
 		REMOVE_CORNER(C)
 
@@ -213,6 +218,8 @@
 	if(update)
 		needs_update = LIGHTING_CHECK_UPDATE
 		applied = TRUE
+		if(source_atom)
+			source_atom.update_bloom()
 	else if(needs_update == LIGHTING_CHECK_UPDATE)
 		return //nothing's changed
 
@@ -239,19 +246,19 @@
 	LAZYINITLIST(affecting_turfs)
 	var/list/L = turfs - affecting_turfs // New turfs, add us to the affecting lights of them.
 	affecting_turfs += L
-	for (thing in L)
+	for(thing in L)
 		T = thing
 		LAZYADD(T.affecting_lights, src)
 
 	L = affecting_turfs - turfs // Now-gone turfs, remove us from the affecting lights.
 	affecting_turfs -= L
-	for (thing in L)
+	for(thing in L)
 		T = thing
 		LAZYREMOVE(T.affecting_lights, src)
 
 	LAZYINITLIST(effect_str)
 	if(needs_update == LIGHTING_VIS_UPDATE)
-		for (thing in  corners - effect_str) // New corners
+		for(thing in  corners - effect_str) // New corners
 			C = thing
 			LAZYADD(C.affecting, src)
 			if(!C.active)
@@ -260,7 +267,7 @@
 			APPLY_CORNER(C)
 	else
 		L = corners - effect_str
-		for (thing in L) // New corners
+		for(thing in L) // New corners
 			C = thing
 			LAZYADD(C.affecting, src)
 			if(!C.active)
@@ -268,7 +275,7 @@
 				continue
 			APPLY_CORNER(C)
 
-		for (thing in corners - L) // Existing corners
+		for(thing in corners - L) // Existing corners
 			C = thing
 			if(!C.active)
 				effect_str[C] = 0
@@ -276,7 +283,7 @@
 			APPLY_CORNER(C)
 
 	L = effect_str - corners
-	for (thing in L) // Old, now gone, corners.
+	for(thing in L) // Old, now gone, corners.
 		C = thing
 		REMOVE_CORNER(C)
 		LAZYREMOVE(C.affecting, src)

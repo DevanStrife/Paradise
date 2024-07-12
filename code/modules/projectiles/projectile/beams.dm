@@ -33,6 +33,39 @@
 	icon_state = "heavylaser"
 	damage = 40
 
+/obj/item/projectile/beam/laser/ai_turret
+	damage = 17.5 //Slight loss in damage because hitscan
+	forcedodge = 1
+	hitscan = TRUE
+	muzzle_type = /obj/effect/projectile/muzzle/laser
+	tracer_type = /obj/effect/projectile/tracer/laser
+	impact_type = /obj/effect/projectile/impact/laser
+	impact_effect_type = null
+	hitscan_light_intensity = 3
+	hitscan_light_range = 0.75
+	hitscan_light_color_override = LIGHT_COLOR_DARKRED
+	muzzle_flash_intensity = 6
+	muzzle_flash_range = 2
+	muzzle_flash_color_override = LIGHT_COLOR_DARKRED
+	impact_light_intensity = 7
+	impact_light_range = 2.5
+	impact_light_color_override = LIGHT_COLOR_DARKRED
+
+/obj/item/projectile/beam/laser/ai_turret/prehit(atom/target)
+	if(isAI(target))
+		damage = 0 //cheater cheater I don't want AI to die to stupid placement eater
+		nodamage = 1
+	if(isliving(target))
+		forcedodge = 0 //no peircing after hitting a mob to avoid rooms destroying itself. If someone does monkey chair on AI sat though, I swear to god
+	..()
+
+/obj/item/projectile/beam/laser/ai_turret/heavylaser
+	damage = 35
+	muzzle_type = /obj/effect/projectile/muzzle/heavy_laser
+	tracer_type = /obj/effect/projectile/tracer/heavy_laser
+	impact_type = /obj/effect/projectile/impact/heavy_laser
+
+
 /obj/item/projectile/beam/practice
 	name = "practice laser"
 	damage = 0
@@ -66,6 +99,12 @@
 	impact_effect_type = /obj/effect/temp_visual/impact_effect/blue_laser
 	light_color = LIGHT_COLOR_CYAN
 
+/obj/item/projectile/beam/disabler/weak
+	name = "weakened disabler beam"
+	damage = 15
+	armour_penetration_flat = -10
+	light_color = LIGHT_COLOR_BLUE
+
 /obj/item/projectile/beam/pulse
 	name = "pulse"
 	icon_state = "u_laser"
@@ -73,12 +112,30 @@
 	impact_effect_type = /obj/effect/temp_visual/impact_effect/blue_laser
 	light_color = LIGHT_COLOR_DARKBLUE
 
+/obj/item/projectile/beam/pulse/hitscan
+	impact_effect_type = null
+	light_color = null
+	hitscan = TRUE
+	muzzle_type = /obj/effect/projectile/muzzle/pulse
+	tracer_type = /obj/effect/projectile/tracer/pulse
+	impact_type = /obj/effect/projectile/impact/pulse
+	hitscan_light_intensity = 3
+	hitscan_light_range = 0.75
+	hitscan_light_color_override = LIGHT_COLOR_DARKBLUE
+	muzzle_flash_intensity = 6
+	muzzle_flash_range = 2
+	muzzle_flash_color_override = LIGHT_COLOR_DARKBLUE
+	impact_light_intensity = 7
+	impact_light_range = 2.5
+	impact_light_color_override = LIGHT_COLOR_DARKBLUE
+
 /obj/item/projectile/beam/pulse/on_hit(atom/target, blocked = 0)
 	if(isturf(target) || isstructure(target) || ismachinery(target))
 		target.ex_act(2)
 	..()
 
 /obj/item/projectile/beam/pulse/shot
+	name = "proto pulse"
 	damage = 40
 
 /obj/item/projectile/beam/emitter
@@ -87,6 +144,22 @@
 	damage = 30
 	impact_effect_type = /obj/effect/temp_visual/impact_effect/green_laser
 	light_color = LIGHT_COLOR_GREEN
+
+/obj/item/projectile/beam/emitter/hitscan
+	hitscan = TRUE
+	muzzle_type = /obj/effect/projectile/muzzle/laser/emitter
+	tracer_type = /obj/effect/projectile/tracer/laser/emitter
+	impact_type = /obj/effect/projectile/impact/laser/emitter
+	impact_effect_type = null
+	hitscan_light_intensity = 3
+	hitscan_light_range = 0.75
+	hitscan_light_color_override = LIGHT_COLOR_GREEN
+	muzzle_flash_intensity = 6
+	muzzle_flash_range = 2
+	muzzle_flash_color_override = LIGHT_COLOR_GREEN
+	impact_light_intensity = 7
+	impact_light_range = 2.5
+	impact_light_color_override = LIGHT_COLOR_GREEN
 
 /obj/item/projectile/beam/emitter/singularity_pull()
 	return //don't want the emitters to miss
@@ -110,7 +183,7 @@
 		var/mob/living/carbon/human/M = target
 		if(istype(M.wear_suit))
 			if(M.wear_suit.type in suit_types)
-				M.adjustStaminaLoss(34)
+				M.apply_damage(34, STAMINA)
 	return 1
 
 /obj/item/projectile/beam/lasertag/omni
@@ -130,6 +203,7 @@
 
 /obj/item/projectile/beam/immolator
 	name = "immolation beam"
+	immolate = 1
 
 /obj/item/projectile/beam/immolator/strong
 	name = "heavy immolation beam"
@@ -141,12 +215,22 @@
 	damage = 8
 	icon_state = "scatterlaser"
 
-/obj/item/projectile/beam/immolator/on_hit(atom/target, blocked = 0)
-	. = ..()
-	if(isliving(target))
-		var/mob/living/M = target
-		M.adjust_fire_stacks(1)
-		M.IgniteMob()
+/obj/item/projectile/beam/immolator/weak/hitscan
+	color = LIGHT_COLOR_FIRE
+	hitscan = TRUE
+	muzzle_type = /obj/effect/projectile/muzzle/laser
+	tracer_type = /obj/effect/projectile/tracer/laser
+	impact_type = /obj/effect/projectile/impact/laser
+	impact_effect_type = null
+	hitscan_light_intensity = 3
+	hitscan_light_range = 0.75
+	hitscan_light_color_override = LIGHT_COLOR_FIRE
+	muzzle_flash_intensity = 6
+	muzzle_flash_range = 2
+	muzzle_flash_color_override = LIGHT_COLOR_FIRE
+	impact_light_intensity = 7
+	impact_light_range = 2.5
+	impact_light_color_override = LIGHT_COLOR_FIRE
 
 /obj/item/projectile/beam/instakill
 	name = "instagib laser"
@@ -251,3 +335,14 @@
 	eyeblur = 0
 	impact_effect_type = /obj/effect/temp_visual/impact_effect/blue_laser
 	light_color = LIGHT_COLOR_CYAN
+
+/obj/item/projectile/beam/laser/sparker
+	name = "sparker beam"
+	icon_state = "scatterlaser"
+	damage = 12.5
+	range = 12
+
+/obj/item/projectile/beam/laser/sparker/on_range()
+	new /obj/effect/particle_effect/sparks(get_turf(src))
+	return ..()
+
