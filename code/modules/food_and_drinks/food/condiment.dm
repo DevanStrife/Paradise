@@ -30,6 +30,7 @@
 	"sugar" = list("emptycondiment", "sugar bottle", "Tasty spacey sugar!"),
 	"vinegar" = list("vinegar", "vinegar", "Perfect for chips, if you're feeling Space British."),
 	"mayonnaise" = list("mayonnaise", "mayonnaise bottle", "An oily condiment made from egg yolks."),
+	"yogurt" = list("yogurt", "yogurt tub", "Some yogurt, produced by bacterial fermentation of milk. Yum."),
 	"cherryjelly" = list("cherryjelly", "cherry jelly jar", "A sweet jelly made out of red cherries."),
 	"peanutbutter" = list("peanutbutter", "peanut butter jar", "A smooth, nutty spread. Perfect for sandwiches."),
 	"honey" = list("honey", "honey jar", "A sweet substance produced by bees."),
@@ -85,7 +86,7 @@
 		to_chat(user, "<span class='notice'>You fill [src] with [trans] units of the contents of [target].</span>")
 
 	//Something like a glass or a food item. Player probably wants to transfer TO it.
-	else if(target.is_drainable() || istype(target, /obj/item/food/snacks))
+	else if(target.is_drainable() || istype(target, /obj/item/food))
 		if(!reagents.total_volume)
 			to_chat(user, "<span class='warning'>[src] is empty!</span>")
 			return
@@ -227,6 +228,13 @@
 	list_reagents = list("mayonnaise" = 50)
 	possible_states = list()
 
+/obj/item/reagent_containers/condiment/yogurt
+	name = "yogurt tub"
+	desc = "Some yogurt, produced by bacterial fermentation of milk. Yum."
+	icon_state = "yogurt"
+	list_reagents = list("yogurt" = 50)
+	possible_states = list()
+
 /obj/item/reagent_containers/condiment/cherryjelly
 	name = "cherry jelly"
 	desc = "A sweet jelly made out of red cherries."
@@ -317,7 +325,7 @@
 	if(!proximity) return
 
 	//You can tear the bag open above food to put the condiments on it, obviously.
-	if(istype(target, /obj/item/food/snacks))
+	if(istype(target, /obj/item/food))
 		if(!reagents.total_volume)
 			to_chat(user, "<span class='warning'>You tear open [src], but there's nothing in it.</span>")
 			qdel(src)

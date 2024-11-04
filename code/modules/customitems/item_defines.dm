@@ -284,10 +284,9 @@
 	storage_slots = 3
 
 /obj/item/storage/toolbox/fluff/lunchbox/populate_contents()
-	new /obj/item/food/snacks/sandwich(src)
-	new /obj/item/food/snacks/chips(src)
+	new /obj/item/food/customizable/sandwich(src)
+	new /obj/item/food/chips(src)
 	new /obj/item/reagent_containers/drinks/cans/cola(src)
-
 
 /obj/item/fluff/wingler_comb
 	name = "blue comb"
@@ -1440,8 +1439,8 @@
 /obj/item/clothing/under/pants/fluff/combat
 	name = "combat pants"
 	desc = "Medium style tactical pants, for the fashion aware combat units out there."
-	icon = 'icons/obj/custom_items.dmi'
-	icon_state = "chaps"
+	icon = 'icons/mob/clothing/under/donator.dmi'
+	icon_state = "combat_pants_s"
 	item_color = "combat_pants"
 	sprite_sheets = list(
 		"Human" = 'icons/mob/clothing/under/donator.dmi',

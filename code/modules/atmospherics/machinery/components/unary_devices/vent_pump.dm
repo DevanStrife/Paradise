@@ -40,6 +40,8 @@
 /obj/machinery/atmospherics/unary/vent_pump/examine(mob/user)
 	. = ..()
 	. += "<span class='notice'>This pumps the contents of the attached pipenet out into the atmosphere. Can be controlled from an Air Alarm.</span>"
+	if(welded)
+		. += "It seems welded shut."
 
 /obj/machinery/atmospherics/unary/vent_pump/on
 	on = TRUE
@@ -85,9 +87,8 @@
 	else
 		vent_icon += "[on ? "[releasing ? "out" : "in"]" : "off"]"
 
-	. += SSair.icon_manager.get_atmos_icon("device", state = vent_icon)
-
-	update_pipe_image()
+	. += GLOB.pipe_icon_manager.get_atmos_icon("device", state = vent_icon)
+	update_pipe_image(.)
 
 /obj/machinery/atmospherics/unary/vent_pump/update_underlays()
 	if(..())
@@ -193,11 +194,6 @@
 			to_chat(user, "The vent is welded.")
 		return TRUE
 
-	if(iswrench(W))
-		if(!(stat & NOPOWER) && on)
-			to_chat(user, "<span class='danger'>You cannot unwrench this [src], turn it off first.</span>")
-			return TRUE
-
 	return ..()
 
 /obj/machinery/atmospherics/unary/vent_pump/multitool_act(mob/living/user, obj/item/I)
@@ -242,11 +238,6 @@
 				if(istype(W, /obj/item/pipe))
 					continue
 				W.forceMove(get_turf(src))
-
-/obj/machinery/atmospherics/unary/vent_pump/examine(mob/user)
-	. = ..()
-	if(welded)
-		. += "It seems welded shut."
 
 /obj/machinery/atmospherics/unary/vent_pump/power_change()
 	if(!..())

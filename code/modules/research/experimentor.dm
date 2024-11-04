@@ -99,8 +99,8 @@
 	return TRUE
 
 /obj/machinery/r_n_d/experimentor/attackby(obj/item/O, mob/user, params)
-	if(exchange_parts(user, O))
-		return
+	if(istype(O, /obj/item/storage/part_replacer))
+		return ..()
 
 	if(!checkCircumstances(O))
 		to_chat(user, "<span class='warning'>[O] is not yet valid for [src] and must be completed!</span>")
@@ -118,12 +118,15 @@
 		if(!O.origin_tech)
 			to_chat(user, "<span class='warning'>This doesn't seem to have a tech origin!</span>")
 			return
+
 		var/list/temp_tech = ConvertReqString2List(O.origin_tech)
 		if(length(temp_tech) == 0)
 			to_chat(user, "<span class='warning'>You cannot experiment on this item!</span>")
 			return
+
 		if(!user.drop_item())
 			return
+
 		loaded_item = O
 		O.loc = src
 		to_chat(user, "<span class='notice'>You add [O] to the machine.</span>")
@@ -479,12 +482,12 @@
 		if(globalMalf > 16 && globalMalf < 35)
 			visible_message("<span class='warning'>[src] melts [exp_on], ian-izing the air around it!</span>")
 			throwSmoke(loc)
-			var/mob/tracked_ian = locate(/mob/living/simple_animal/pet/dog/corgi/Ian) in GLOB.mob_living_list
+			var/mob/living/tracked_ian = locate(/mob/living/simple_animal/pet/dog/corgi/Ian) in GLOB.mob_living_list
 			if(tracked_ian)
 				throwSmoke(tracked_ian.loc)
 				tracked_ian.loc = loc
 				if(tracked_ian.buckled)
-					tracked_ian.buckled.unbuckle_mob(tracked_ian, TRUE)
+					tracked_ian.unbuckle(force = TRUE)
 				investigate_log("Experimentor has stolen Ian!", "experimentor") //...if anyone ever fixes it...
 			else
 				new /mob/living/simple_animal/pet/dog/corgi(loc)
@@ -493,12 +496,12 @@
 		if(globalMalf > 36 && globalMalf < 59)
 			visible_message("<span class='warning'>[src] encounters a run-time error!</span>")
 			throwSmoke(loc)
-			var/mob/tracked_runtime = locate(/mob/living/simple_animal/pet/cat/Runtime) in GLOB.mob_living_list
+			var/mob/living/tracked_runtime = locate(/mob/living/simple_animal/pet/cat/Runtime) in GLOB.mob_living_list
 			if(tracked_runtime)
 				throwSmoke(tracked_runtime.loc)
 				tracked_runtime.loc = loc
 				if(tracked_runtime.buckled)
-					tracked_runtime.buckled.unbuckle_mob(tracked_runtime, TRUE)
+					tracked_runtime.unbuckle(force = TRUE)
 				investigate_log("Experimentor has stolen Runtime!", "experimentor")
 			else
 				new /mob/living/simple_animal/pet/cat(loc)
@@ -571,8 +574,11 @@
 		if(dotype != FAIL)
 			if(process && process.origin_tech)
 				var/list/temp_tech = ConvertReqString2List(process.origin_tech)
+				var/datum/research/F = linked_console.get_files()
+				if(!F)
+					return
 				for(var/T in temp_tech)
-					linked_console.files.UpdateTech(T, temp_tech[T])
+					F.UpdateTech(T, temp_tech[T])
 	updateUsrDialog()
 	return
 

@@ -80,6 +80,7 @@ CREATE TABLE `characters` (
   `hair_gradient_colour` varchar(7) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '#000000',
   `hair_gradient_alpha` tinyint(3) UNSIGNED NOT NULL DEFAULT '255',
   `custom_emotes` LONGTEXT COLLATE 'utf8mb4_unicode_ci' DEFAULT NULL,
+  `runechat_color` VARCHAR(7) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '#FFFFFF',
   `cyborg_brain_type` ENUM('MMI', 'Robobrain', 'Positronic') NOT NULL DEFAULT 'MMI',
   PRIMARY KEY (`id`),
   KEY `ckey` (`ckey`)
@@ -249,7 +250,7 @@ CREATE TABLE `feedback` (
   `datetime` datetime NOT NULL,
   `round_id` int(8) NOT NULL,
   `key_name` varchar(32) NOT NULL,
-  `key_type` enum('text', 'amount', 'tally', 'nested tally', 'associative') NOT NULL,
+  `key_type` ENUM('text', 'amount', 'tally', 'nested tally', 'associative', 'ledger', 'nested ledger') NOT NULL,
   `version` tinyint(3) UNSIGNED NOT NULL,
   `json` LONGTEXT NOT NULL COLLATE 'utf8mb4_general_ci',
   PRIMARY KEY (`id`)
@@ -506,7 +507,7 @@ CREATE TABLE `connection_log` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `datetime` datetime NOT NULL,
   `ckey` varchar(32) NOT NULL,
-  `ip` varchar(32) NOT NULL,
+  `ip` INT UNSIGNED NOT NULL,
   `computerid` varchar(32) NOT NULL,
   `server_id` VARCHAR(50) NULL DEFAULT NULL,
   `result` ENUM('ESTABLISHED','DROPPED - IPINTEL','DROPPED - BANNED','DROPPED - INVALID') NOT NULL DEFAULT 'ESTABLISHED' COLLATE 'utf8mb4_general_ci',

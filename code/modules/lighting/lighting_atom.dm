@@ -48,16 +48,6 @@
 /atom/proc/extinguish_light(force = FALSE)
 	return
 
-// If we have opacity, make sure to tell (potentially) affected light sources.
-/atom/movable/Destroy()
-	var/turf/T = loc
-	. = ..()
-	if(opacity && istype(T))
-		var/old_has_opaque_atom = T.has_opaque_atom
-		T.recalc_atom_opacity()
-		if(old_has_opaque_atom != T.has_opaque_atom)
-			T.reconsider_lights()
-
 // Should always be used to change the opacity of an atom.
 // It notifies (potentially) affected light sources so they can update (if needed).
 /atom/proc/set_opacity(new_opacity)
@@ -77,23 +67,6 @@
 		T.recalc_atom_opacity()
 		if(old_has_opaque_atom != T.has_opaque_atom)
 			T.reconsider_lights()
-
-/atom/vv_edit_var(var_name, var_value)
-	switch(var_name)
-		if("light_range")
-			set_light(l_range=var_value)
-			return TRUE
-
-		if("light_power")
-			set_light(l_power=var_value)
-			return TRUE
-
-		if("light_color")
-			set_light(l_color=var_value)
-			return TRUE
-
-	return ..()
-
 
 /atom/proc/flash_lighting_fx(_range = FLASH_LIGHT_RANGE, _power = FLASH_LIGHT_POWER, _color = LIGHT_COLOR_WHITE, _duration = FLASH_LIGHT_DURATION, _reset_lighting = TRUE)
 	return
@@ -126,8 +99,11 @@
 	cut_overlay(exposure_overlay)
 
 	if(glow_icon && glow_icon_state)
-		glow_overlay = image(icon = glow_icon, icon_state = glow_icon_state, dir = dir, layer = 1)
-		glow_overlay.plane = LIGHTING_LAMPS_PLANE
+		glow_overlay = image(icon = glow_icon, icon_state = glow_icon_state, dir = dir, layer = -2)
+		if(layer <= LOW_OBJ_LAYER)
+			glow_overlay.plane = FLOOR_LIGHTING_LAMPS_PLANE // Yeah this sucks
+		else
+			glow_overlay.plane = LIGHTING_LAMPS_PLANE
 		glow_overlay.blend_mode = BLEND_ADD
 
 		if(glow_colored)

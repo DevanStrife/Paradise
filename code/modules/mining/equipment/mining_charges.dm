@@ -5,6 +5,7 @@
 	icon_state = "mining-charge-2"
 	item_state = "charge_indust"
 	det_time = 5
+	origin_tech = "materials=1"
 	notify_admins = FALSE // no need to make adminlogs on lavaland, while they are "safe" to use
 	/// When TRUE, charges won't detonate on it's own. Used for mining detonator
 	var/timer_off = FALSE
@@ -14,7 +15,7 @@
 	var/boom_sizes = list(2, 3, 5)
 	var/hacked = FALSE
 
-/obj/item/grenade/plastic/miningcharge/Initialize()
+/obj/item/grenade/plastic/miningcharge/Initialize(mapload)
 	. = ..()
 	image_overlay = mutable_appearance(icon, "[icon_state]_active", ON_EDGED_TURF_LAYER)
 
@@ -81,8 +82,10 @@
 	for(var/turf/simulated/mineral/rock in circlerangeturfs(location, boom_sizes[3]))
 		var/distance = get_dist_euclidian(location, rock)
 		if(distance <= boom_sizes[3])
-			rock.mineralAmt += 3 // if rock is going to get drilled, add bonus mineral amount
-			rock.gets_drilled()
+			if(rock.ore)
+				rock.ore.drop_max += 3 // if rock is going to get drilled, add bonus mineral amount
+				rock.ore.drop_min += 3
+			rock.gets_drilled(triggered_by_explosion = TRUE)
 	for(var/mob/living/carbon/C in circlerange(location, boom_sizes[3]))
 		var/distance = get_dist_euclidian(location, C)
 		C.flash_eyes()
@@ -107,7 +110,7 @@
 		location = get_atom_on_turf(src)
 	if(location)
 		explosion(location, boom_sizes[1], boom_sizes[2], boom_sizes[3], cause = src)
-		location.ex_act(2, target)
+		location.ex_act(EXPLODE_HEAVY, target)
 	qdel(src)
 
 /obj/item/grenade/plastic/miningcharge/proc/override_safety()

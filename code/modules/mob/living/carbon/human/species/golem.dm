@@ -454,7 +454,7 @@
 	if(!isturf(picked))
 		return
 	if(H.buckled)
-		H.buckled.unbuckle_mob(H, force = TRUE)
+		H.unbuckle(force = TRUE)
 	do_teleport(H, picked)
 	return TRUE
 
@@ -538,7 +538,7 @@
 	if(!isturf(picked))
 		return
 	if(H.buckled)
-		H.buckled.unbuckle_mob(H, force = TRUE)
+		H.unbuckle(force = TRUE)
 	do_teleport(H, picked)
 	last_teleport = world.time
 	UpdateButtons() //action icon looks unavailable
@@ -706,6 +706,9 @@
 	H.visible_message("<span class='danger'>[H] falls apart into a pile of bandages!</span>")
 	new /obj/structure/cloth_pile(get_turf(H), H)
 	..()
+
+/datum/species/golem/cloth/can_be_legion_infested()
+	return FALSE // can't infest a pile of cloth,
 
 /obj/structure/cloth_pile
 	name = "pile of bandages"

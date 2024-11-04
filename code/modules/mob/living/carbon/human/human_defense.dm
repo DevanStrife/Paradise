@@ -287,6 +287,10 @@ emp_act
 
 /mob/living/carbon/human/emp_act(severity)
 	..()
+	if(HAS_TRAIT(src, TRAIT_EMP_IMMUNE))
+		return
+	if(HAS_TRAIT(src, TRAIT_EMP_RESIST))
+		severity = clamp(severity, EMP_LIGHT, EMP_WEAKENED)
 	for(var/X in bodyparts)
 		var/obj/item/organ/external/L = X
 		L.emp_act(severity)
@@ -438,7 +442,12 @@ emp_act
 		I.acid_act(acidpwr, acid_volume)
 	return 1
 
-/mob/living/carbon/human/emag_act(user as mob, obj/item/organ/external/affecting)
+/mob/living/carbon/human/emag_act(mob/user)
+	var/obj/item/organ/external/affecting
+	if(!user.zone_selected) // pulse demons really.
+		affecting = get_organ(pick(BODY_ZONE_CHEST, BODY_ZONE_HEAD, BODY_ZONE_L_ARM, BODY_ZONE_L_LEG, BODY_ZONE_R_ARM, BODY_ZONE_R_LEG))
+	else
+		affecting = get_organ(user.zone_selected)
 	if(!istype(affecting))
 		return
 	if(!affecting.is_robotic())
@@ -447,9 +456,9 @@ emp_act
 	if(affecting.sabotaged)
 		to_chat(user, "<span class='warning'>[src]'s [affecting.name] is already sabotaged!</span>")
 	else
-		to_chat(user, "<span class='warning'>You sneakily slide the card into the dataport on [src]'s [affecting.name] and short out the safeties.</span>")
+		to_chat(user, "<span class='warning'>You sneakily hack into the dataport on [src]'s [affecting.name] and short out the safeties.</span>")
 		affecting.sabotaged = TRUE
-	return 1
+	return TRUE
 
 /mob/living/carbon/human/grabbedby(mob/living/user)
 	if(w_uniform)
@@ -462,7 +471,7 @@ emp_act
 		return FALSE
 
 	if(HAS_TRAIT(I, TRAIT_BUTCHERS_HUMANS) && stat == DEAD && user.a_intent == INTENT_HARM)
-		var/obj/item/food/snacks/meat/human/newmeat = new /obj/item/food/snacks/meat/human(get_turf(loc))
+		var/obj/item/food/meat/human/newmeat = new /obj/item/food/meat/human(get_turf(loc))
 		newmeat.name = real_name + newmeat.name
 		newmeat.subjectname = real_name
 		newmeat.subjectjob = job
@@ -493,17 +502,15 @@ emp_act
 		visible_message("<span class='warning'>[src] blocks [I]!</span>")
 		return FALSE
 
-	if(istype(I,/obj/item/card/emag))
-		emag_act(user, affecting)
 
 	send_item_attack_message(I, user, hit_area)
+
+	if(!I.force)
+		return FALSE //item force is zero
 
 	var/armor = run_armor_check(affecting, MELEE, "<span class='warning'>Your armour has protected your [hit_area].</span>", "<span class='warning'>Your armour has softened hit to your [hit_area].</span>", armour_penetration_flat = I.armour_penetration_flat, armour_penetration_percentage = I.armour_penetration_percentage)
 	if(armor == INFINITY)
 		return FALSE
-
-	if(!I.force)
-		return TRUE // item force is zero, it deals no damage, we do not apply damage
 
 	var/weapon_sharp = I.sharp
 	// do not roll for random blunt if the target mob is dead for the ease of decaps
@@ -570,7 +577,6 @@ emp_act
 							update_inv_w_uniform()
 
 	dna.species.spec_attacked_by(I, user, affecting, user.a_intent, src)
-	return TRUE
 
 //this proc handles being hit by a thrown atom
 /mob/living/carbon/human/hitby(atom/movable/AM, skipcatch = FALSE, hitpush = TRUE, blocked = FALSE, datum/thrownthing/throwingdatum)
@@ -617,14 +623,27 @@ emp_act
 	visible_message("<span class='danger'>[I] embeds itself in [src]'s [L.name]!</span>","<span class='userdanger'>[I] embeds itself in your [L.name]!</span>")
 	return TRUE
 
-/mob/living/carbon/human/proc/make_bloody_hands(list/blood_dna, b_color)
+/*
+	* This proc makes human hands bloody, if you touch something, you will leave a blood trace
+
+	* blood_dna: list of blood DNAs stored in each atom in blood_DNA variable or in get_blood_dna_list() on carbons
+	* b_color: blood color, simple. If there will be null, the blood will be red, otherwise the color you pass
+	* amount: amount of "blood charges" you want to give, that will be used to make items/walls bloody.
+		You can make something bloody this amount - 1 times.
+		If this variable will be null, amount will be set randomly from 2 to max_amount
+	* max_amount: if amount is not set, amount will be random from 2 to this value, default 4
+*/
+/mob/living/carbon/human/proc/make_bloody_hands(list/blood_dna, b_color, amount, max_amount = 4)
 	if(isnull(b_color))
 		b_color = "#A10808"
 	if(gloves)
-		gloves.add_blood(blood_dna, blood_color)
+		gloves.add_blood(blood_dna, blood_color, amount, max_amount)
 	else
 		hand_blood_color = b_color
-		bloody_hands = rand(2, 4)
+		if(isnull(amount))
+			bloody_hands = rand(2, max_amount)
+		else
+			bloody_hands = max(1, amount)
 		transfer_blood_dna(blood_dna)
 		add_verb(src, /mob/living/carbon/human/proc/bloody_doodle)
 	update_inv_gloves()		//updates on-mob overlays for bloody hands and/or bloody gloves
@@ -825,3 +844,5 @@ emp_act
 /mob/living/carbon/human/projectile_hit_check(obj/item/projectile/P)
 	return (HAS_TRAIT(src, TRAIT_FLOORED) || HAS_TRAIT(src, TRAIT_NOKNOCKDOWNSLOWDOWN)) && !density // hit mobs that are intentionally lying down to prevent combat crawling.
 
+/mob/living/carbon/human/canBeHandcuffed()
+	return has_left_hand() || has_right_hand()

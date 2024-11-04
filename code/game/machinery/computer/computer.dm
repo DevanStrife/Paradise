@@ -19,7 +19,7 @@
 	/// Are we forcing the icon to be represented in a no-power state?
 	var/force_no_power_icon_state = FALSE
 
-/obj/machinery/computer/Initialize()
+/obj/machinery/computer/Initialize(mapload)
 	. = ..()
 	power_change()
 	update_icon()
@@ -116,10 +116,10 @@
 /obj/machinery/computer/emp_act(severity)
 	..()
 	switch(severity)
-		if(1)
+		if(EMP_HEAVY)
 			if(prob(50))
 				obj_break(ENERGY)
-		if(2)
+		if(EMP_LIGHT)
 			if(prob(10))
 				obj_break(ENERGY)
 

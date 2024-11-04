@@ -233,8 +233,8 @@
 		/obj/item/mod/control,
 		/obj/item/stamp,
 		/obj/item/melee/knuckleduster/nanotrasen,
-		/obj/item/melee/rapier,
-		/obj/item/storage/belt/rapier,
+		/obj/item/melee/saber,
+		/obj/item/storage/belt/sheath/saber,
 		/obj/item/nuke_core,
 		/obj/item/nuke_core_container,
 		/obj/item/documents,
@@ -501,6 +501,7 @@
 
 			icon_state = occupied_icon_state
 
+			M.throw_alert("cryopod", /atom/movable/screen/alert/ghost/cryo)
 			to_chat(M, "<span class='notice'>[on_enter_occupant_message]</span>")
 			to_chat(M, "<span class='boldnotice'>If you ghost, log out or close your client now, your character will shortly be permanently removed from the round.</span>")
 
@@ -585,6 +586,7 @@
 	icon_state = occupied_icon_state
 	to_chat(E, "<span class='notice'>[on_enter_occupant_message]</span>")
 	to_chat(E, "<span class='boldnotice'>If you ghost, log out or close your client now, your character will shortly be permanently removed from the round.</span>")
+	E.throw_alert("cryopod", /atom/movable/screen/alert/ghost/cryo)
 	occupant = E
 	name = "[name] ([occupant.name])"
 	time_entered = world.time
@@ -606,6 +608,7 @@
 		return
 
 	occupant.forceMove(get_turf(src))
+	occupant.clear_alert("cryopod")
 	occupant = null
 	icon_state = base_icon_state
 	name = initial(name)

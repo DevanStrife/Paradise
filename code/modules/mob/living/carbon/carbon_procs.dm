@@ -337,9 +337,9 @@
 		status_list += "<span class='danger'>You are bleeding!</span>"
 	if(staminaloss)
 		if(staminaloss > 30)
-			status_list += "<span class='info'>You're completely exhausted.</span>"
+			status_list += "<span class='notice'>You're completely exhausted.</span>"
 		else
-			status_list += "<span class='info'>You feel fatigued.</span>"
+			status_list += "<span class='notice'>You feel fatigued.</span>"
 
 	to_chat(src, chat_box_examine(status_list.Join("\n")))
 
@@ -350,7 +350,7 @@
 	var/obj/item/organ/internal/eyes/E = get_int_organ(/obj/item/organ/internal/eyes)
 	. = ..()
 
-	if((E && (E.status & ORGAN_DEAD)) || !.)
+	if((E?.status & ORGAN_DEAD) || E?.is_broken() || !.)
 		return FALSE
 
 /mob/living/carbon/flash_eyes(intensity = 1, override_blindness_check = 0, affect_silicon = 0, visual = 0, laser_pointer = FALSE, type = /atom/movable/screen/fullscreen/stretch/flash)
@@ -534,10 +534,15 @@ GLOBAL_LIST_INIT(ventcrawl_machinery, list(/obj/machinery/atmospherics/unary/ven
 /mob/living/proc/add_ventcrawl(obj/machinery/atmospherics/starting_machine, obj/machinery/atmospherics/target_move)
 	if(!istype(starting_machine) || !starting_machine.returnPipenet(target_move) || !starting_machine.can_see_pipes())
 		return
-	var/datum/pipeline/pipeline = starting_machine.returnPipenet(target_move)
+	var/datum/pipeline/pipenet = starting_machine.returnPipenet(target_move)
+	pipenet.add_ventcrawler(src)
+	add_ventcrawl_images(pipenet)
+
+
+/mob/living/proc/add_ventcrawl_images(datum/pipeline/pipenet)
 	var/list/totalMembers = list()
-	totalMembers |= pipeline.members
-	totalMembers |= pipeline.other_atmosmch
+	totalMembers |= pipenet.members
+	totalMembers |= pipenet.other_atmosmch
 	for(var/obj/machinery/atmospherics/A in totalMembers)
 		if(!A.pipe_image)
 			A.update_pipe_image()
@@ -546,6 +551,10 @@ GLOBAL_LIST_INIT(ventcrawl_machinery, list(/obj/machinery/atmospherics/unary/ven
 			client.images += A.pipe_image
 
 /mob/living/proc/remove_ventcrawl()
+	SEND_SIGNAL(src, COMSIG_LIVING_EXIT_VENTCRAWL)
+	remove_ventcrawl_images()
+
+/mob/living/proc/remove_ventcrawl_images()
 	if(client)
 		for(var/image/current_image in pipes_shown)
 			client.images -= current_image
@@ -567,8 +576,10 @@ GLOBAL_LIST_INIT(ventcrawl_machinery, list(/obj/machinery/atmospherics/unary/ven
 	else
 		if(is_ventcrawling(src))
 			if(target_move)
-				remove_ventcrawl()
-			add_ventcrawl(loc, target_move)
+				remove_ventcrawl_images()
+			var/obj/machinery/atmospherics/current_pipe = loc
+			var/datum/pipeline/pipenet = current_pipe.returnPipenet(target_move)
+			add_ventcrawl_images(pipenet)
 
 
 //Throwing stuff
@@ -733,7 +744,7 @@ GLOBAL_LIST_INIT(ventcrawl_machinery, list(/obj/machinery/atmospherics/unary/ven
 	else if(I == handcuffed)
 		handcuffed = null
 		if(buckled && buckled.buckle_requires_restraints)
-			buckled.unbuckle_mob(src)
+			unbuckle()
 		update_handcuffed()
 	else if(I == legcuffed)
 		legcuffed = null
@@ -830,7 +841,7 @@ GLOBAL_LIST_INIT(ventcrawl_machinery, list(/obj/machinery/atmospherics/unary/ven
 
 	visible_message("<span class='warning'>[src] attempts to unbuckle [p_themselves()]!</span>",
 				"<span class='notice'>You attempt to unbuckle yourself... (This will take around [breakout_time / 10] seconds and you need to stay still.)</span>")
-	if(!do_after(src, breakout_time, FALSE, src, extra_checks = list(CALLBACK(src, PROC_REF(buckle_check)))))
+	if(!do_after(src, breakout_time, FALSE, src, allow_moving = TRUE, extra_checks = list(CALLBACK(src, PROC_REF(buckle_check))), allow_moving_target = TRUE))
 		if(src && buckled)
 			to_chat(src, "<span class='warning'>You fail to unbuckle yourself!</span>")
 	else
@@ -944,6 +955,10 @@ GLOBAL_LIST_INIT(ventcrawl_machinery, list(/obj/machinery/atmospherics/unary/ven
 
 /mob/living/carbon/emp_act(severity)
 	..()
+	if(HAS_TRAIT(src, TRAIT_EMP_IMMUNE))
+		return
+	if(HAS_TRAIT(src, TRAIT_EMP_RESIST))
+		severity = clamp(severity, EMP_LIGHT, EMP_WEAKENED)
 	for(var/X in internal_organs)
 		var/obj/item/organ/internal/O = X
 		O.emp_act(severity)
@@ -994,7 +1009,7 @@ GLOBAL_LIST_INIT(ventcrawl_machinery, list(/obj/machinery/atmospherics/unary/ven
 
 	handcuffed = null
 	if(buckled && buckled.buckle_requires_restraints)
-		buckled.unbuckle_mob(src)
+		unbuckle()
 	update_handcuffed()
 
 	if(client)
@@ -1048,7 +1063,7 @@ GLOBAL_LIST_INIT(ventcrawl_machinery, list(/obj/machinery/atmospherics/unary/ven
 
 
 /mob/living/carbon/proc/slip(description, knockdown, tilesSlipped, walkSafely, slipAny, slipVerb = "slip")
-	if(flying || buckled || (walkSafely && m_intent == MOVE_INTENT_WALK))
+	if(HAS_TRAIT(src, TRAIT_FLYING) || buckled || (walkSafely && m_intent == MOVE_INTENT_WALK))
 		return FALSE
 
 	if(IS_HORIZONTAL(src) && !tilesSlipped)
@@ -1089,7 +1104,7 @@ GLOBAL_LIST_INIT(ventcrawl_machinery, list(/obj/machinery/atmospherics/unary/ven
 		return FALSE
 
 	var/fullness = nutrition + 10
-	if(istype(to_eat, /obj/item/food/snacks))
+	if(istype(to_eat, /obj/item/food))
 		for(var/datum/reagent/consumable/C in reagents.reagent_list) // We add the nutrition value of what we're currently digesting
 			fullness += C.nutriment_factor * C.volume / (C.metabolization_rate * metabolism_efficiency)
 
@@ -1201,11 +1216,13 @@ so that different stomachs can handle things in different ways VB*/
 /mob/living/carbon/proc/update_tint()
 	var/tinttotal = get_total_tint()
 	if(tinttotal >= TINT_BLIND)
-		overlay_fullscreen("tint", /atom/movable/screen/fullscreen/stretch/blind)
+		become_blind("tint")
 	else if(tinttotal >= TINT_IMPAIR)
 		overlay_fullscreen("tint", /atom/movable/screen/fullscreen/stretch/impaired, 2)
+		cure_blind("tint")
 	else
 		clear_fullscreen("tint", 0)
+		cure_blind("tint")
 
 /mob/living/carbon/proc/get_total_tint()
 	. = 0

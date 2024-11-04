@@ -129,7 +129,7 @@
 /// A simple helper for checking traits in a mob's mind
 #define HAS_MIND_TRAIT(target, trait) (istype(target, /datum/mind) ? HAS_TRAIT(target, trait) : (target.mind ? HAS_TRAIT(target.mind, trait) : FALSE))
 /// Gives a unique trait source for any given datum
-#define UNIQUE_TRAIT_SOURCE(target) "unique_source_[UID(target)]"
+#define UNIQUE_TRAIT_SOURCE(target) "unique_source_[target.UID()]"
 
 /*
 Remember to update _globalvars/traits.dm if you're adding/removing/renaming traits.
@@ -137,6 +137,7 @@ Remember to update _globalvars/traits.dm if you're adding/removing/renaming trai
 
 //***** MOB TRAITS *****//
 #define TRAIT_RESPAWNABLE		"can_respawn_as_ghost_roles"
+#define TRAIT_BEING_OFFERED     "offered"
 #define TRAIT_BLIND 			"blind"
 #define TRAIT_MUTE				"mute"
 #define TRAIT_DEAF				"deaf"
@@ -224,7 +225,7 @@ Remember to update _globalvars/traits.dm if you're adding/removing/renaming trai
 #define TRAIT_IPC_JOINTS_SEALED "ipc_joints_sealed" // The IPC's limbs will not pop off bar sharp damage (aka like a human), but will take slightly more stamina damage
 #define TRAIT_HAS_GPS "has_gps" // used for /Stat
 #define TRAIT_CAN_VIEW_HEALTH "can_view_health" // Also used for /Stat
-#define TRAIT_MAGPULSE "magnetificent" // Used for anything that is magboot related
+#define TRAIT_MAGPULSE "magpulse" // Used for anything that is magboot related
 #define TRAIT_NOSLIP "noslip"
 #define TRAIT_SCOPED "user_scoped"
 #define TRAIT_MEPHEDRONE_ADAPTED "mephedrone_adapted" // Trait that changes the ending effects of twitch leaving your system
@@ -236,7 +237,10 @@ Remember to update _globalvars/traits.dm if you're adding/removing/renaming trai
 #define TRAIT_NPC_ZOMBIE "npc_zombie" // A trait for checking if a zombie should act like an NPC and attack
 #define TRAIT_ABSTRACT_HANDS "abstract_hands" // Mobs with this trait can only pick up abstract items.
 #define TRAIT_LANGUAGE_LOCKED "language_locked" // cant add/remove languages until removed (excludes babel because fuck everything i guess)
-#define TRAIT_HAS_IV_BAG "iv_bag" // Used to check if there is an active IV bag. Currently blocks another IV bags from being inserted.
+#define TRAIT_EMP_IMMUNE "emp_immune" //The mob will take no damage from EMPs
+#define TRAIT_EMP_RESIST "emp_resist" //The mob will take less damage from EMPs
+#define TRAIT_MINDFLAYER_NULLIFIED "flayer_nullified" //The mindflayer will not be able to activate their abilities, or drain swarms from people
+#define TRAIT_FLYING "flying"
 
 //***** MIND TRAITS *****/
 #define TRAIT_HOLY "is_holy" // The mob is holy in regards to religion
@@ -244,6 +248,7 @@ Remember to update _globalvars/traits.dm if you're adding/removing/renaming trai
 #define TRAIT_NEVER_MISSES_DISPOSALS "trait_never_misses_disposals" // For janitors landing disposal throws
 #define TRAIT_SLEIGHT_OF_HAND "sleight_of_hand"
 #define TRAIT_KNOWS_COOKING_RECIPES "knows_cooking_recipes"
+#define TRAIT_XENOBIO_SPAWNED_HUMAN "xenobio_spawned_human" // The mob is from xenobio/cargo/botany that has evolved into their greater form. They do not give vampires usuble blood and cannot be converted by cult.
 
 /// used for dead mobs that are observing, but should not be afforded all the same platitudes as full ghosts.
 /// This is a mind trait because ghosts can be frequently deleted and we want to be sure this sticks.
@@ -268,12 +273,17 @@ Remember to update _globalvars/traits.dm if you're adding/removing/renaming trai
 #define TRAIT_NO_THROWN_MESSAGE "no_message_when_thrown"
 /// Makes the item not display a message on storage insertion
 #define TRAIT_SILENT_INSERTION "silent_insertion"
+/// Makes an item active, this is generally used by energy based weapons or toggle based items.
+#define TRAIT_ITEM_ACTIVE "item_active"
 
 /// A surgical tool; when in hand in help intent (and with a surgery in progress) won't attack the user
 #define TRAIT_SURGICAL			"surgical_tool"
 
 /// An advanced surgical tool. If a surgical tool has this flag, it will be able to automatically repeat steps until they succeed.
 #define TRAIT_ADVANCED_SURGICAL	"advanced_surgical"
+
+/// A surgical tool; If a surgical tool has this flag it can be used as an alternative to an open hand in surgery
+#define TRAIT_SURGICAL_OPEN_HAND "surgical_hand_alternative"
 
 /// Prevent mobs on the turf from being affected by anything below that turf, such as a pulse demon going under it. Added by a /obj/structure with creates_cover set to TRUE
 #define TRAIT_TURF_COVERED "turf_covered"
@@ -394,6 +404,7 @@ Remember to update _globalvars/traits.dm if you're adding/removing/renaming trai
 #define STATION_TRAIT_FORESTED "station_trait_forested"
 #define STATION_TRAIT_VENDING_SHORTAGE "station_trait_vending_shortage"
 #define STATION_TRAIT_MESSY "station_trait_messy"
+#define STATION_TRAIT_TRIAI "station_trait_triai"
 
 //***** TURF TRAITS *****//
 /// Removes slowdown while walking on these tiles.
@@ -405,3 +416,12 @@ Remember to update _globalvars/traits.dm if you're adding/removing/renaming trai
 //***** EFFECT TRAITS *****//
 // Causes the effect to go through a teleporter instead of being deleted by it.
 #define TRAIT_EFFECT_CAN_TELEPORT "trait_effect_can_teleport"
+
+//***** PROC WRAPPERS *****//
+/// Proc wrapper of add_trait. You should only use this for callback. Otherwise, use the macro.
+/proc/callback_add_trait(datum/target, trait, source)
+	ADD_TRAIT(target, trait, source)
+
+/// Proc wrapper of remove_trait. You should only use this for callback. Otherwise, use the macro.
+/proc/callback_remove_trait(datum/target, trait, source)
+	REMOVE_TRAIT(target, trait, source)

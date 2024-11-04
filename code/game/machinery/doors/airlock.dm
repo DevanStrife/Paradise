@@ -124,7 +124,7 @@ GLOBAL_LIST_EMPTY(airlock_emissive_underlays)
 		return TRUE
 	return FALSE
 
-/obj/machinery/door/airlock/Initialize()
+/obj/machinery/door/airlock/Initialize(mapload)
 	. = ..()
 	/*
 	About the new airlock wires panel:
@@ -201,9 +201,6 @@ GLOBAL_LIST_EMPTY(airlock_emissive_underlays)
 		else if(user.AmountHallucinate() > 50 SECONDS && prob(10) && !operating)
 			if(user.electrocute_act(50, src, flags = SHOCK_ILLUSION)) // We'll just go with a flat 50 damage, instead of doing powernet checks
 				return
-	..(user)
-
-/obj/machinery/door/airlock/bumpopen(mob/living/simple_animal/user)
 	..(user)
 
 /obj/machinery/door/airlock/proc/isElectrified()
@@ -763,7 +760,7 @@ GLOBAL_LIST_EMPTY(airlock_emissive_underlays)
 		if(user)
 			attack_ai(user)
 
-/obj/machinery/door/airlock/CanPass(atom/movable/mover, turf/target, height=0)
+/obj/machinery/door/airlock/CanPass(atom/movable/mover, turf/target)
 	if(istype(mover) && !locked)
 		if(mover.checkpass(PASSDOOR))
 			return TRUE
@@ -1534,8 +1531,7 @@ GLOBAL_LIST_EMPTY(airlock_emissive_underlays)
 		DA.polarized_glass = polarized_glass
 		DA.state = AIRLOCK_ASSEMBLY_NEEDS_ELECTRONICS
 		DA.created_name = name
-		DA.update_name()
-		DA.update_icon()
+		DA.update_appearance(UPDATE_NAME|UPDATE_ICON)
 
 		if(!disassembled)
 			if(DA)

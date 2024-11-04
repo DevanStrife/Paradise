@@ -35,7 +35,8 @@
 		/obj/effect/dummy/slaughter, //no bloodcrawlers into chasms.
 		/obj/effect/dummy/spell_jaunt, //No jaunters into chasms either.
 		/mob/living/simple_animal/hostile/megafauna, //failsafe
-		/obj/tgvehicle/scooter/skateboard/hoverboard
+		/obj/tgvehicle/scooter/skateboard/hoverboard,
+		/obj/machinery/light // lights hanging on walls shouldn't get chasm'd
 		))
 	var/drop_x = 1
 	var/drop_y = 1
@@ -129,7 +130,7 @@
 	//Flies right over the chasm
 	if(isliving(AM))
 		var/mob/living/M = AM
-		if(M.flying || M.floating)
+		if(HAS_TRAIT(M, TRAIT_FLYING) || M.floating)
 			return FALSE
 		if(istype(M.buckled, /obj/tgvehicle/scooter/skateboard/hoverboard))
 			return FALSE
@@ -162,7 +163,7 @@
 /turf/simulated/floor/chasm/straight_down
 	var/obj/effect/abstract/chasm_storage/storage
 
-/turf/simulated/floor/chasm/straight_down/Initialize()
+/turf/simulated/floor/chasm/straight_down/Initialize(mapload)
 	. = ..()
 	var/found_storage = FALSE
 	for(var/obj/effect/abstract/chasm_storage/C in contents)
@@ -186,7 +187,7 @@
 	light_power = 0.75
 	light_color = LIGHT_COLOR_LAVA //let's just say you're falling into lava, that makes sense right. Ignore the fact the people you pull out are not burning.
 
-/turf/simulated/floor/chasm/straight_down/lava_land_surface/Initialize()
+/turf/simulated/floor/chasm/straight_down/lava_land_surface/Initialize(mapload)
 	. = ..()
 	baseturf = /turf/simulated/floor/chasm/straight_down/lava_land_surface
 
@@ -272,10 +273,10 @@
 		playsound(ourturf, 'sound/effects/bang.ogg', 50, TRUE)
 		ourturf.visible_message("<span class='boldwarning'>[escapee] busts through [ourturf], leaping out of the chasm below!</span>")
 		ourturf.ChangeTurf(ourturf.baseturf)
-	escapee.flying = TRUE
+	ADD_TRAIT(escapee, TRAIT_FLYING, "chasm_escape")
 	escapee.forceMove(ourturf)
 	escapee.throw_at(get_edge_target_turf(ourturf, pick(GLOB.alldirs)), rand(2, 10), rand(2, 10))
-	escapee.flying = FALSE
+	REMOVE_TRAIT(escapee, TRAIT_FLYING, "chasm_escape")
 	escapee.Sleeping(20 SECONDS)
 
 /turf/simulated/floor/chasm/straight_down/lava_land_surface/normal_air
@@ -294,3 +295,51 @@
 	drop_y = y
 	var/list/target_z = levels_by_trait(SPAWN_RUINS)
 	drop_z = pick(target_z)
+
+/turf/simulated/floor/chasm/space_ruin
+	/// Used to keep count of how many times we checked if our target turf was valid.
+	var/times_turfs_checked = 0
+	/// List of all eligible Z levels.
+	var/list/target_z
+	/// Target turf that atoms will be teleported to.
+	var/turf/T
+
+/turf/simulated/floor/chasm/space_ruin/proc/pick_a_turf(atom/movable/AM)
+	if(times_turfs_checked <= 2)
+		target_z = levels_by_trait(SPAWN_RUINS)
+		target_z -= AM.z // excluding the one atom was already in from possible z levels
+		T = locate(rand(TRANSITIONEDGE + 1, world.maxx - TRANSITIONEDGE - 1), rand(TRANSITIONEDGE + 1, world.maxy - TRANSITIONEDGE - 1), pick(target_z))
+		check_turf(AM)
+	else
+		// If we still fail to pick a random valid turf after 2 attempts, we just send the atom to somewhere valid for certain
+		T = locate(TRANSITIONEDGE + 1, TRANSITIONEDGE + 1, pick(target_z))
+
+
+/turf/simulated/floor/chasm/space_ruin/proc/check_turf(atom/movable/AM)
+	times_turfs_checked++
+	if(istype(get_area(T), /area/space))
+		return
+	else
+		pick_a_turf(AM)
+
+/turf/simulated/floor/chasm/space_ruin/drop(atom/movable/AM)
+	//Make sure the item is still there after our sleep
+	if(!AM || QDELETED(AM))
+		return
+	falling_atoms[AM] = TRUE
+	pick_a_turf(AM)
+	if(T)
+		AM.visible_message("<span class='boldwarning'>[AM] falls into [src]!</span>", "<span class='userdanger'>GAH! Ah... where are you?</span>")
+		T.visible_message("<span class='boldwarning'>[AM] falls from above!</span>")
+		AM.forceMove(T)
+		if(isliving(AM))
+			var/mob/living/L = AM
+			L.Weaken(10 SECONDS)
+			L.adjustBruteLoss(30)
+		times_turfs_checked = 0 // We successfully teleported the atom, let's reset the count
+	falling_atoms -= AM
+
+/turf/simulated/floor/chasm/space_ruin/airless
+	oxygen = 0
+	nitrogen = 0
+	temperature = TCMB

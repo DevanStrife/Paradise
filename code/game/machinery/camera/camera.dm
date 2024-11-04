@@ -40,6 +40,8 @@
 	var/detectTime = 0
 	var/area/station/ai_monitored/area_motion = null
 	var/alarm_delay = 30 // Don't forget, there's another 3 seconds in queueAlarm()
+	/// If this camera doesnt add to camera chunks. Used by camera bugs.
+	var/non_chunking_camera = FALSE
 
 /obj/machinery/camera/Initialize(mapload, should_add_to_cameranet = TRUE)
 	. = ..()
@@ -72,6 +74,7 @@
 	kick_out_watchers()
 	QDEL_NULL(assembly)
 	QDEL_NULL(wires)
+	GLOB.cameranet.removeCamera(src)
 	GLOB.cameranet.cameras -= src
 	var/area/our_area = get_area(src)
 	if(our_area) // We should probably send out the warning alarms if this doesn't exist, because this should always have an area!

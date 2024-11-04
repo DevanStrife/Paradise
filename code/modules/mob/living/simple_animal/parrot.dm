@@ -49,7 +49,7 @@
 
 	speak_chance = 1//1% (1 in 100) chance every tick; So about once per 150 seconds, assuming an average tick is 1.5s
 	turns_per_move = 5
-	butcher_results = list(/obj/item/food/snacks/cracker = 3)
+	butcher_results = list(/obj/item/food/cracker = 3)
 
 	response_help = "pets"
 	response_disarm = "gently moves aside"
@@ -84,7 +84,7 @@
 
 	//Parrots are kleptomaniacs. This variable ... stores the item a parrot is holding.
 	var/obj/item/held_item = null
-	flying = TRUE
+	initial_traits = list(TRAIT_FLYING)
 	gold_core_spawnable = FRIENDLY_SPAWN
 
 /mob/living/simple_animal/parrot/New()

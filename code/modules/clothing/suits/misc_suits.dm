@@ -175,7 +175,7 @@
 	icon_state = "corgisuit"
 	item_state = "chickensuit"
 	body_parts_covered = UPPER_TORSO|ARMS|LOWER_TORSO|LEGS|FEET
-	flags_inv = HIDESHOES|HIDEJUMPSUIT
+	flags_inv = HIDEJUMPSUIT
 	dog_fashion = /datum/dog_fashion/back
 
 /obj/item/clothing/suit/corgisuit/en
@@ -1211,6 +1211,7 @@
 	gas_transfer_coefficient = 0.01
 	permeability_coefficient = 0.01
 	flags = STOPSPRESSUREDMAGE | THICKMATERIAL | NODROP
+	flags_2 = RAD_PROTECT_CONTENTS_2
 	body_parts_covered = UPPER_TORSO|LOWER_TORSO|LEGS|FEET|ARMS|HANDS|HEAD
 	armor = list(MELEE = INFINITY, BULLET = INFINITY, LASER = INFINITY, ENERGY = INFINITY, BOMB = INFINITY, RAD = INFINITY, FIRE = INFINITY, ACID = INFINITY)
 	cold_protection = UPPER_TORSO | LOWER_TORSO | LEGS | FEET | ARMS | HANDS | HEAD

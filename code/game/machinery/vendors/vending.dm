@@ -64,7 +64,6 @@
 	// List of vending_product items available.
 	var/list/product_records = list()
 	var/list/hidden_records = list()
-	var/list/imagelist = list()
 
 	/// Unimplemented list of ads that are meant to show up somewhere, but don't.
 	var/list/ads_list = list()
@@ -140,6 +139,9 @@
 	/// The category of this vendor. Used for announcing brand intelligence.
 	var/category = VENDOR_TYPE_GENERIC
 
+	/// How often will the vendor tip when you walk by it when aggressive is true?
+	var/aggressive_tilt_chance = 25
+
 /obj/machinery/economy/vending/Initialize(mapload)
 	. = ..()
 	var/build_inv = FALSE
@@ -157,10 +159,6 @@
 	if(build_inv) //non-constructable vending machine
 		build_inventory(products, product_records)
 		build_inventory(contraband, hidden_records)
-	for(var/datum/data/vending_product/R in (product_records + hidden_records))
-		var/obj/item/I = R.product_path
-		var/pp = replacetext(replacetext("[R.product_path]", "/obj/item/", ""), "/", "-")
-		imagelist[pp] = "[icon2base64(icon(initial(I.icon), initial(I.icon_state), SOUTH, 1))]"
 
 	if(LAZYLEN(slogan_list))
 		// So not all machines speak at the exact same time.
@@ -176,6 +174,8 @@
 	power_change()
 	RegisterSignal(src, COMSIG_MOVABLE_UNTILTED, PROC_REF(on_untilt))
 	RegisterSignal(src, COMSIG_MOVABLE_TRY_UNTILT, PROC_REF(on_try_untilt))
+	if(aggressive)
+		AddComponent(/datum/component/proximity_monitor)
 
 /obj/machinery/economy/vending/Destroy()
 	SStgui.close_uis(wires)
@@ -414,7 +414,10 @@
 	if(!aggressive || tilted || !tiltable)
 		return
 
-	if(isliving(AM) && prob(25))
+	if(isliving(AM) && prob(aggressive_tilt_chance))
+		var/mob/living/to_be_tipped = AM
+		if(to_be_tipped.incorporeal_move) // OooOooOoo spooky ghosts
+			return
 		AM.visible_message(
 			"<span class='danger'>[src] suddenly topples over onto [AM]!</span>",
 			"<span class='userdanger'>[src] topples over onto you without warning!</span>"
@@ -637,10 +640,12 @@
 	data["product_records"] = list()
 	var/i = 1
 	for(var/datum/data/vending_product/R in product_records)
+		var/obj/item = R.product_path
 		var/list/data_pr = list(
-			path = replacetext(replacetext("[R.product_path]", "/obj/item/", ""), "/", "-"),
 			name = R.name,
-			price = (R.product_path in prices) ? prices[R.product_path] : 0,
+			price = (item in prices) ? prices[item] : 0,
+			icon = item.icon,
+			icon_state = item.icon_state,
 			max_amount = R.max_amount,
 			is_hidden = FALSE,
 			inum = i++
@@ -648,17 +653,18 @@
 		data["product_records"] += list(data_pr)
 	data["hidden_records"] = list()
 	for(var/datum/data/vending_product/R in hidden_records)
+		var/obj/item = R.product_path
 		var/list/data_hr = list(
-			path = replacetext(replacetext("[R.product_path]", "/obj/item/", ""), "/", "-"),
 			name = R.name,
-			price = (R.product_path in prices) ? prices[R.product_path] : 0,
+			price = (item in prices) ? prices[item] : 0,
+			icon = item.icon,
+			icon_state = item.icon_state,
 			max_amount = R.max_amount,
 			is_hidden = TRUE,
 			inum = i++,
 			premium = TRUE
 		)
 		data["hidden_records"] += list(data_hr)
-	data["imagelist"] = imagelist
 	return data
 
 /obj/machinery/economy/vending/ui_act(action, params, datum/tgui/ui)

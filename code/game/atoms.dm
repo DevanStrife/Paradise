@@ -109,12 +109,12 @@
 	// Variables for bloom and exposure
 	var/glow_icon = 'icons/obj/lamps.dmi'
 	var/exposure_icon = 'icons/effects/exposures.dmi'
-	
+
 	var/glow_icon_state
 	var/glow_colored = TRUE
 	var/exposure_icon_state
 	var/exposure_colored = TRUE
-	
+
 	var/image/glow_overlay
 	var/image/exposure_overlay
 	/// The alternate appearances we own. Lazylist
@@ -159,6 +159,7 @@
 
 /atom/proc/Initialize(mapload, ...)
 	SHOULD_CALL_PARENT(TRUE)
+	SHOULD_NOT_SLEEP(TRUE)
 	if(initialized)
 		stack_trace("Warning: [src]([type]) initialized multiple times!")
 	initialized = TRUE
@@ -189,6 +190,7 @@
 
 //called if Initialize returns INITIALIZE_HINT_LATELOAD
 /atom/proc/LateInitialize()
+	SHOULD_NOT_SLEEP(TRUE)
 	return
 
 /atom/proc/onCentcom()
@@ -302,9 +304,6 @@
 /atom/proc/return_analyzable_air()
 	return null
 
-/atom/proc/check_eye(mob/user)
-	return
-
 /atom/proc/on_reagent_change()
 	return
 
@@ -341,7 +340,7 @@
  * Proc which will make the atom act accordingly to an EMP.
  * This proc can sleep depending on the implementation. So assume it sleeps!
  *
- * severity - The severity of the EMP. Either EMP_HEAVY or EMP_LIGHT
+ * severity - The severity of the EMP. Either EMP_HEAVY, EMP_LIGHT, or EMP_WEAKENED
  */
 /atom/proc/emp_act(severity)
 	SEND_SIGNAL(src, COMSIG_ATOM_EMP_ACT, severity)
@@ -489,11 +488,13 @@
 /// Updates the name of the atom
 /atom/proc/update_name(updates=ALL)
 	SHOULD_CALL_PARENT(TRUE)
+	PROTECTED_PROC(TRUE)
 	return SEND_SIGNAL(src, COMSIG_ATOM_UPDATE_NAME, updates)
 
 /// Updates the description of the atom
 /atom/proc/update_desc(updates=ALL)
 	SHOULD_CALL_PARENT(TRUE)
+	PROTECTED_PROC(TRUE)
 	return SEND_SIGNAL(src, COMSIG_ATOM_UPDATE_DESC, updates)
 
 /// Updates the icon of the atom
@@ -526,10 +527,12 @@
 
 /// Updates the icon state of the atom
 /atom/proc/update_icon_state()
+	PROTECTED_PROC(TRUE)
 	return
 
 /// Updates the overlays of the atom. It has to return a list of overlays if it can't call the parent to create one. The list can contain anything that would be valid for the add_overlay proc: Images, mutable appearances, icon states...
 /atom/proc/update_overlays()
+	PROTECTED_PROC(TRUE)
 	return list()
 
 /atom/proc/relaymove()
@@ -870,7 +873,7 @@ GLOBAL_LIST_EMPTY(blood_splatter_icons)
 /obj/effect/decal/cleanable/blood/splatter/transfer_mob_blood_dna(mob/living/L)
 	..(L)
 	var/list/b_data = L.get_blood_data(L.get_blood_id())
-	if(b_data)
+	if(b_data && !isnull(b_data["blood_color"]))
 		basecolor = b_data["blood_color"]
 	else
 		basecolor = "#A10808"
@@ -879,7 +882,7 @@ GLOBAL_LIST_EMPTY(blood_splatter_icons)
 /obj/effect/decal/cleanable/blood/footprints/transfer_mob_blood_dna(mob/living/L)
 	..(L)
 	var/list/b_data = L.get_blood_data(L.get_blood_id())
-	if(b_data)
+	if(b_data && !isnull(b_data["blood_color"]))
 		basecolor = b_data["blood_color"]
 	else
 		basecolor = "#A10808"
@@ -921,9 +924,22 @@ GLOBAL_LIST_EMPTY(blood_splatter_icons)
 		add_blood_overlay()
 	return TRUE //we applied blood to the item
 
-/obj/item/clothing/gloves/add_blood(list/blood_dna, b_color)
+/*
+	* This proc makes src gloves bloody, if you touch something with them you will leave a blood trace
+
+	* blood_dna: list of blood DNAs stored in each atom in blood_DNA variable or in get_blood_dna_list() on carbons
+	* b_color: blood color, simple. If there will be null, the blood will be red, otherwise the color you pass
+	* amount: amount of "blood charges" you want to give to the gloves, that will be used to make items/walls bloody.
+		You can make something bloody this amount - 1 times.
+		If this variable will be null, amount will be set randomly from 2 to max_amount
+	* max_amount: if amount is not set, amount will be random from 2 to this value, default 4
+*/
+/obj/item/clothing/gloves/add_blood(list/blood_dna, b_color, amount, max_amount = 4)
 	. = ..()
-	transfer_blood = rand(2, 4)
+	if(isnull(amount))
+		transfer_blood = rand(2, max_amount)
+	else
+		transfer_blood = max(1, amount)
 
 /turf/add_blood(list/blood_dna, b_color)
 	if(isnull(b_color))
@@ -990,7 +1006,7 @@ GLOBAL_LIST_EMPTY(blood_splatter_icons)
 	if(!QDELETED(healthy_green_glow))
 		healthy_green_glow.strength = max(0, (healthy_green_glow.strength - (RAD_BACKGROUND_RADIATION * clean_factor)))
 		if(healthy_green_glow.strength <= RAD_BACKGROUND_RADIATION)
-			qdel(healthy_green_glow)
+			healthy_green_glow.RemoveComponent()
 
 /obj/effect/decal/cleanable/blood/clean_blood(radiation_clean = FALSE)
 	return // While this seems nonsensical, clean_blood isn't supposed to be used like this on a blood decal.
@@ -1176,7 +1192,6 @@ GLOBAL_LIST_EMPTY(blood_splatter_icons)
 			update_light()
 		if("color")
 			add_atom_colour(color, ADMIN_COLOUR_PRIORITY)
-
 
 /atom/vv_get_dropdown()
 	. = ..()

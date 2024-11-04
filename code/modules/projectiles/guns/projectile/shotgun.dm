@@ -21,6 +21,8 @@
 
 /obj/item/gun/projectile/shotgun/examine(mob/user)
 	. = ..()
+	if(chambered)
+		. += "A [chambered.BB ? "live" : "spent"] one is in the chamber."
 	. += get_shotgun_info()
 
 /obj/item/gun/projectile/shotgun/proc/get_shotgun_info()
@@ -55,27 +57,24 @@
 	COOLDOWN_START(src, pump_cooldown, pump_time)
 
 /obj/item/gun/projectile/shotgun/proc/pump(mob/M)
+	if(QDELETED(M))
+		return
 	playsound(M, 'sound/weapons/gun_interactions/shotgunpump.ogg', 60, TRUE)
-	pump_unload(M)
-	pump_reload(M)
+	pump_unload()
+	pump_reload()
 
-/obj/item/gun/projectile/shotgun/proc/pump_unload(mob/M)
+/obj/item/gun/projectile/shotgun/proc/pump_unload()
 	if(chambered)//We have a shell in the chamber
 		chambered.forceMove(get_turf(src))
 		chambered.SpinAnimation(5, 1)
 		playsound(src, chambered.casing_drop_sound, 60, TRUE)
 		chambered = null
 
-/obj/item/gun/projectile/shotgun/proc/pump_reload(mob/M)
+/obj/item/gun/projectile/shotgun/proc/pump_reload()
 	if(!magazine.ammo_count())
 		return FALSE
 	var/obj/item/ammo_casing/AC = magazine.get_round() //load next casing.
 	chambered = AC
-
-/obj/item/gun/projectile/shotgun/examine(mob/user)
-	. = ..()
-	if(chambered)
-		. += "A [chambered.BB ? "live" : "spent"] one is in the chamber."
 
 /obj/item/gun/projectile/shotgun/lethal
 	mag_type = /obj/item/ammo_box/magazine/internal/shot/lethal
@@ -97,7 +96,7 @@
 		sawoff(user)
 	if(istype(A, /obj/item/melee/energy))
 		var/obj/item/melee/energy/W = A
-		if(W.active)
+		if(HAS_TRAIT(W, TRAIT_ITEM_ACTIVE))
 			sawoff(user)
 	if(istype(A, /obj/item/pipe))
 		unsaw(A, user)
@@ -109,7 +108,7 @@
 		to_chat(user, "<span class='warning'>[src] has already been shortened!</span>")
 		return
 	if(isstorage(loc))	//To prevent inventory exploits
-		to_chat(user, "<span class='info'>How do you plan to modify [src] while it's in a bag.</span>")
+		to_chat(user, "<span class='notice'>How do you plan to modify [src] while it's in a bag.</span>")
 		return
 	if(chambered)	//if the gun is chambering live ammo, shoot self, if chambering empty ammo, 'click'
 		if(chambered.BB)
@@ -150,7 +149,7 @@
 		to_chat(user, "<span class='warning'>[src] has not been shortened!</span>")
 		return
 	if(isstorage(loc))	//To prevent inventory exploits
-		to_chat(user, "<span class='info'>How do you plan to modify [src] while it's in a bag.</span>")
+		to_chat(user, "<span class='notice'>How do you plan to modify [src] while it's in a bag.</span>")
 		return
 	if(chambered)	//if the gun is chambering live ammo, shoot self, if chambering empty ammo, 'click'
 		if(chambered.BB)

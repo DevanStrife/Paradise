@@ -48,7 +48,7 @@
 	id = /obj/item/card/id/quartermaster
 	l_hand = /obj/item/clipboard
 	l_pocket = /obj/item/mail_scanner
-	pda = /obj/item/pda/quartermaster
+	pda = /obj/item/pda/heads/qm
 	backpack_contents = list(
 		/obj/item/melee/classic_baton/telescopic = 1
 	)
@@ -256,7 +256,10 @@
 	supervisors = "the head of personnel"
 	department_head = list("Head of Personnel")
 	selection_color = "#dddddd"
-	access = list(ACCESS_KITCHEN, ACCESS_MAINT_TUNNELS)
+	access = list(
+		ACCESS_KITCHEN,
+		ACCESS_MAINT_TUNNELS
+	)
 	alt_titles = list("Cook","Culinary Artist","Butcher")
 	outfit = /datum/outfit/job/chef
 
@@ -296,7 +299,11 @@
 	supervisors = "the head of personnel"
 	department_head = list("Head of Personnel")
 	selection_color = "#dddddd"
-	access = list(ACCESS_HYDROPONICS, ACCESS_MORGUE, ACCESS_MAINT_TUNNELS)
+	access = list(
+		ACCESS_HYDROPONICS,
+		ACCESS_MAINT_TUNNELS,
+		ACCESS_MORGUE
+	)
 	alt_titles = list("Hydroponicist", "Botanical Researcher")
 	outfit = /datum/outfit/job/hydro
 
@@ -330,7 +337,11 @@
 	supervisors = "the head of personnel"
 	department_head = list("Head of Personnel")
 	selection_color = "#dddddd"
-	access = list(ACCESS_CLOWN, ACCESS_THEATRE, ACCESS_MAINT_TUNNELS)
+	access = list(
+		ACCESS_CLOWN,
+		ACCESS_MAINT_TUNNELS,
+		ACCESS_THEATRE
+	)
 	outfit = /datum/outfit/job/clown
 
 /datum/outfit/job/clown
@@ -345,7 +356,7 @@
 	id = /obj/item/card/id/clown
 	pda = /obj/item/pda/clown
 	backpack_contents = list(
-		/obj/item/food/snacks/grown/banana = 1,
+		/obj/item/food/grown/banana = 1,
 		/obj/item/stamp/clown = 1,
 		/obj/item/toy/crayon/rainbow = 1,
 		/obj/item/storage/fancy/crayons = 1,
@@ -421,7 +432,11 @@
 	supervisors = "the head of personnel"
 	department_head = list("Head of Personnel")
 	selection_color = "#dddddd"
-	access = list(ACCESS_MIME, ACCESS_THEATRE, ACCESS_MAINT_TUNNELS)
+	access = list(
+		ACCESS_MAINT_TUNNELS,
+		ACCESS_MIME,
+		ACCESS_THEATRE
+	)
 	outfit = /datum/outfit/job/mime
 
 /datum/outfit/job/mime
@@ -455,12 +470,10 @@
 		uniform = /obj/item/clothing/under/rank/civilian/mime/sexy
 		suit = /obj/item/clothing/mask/gas/sexymime
 
-/datum/outfit/job/mime/pre_equip(mob/living/carbon/human/H, visualsOnly = FALSE)
-	. = ..()
 	if(visualsOnly)
 		return
 
-	qdel(H.GetComponent(/datum/component/footstep))
+	H.DeleteComponent(/datum/component/footstep)
 
 /datum/outfit/job/mime/on_mind_initialize(mob/living/carbon/human/H)
 	. = ..()
@@ -478,7 +491,10 @@
 	supervisors = "the head of personnel"
 	department_head = list("Head of Personnel")
 	selection_color = "#dddddd"
-	access = list(ACCESS_JANITOR, ACCESS_MAINT_TUNNELS)
+	access = list(
+		ACCESS_JANITOR,
+		ACCESS_MAINT_TUNNELS
+	)
 	alt_titles = list("Custodial Technician")
 	outfit = /datum/outfit/job/janitor
 
@@ -510,7 +526,10 @@
 	supervisors = "the head of personnel"
 	department_head = list("Head of Personnel")
 	selection_color = "#dddddd"
-	access = list(ACCESS_LIBRARY, ACCESS_MAINT_TUNNELS)
+	access = list(
+		ACCESS_LIBRARY,
+		ACCESS_MAINT_TUNNELS
+	)
 	alt_titles = list("Journalist")
 	outfit = /datum/outfit/job/librarian
 

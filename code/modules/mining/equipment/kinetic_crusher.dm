@@ -36,7 +36,7 @@
 
 /obj/item/kinetic_crusher/Initialize(mapload)
 	. = ..()
-	AddComponent(/datum/component/parry, _stamina_constant = 2, _stamina_coefficient = 0.7, _parryable_attack_types = MELEE_ATTACK, _parry_cooldown = (10 / 3) SECONDS ) // 2.3333 seconds of cooldown for 30% uptime
+	AddComponent(/datum/component/parry, _stamina_constant = 2, _stamina_coefficient = 0.7, _parryable_attack_types = MELEE_ATTACK, _parry_cooldown = (10 / 3) SECONDS, _requires_two_hands = TRUE) // 2.3333 seconds of cooldown for 30% uptime
 	AddComponent(/datum/component/two_handed, force_wielded = force_wielded, force_unwielded = force)
 
 /obj/item/kinetic_crusher/Destroy()
@@ -99,6 +99,10 @@
 	if(!QDELETED(C) && !QDELETED(target))
 		C.total_damage += target_health - target.health //we did some damage, but let's not assume how much we did
 
+/obj/item/kinetic_crusher/proc/get_turf_for_projectile(atom/user)
+	if(ismob(user) && isturf(user.loc))
+		return user.loc
+
 /obj/item/kinetic_crusher/afterattack(atom/target, mob/living/user, proximity_flag, clickparams)
 	. = ..()
 	if(!HAS_TRAIT(src, TRAIT_WIELDED))
@@ -112,7 +116,7 @@
 		user.remove_status_effect(STATUS_EFFECT_DASH)
 		return
 	if(!proximity_flag && charged)//Mark a target, or mine a tile.
-		var/turf/proj_turf = user.loc
+		var/turf/proj_turf = get_turf_for_projectile(user)
 		if(!isturf(proj_turf))
 			return
 		var/obj/item/projectile/destabilizer/D = new /obj/item/projectile/destabilizer(proj_turf)

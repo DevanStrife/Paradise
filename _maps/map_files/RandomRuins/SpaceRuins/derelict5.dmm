@@ -167,7 +167,7 @@
 /turf/simulated/floor/plasteel,
 /area/ruin/space/unpowered)
 "xs" = (
-/obj/effect/decal/cleanable/fungus,
+/obj/effect/spawner/random/fungus/frequent,
 /turf/simulated/floor/plasteel,
 /area/ruin/space/unpowered)
 "xQ" = (
@@ -279,10 +279,10 @@
 /area/ruin/space/unpowered)
 "SX" = (
 /obj/structure/table,
-/obj/item/food/snacks/beans{
+/obj/item/food/beans{
 	pixel_x = 10
 	},
-/obj/item/food/snacks/beans{
+/obj/item/food/beans{
 	pixel_x = -5
 	},
 /turf/simulated/floor/plasteel,

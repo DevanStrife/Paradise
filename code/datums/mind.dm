@@ -390,6 +390,21 @@
 	else
 		. += "thrall|<b>NO</b>"
 
+/datum/mind/proc/memory_edit_mind_flayer(mob/living/carbon/human/H)
+	. = _memory_edit_header("mind_flayer")
+	var/datum/antagonist/mindflayer/flayer = has_antag_datum(/datum/antagonist/mindflayer)
+	if(flayer)
+		. += "<b><font color='red'>MINDFLAYER</font></b>|<a href='byond://?src=[UID()];mind_flayer=clear'>no</a>"
+		. += " | Usable swarms: <a href='byond://?src=[UID()];mind_flayer=edit_total_swarms'>[flayer.usable_swarms]</a>"
+		. += " | Total swarms gathered: [flayer.total_swarms_gathered]"
+		. += " | List of purchased powers: [json_encode(flayer.powers)]"
+		if(!flayer.has_antag_objectives())
+			. += "<br>Objectives are empty! <a href='byond://?src=[UID()];mind_flayer=autoobjectives'>Randomize!</a>"
+	else
+		. += "<a href='byond://?src=[UID()];mind_flayer=mind_flayer'>mind_flayer</a>|<b>NO</b>"
+
+	. += _memory_edit_role_enabled(ROLE_MIND_FLAYER)
+
 /datum/mind/proc/memory_edit_nuclear(mob/living/carbon/human/H)
 	. = _memory_edit_header("nuclear")
 	if(src in SSticker.mode.syndicates)
@@ -537,6 +552,7 @@
 		"wizard",
 		"changeling",
 		"vampire", // "traitorvamp",
+		"mind_flayer",
 		"nuclear",
 		"traitor", // "traitorchan",
 	)
@@ -552,6 +568,8 @@
 		sections["changeling"] = memory_edit_changeling(H)
 		/** VAMPIRE ***/
 		sections["vampire"] = memory_edit_vampire(H)
+		/** MINDFLAYER ***/
+		sections["mind_flayer"] = memory_edit_mind_flayer(H)
 		/** NUCLEAR ***/
 		sections["nuclear"] = memory_edit_nuclear(H)
 		/** Abductors **/
@@ -595,8 +613,11 @@
 		if(sections[i])
 			out.Add(sections[i])
 
+	out.Add("<b>Organization:</b> ")
+	for(var/datum/antagonist/D in antag_datums)
+		if(D.organization)
+			out.Add("[D.organization.name]")
 	out.Add(memory_edit_uplink())
-
 	out.Add("<b>Memory:</b>")
 	out.Add(memory)
 	out.Add("<a href='byond://?src=[UID()];memory_edit=1'>Edit memory</a><br>")
@@ -1100,6 +1121,27 @@
 					log_admin("[key_name(usr)] has de-vampthralled [key_name(current)]")
 					message_admins("[key_name_admin(usr)] has de-vampthralled [key_name_admin(current)]")
 
+	else if(href_list["mind_flayer"])
+		switch(href_list["mind_flayer"])
+			if("clear")
+				if(has_antag_datum(/datum/antagonist/mindflayer))
+					remove_antag_datum(/datum/antagonist/mindflayer)
+					log_admin("[key_name(usr)] has de-flayer'd [key_name(current)].")
+					message_admins("[key_name(usr)] has de-flayer'd [key_name(current)].")
+			if("mind_flayer")
+				make_mind_flayer()
+				log_admin("[key_name(usr)] has flayer'd [key_name(current)].")
+				to_chat(current, "<b><font color='red'>You feel an entity stirring inside your chassis... You are a Mindflayer!</font></b>")
+				message_admins("[key_name(usr)] has flayer'd [key_name(current)].")
+			if("edit_total_swarms")
+				var/new_swarms = input(usr, "Select a new value:", "Modify swarms") as null|num
+				if(isnull(new_swarms) || new_swarms < 0)
+					return
+				var/datum/antagonist/mindflayer/MF = has_antag_datum(/datum/antagonist/mindflayer)
+				MF.set_swarms(new_swarms)
+				log_admin("[key_name(usr)] has set [key_name(current)]'s current swarms to [new_swarms].")
+				message_admins("[key_name_admin(usr)] has set [key_name_admin(current)]'s current swarms to [new_swarms].")
+
 	else if(href_list["nuclear"])
 		var/mob/living/carbon/human/H = current
 
@@ -1540,29 +1582,30 @@
  * Create and/or add the `datum_type_or_instance` antag datum to the src mind.
  *
  * Arguments:
- * * datum_type - an antag datum typepath or instance
+ * * antag_datum - an antag datum typepath or instance. If it's a typepath, it will create a new antag datum
  * * datum/team/team - the antag team that the src mind should join, if any
  */
-/datum/mind/proc/add_antag_datum(datum_type_or_instance, datum/team/team = null)
-	var/datum/antagonist/A
+/datum/mind/proc/add_antag_datum(datum_type_or_instance, datum/team/team)
+	var/datum/antagonist/antag_datum
 	if(!ispath(datum_type_or_instance))
-		A = datum_type_or_instance
-		if(!istype(A))
+		antag_datum = datum_type_or_instance
+		if(!istype(antag_datum))
 			return
 	else
-		A = new datum_type_or_instance()
-	if(!A.can_be_owned(src))
-		qdel(A)
+		antag_datum = new datum_type_or_instance()
+
+	if(!antag_datum.can_be_owned(src))
+		qdel(antag_datum)
 		return
-	A.owner = src
-	LAZYADD(antag_datums, A)
-	A.create_team(team)
-	var/datum/team/antag_team = A.get_team()
+	antag_datum.owner = src
+	LAZYADD(antag_datums, antag_datum)
+	antag_datum.create_team(team)
+	var/datum/team/antag_team = antag_datum.get_team()
 	if(antag_team)
 		antag_team.add_member(src)
-	ASSERT(A.owner && A.owner.current)
-	A.on_gain()
-	return A
+	ASSERT(antag_datum.owner && antag_datum.owner.current)
+	antag_datum.on_gain()
+	return antag_datum
 
 /**
  * Remove the specified `datum_type` antag datum from the src mind.
@@ -1681,6 +1724,11 @@
 		SSticker.mode.blob_overminds += src
 		special_role = SPECIAL_ROLE_BLOB_OVERMIND
 
+/datum/mind/proc/make_mind_flayer()
+	if(!has_antag_datum(/datum/antagonist/mindflayer))
+		add_antag_datum(/datum/antagonist/mindflayer)
+		SSticker.mode.mindflayers |= src
+
 /datum/mind/proc/make_Abductor()
 	var/role = alert("Abductor Role?", "Role", "Agent", "Scientist")
 	var/team = input("Abductor Team?", "Team?") in list(1,2,3,4)
@@ -1756,7 +1804,7 @@
 
 /datum/mind/proc/get_ghost(even_if_they_cant_reenter)
 	for(var/mob/dead/observer/G in GLOB.dead_mob_list)
-		if(G.mind == src)
+		if(G.mind == src && G.mind.key == G.key)
 			if(G.can_reenter_corpse || even_if_they_cant_reenter)
 				return G
 			break

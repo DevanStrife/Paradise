@@ -107,7 +107,9 @@
 		/obj/item/extinguisher/mini,
 		/obj/item/holosign_creator,
 		/obj/item/stack/nanopaste,
-		/obj/item/robotanalyzer)
+		/obj/item/robotanalyzer,
+		/obj/item/rpd/bluespace
+	)
 
 /obj/item/storage/belt/utility/full/populate_contents()
 	new /obj/item/screwdriver(src)
@@ -181,6 +183,11 @@
 	new /obj/item/multitool(src)
 	new /obj/item/stack/cable_coil(src, 30, COLOR_BLUE)
 	update_icon()
+
+/obj/item/storage/belt/utility/expedition/vendor
+
+/obj/item/storage/belt/utility/expedition/vendor/populate_contents()
+	return // only cool-looking belt, nothing more
 
 /obj/item/storage/belt/medical
 	name = "medical belt"
@@ -292,6 +299,7 @@
 	max_w_class = WEIGHT_CLASS_NORMAL
 	use_item_overlays = TRUE
 	can_hold = list(
+		/obj/item/radio,
 		/obj/item/grenade/flashbang,
 		/obj/item/grenade/chem_grenade/teargas,
 		/obj/item/reagent_containers/spray/pepper,
@@ -300,7 +308,7 @@
 		/obj/item/clothing/glasses,
 		/obj/item/ammo_casing/shotgun,
 		/obj/item/ammo_box,
-		/obj/item/food/snacks/donut,
+		/obj/item/food/donut,
 		/obj/item/kitchen/knife/combat,
 		/obj/item/melee/baton,
 		/obj/item/melee/classic_baton,
@@ -342,29 +350,9 @@
 	icon_state = "securitywebbing"
 	item_state = "securitywebbing"
 	storage_slots = 6
+	max_combined_w_class = 15
 	use_item_overlays = FALSE
 	layer_over_suit = TRUE
-	can_hold = list(
-		/obj/item/grenade/flashbang,
-		/obj/item/grenade/chem_grenade/teargas,
-		/obj/item/reagent_containers/spray/pepper,
-		/obj/item/restraints/handcuffs,
-		/obj/item/flash,
-		/obj/item/clothing/glasses,
-		/obj/item/ammo_casing/shotgun,
-		/obj/item/ammo_box,
-		/obj/item/food/snacks/donut,
-		/obj/item/kitchen/knife/combat,
-		/obj/item/melee/baton,
-		/obj/item/melee/classic_baton,
-		/obj/item/flashlight/seclite,
-		/obj/item/holosign_creator/security,
-		/obj/item/melee/classic_baton/telescopic,
-		/obj/item/restraints/legcuffs/bola,
-		/obj/item/clothing/mask/gas/sechailer,
-		/obj/item/detective_scanner,
-		/obj/item/ammo_box/magazine/wt550m9
-		)
 
 /obj/item/storage/belt/soulstone
 	name = "soul stone belt"
@@ -409,7 +397,8 @@
 		/obj/item/weldingtool,
 		/obj/item/wirecutters,
 		/obj/item/wrench,
-		/obj/item/multitool
+		/obj/item/multitool,
+		/obj/item/rpd/bluespace
 	)
 
 /obj/item/storage/belt/military/sst
@@ -482,6 +471,24 @@
 	icon_state = "assaultbelt"
 	item_state = "assault"
 	storage_slots = 6
+	w_class_override = list(
+		/obj/item/crowbar,
+		/obj/item/screwdriver,
+		/obj/item/weldingtool,
+		/obj/item/wirecutters,
+		/obj/item/wrench,
+		/obj/item/multitool,
+		/obj/item/ammo_box,
+		/obj/item/melee/baton,
+		/obj/item/melee/classic_baton,
+		/obj/item/detective_scanner
+	)
+
+/obj/item/storage/belt/military/assault/attackby(obj/item/I, mob/user)
+	if(I.w_class > WEIGHT_CLASS_NORMAL)
+		to_chat(user, "<span class='warning'>[I] is too big for [src].</span>")
+		return
+	return ..()
 
 /obj/item/storage/belt/military/assault/marines/full/populate_contents()
 	new /obj/item/ammo_box/magazine/m12g(src)
@@ -561,7 +568,7 @@
 /obj/item/storage/belt/lazarus
 	name = "trainer's belt"
 	desc = "For the mining master, holds your lazarus capsules."
-	icon_state = "lazarusbelt"
+	icon_state = "lazarusbelt_0"
 	item_state = "lazbelt"
 	w_class = WEIGHT_CLASS_BULKY
 	max_w_class = WEIGHT_CLASS_TINY
@@ -575,7 +582,7 @@
 	update_icon()
 
 /obj/item/storage/belt/lazarus/update_icon_state()
-	icon_state = "[initial(icon_state)]_[length(contents)]"
+	icon_state = "lazarusbelt_[length(contents)]"
 
 /obj/item/storage/belt/lazarus/attackby(obj/item/I, mob/user)
 	var/amount = length(contents)
@@ -591,7 +598,7 @@
 /obj/item/storage/belt/bandolier
 	name = "bandolier"
 	desc = "A bandolier for holding shotgun ammunition."
-	icon_state = "bandolier"
+	icon_state = "bandolier_0"
 	item_state = "bandolier"
 	storage_slots = 16
 	max_combined_w_class = 16
@@ -608,7 +615,7 @@
 		new /obj/item/ammo_casing/shotgun/rubbershot(src)
 
 /obj/item/storage/belt/bandolier/update_icon_state()
-	icon_state = "[initial(icon_state)]_[min(length(contents), 8)]"
+	icon_state = "bandolier_[min(length(contents), 8)]"
 
 /obj/item/storage/belt/bandolier/attackby(obj/item/I, mob/user)
 	var/amount = length(contents)
@@ -725,23 +732,19 @@
 	icon_state = "fannypack_yellow"
 	item_state = "fannypack_yellow"
 
-/obj/item/storage/belt/rapier
-	name = "rapier sheath"
-	desc = "Can hold rapiers."
+/obj/item/storage/belt/sheath
+	name = "sword sheath"
+	desc = "Can hold swords. If you see this, it is a bug. Please report this on GitHub."
 	icon_state = "sheath"
 	item_state = "sheath"
 	storage_slots = 1
 	w_class = WEIGHT_CLASS_BULKY
 	max_w_class = WEIGHT_CLASS_BULKY
-	can_hold = list(/obj/item/melee/rapier)
+	can_hold = list(/obj/item/melee/saber)
 	layer_over_suit = TRUE
 	large = TRUE
 
-/obj/item/storage/belt/rapier/populate_contents()
-	new /obj/item/melee/rapier(src)
-	update_icon()
-
-/obj/item/storage/belt/rapier/attack_hand(mob/user)
+/obj/item/storage/belt/sheath/attack_hand(mob/user)
 	if(loc != user)
 		return ..()
 
@@ -759,26 +762,59 @@
 	else
 		to_chat(user, "<span class='warning'>[src] is empty!</span>")
 
-/obj/item/storage/belt/rapier/handle_item_insertion(obj/item/W, mob/user, prevent_warning)
+/obj/item/storage/belt/sheath/handle_item_insertion(obj/item/W, mob/user, prevent_warning)
 	if(!..())
 		return
 	playsound(src, 'sound/weapons/blade_sheath.ogg', 20)
 
-/obj/item/storage/belt/rapier/remove_from_storage(obj/item/W, atom/new_location)
+/obj/item/storage/belt/sheath/remove_from_storage(obj/item/W, atom/new_location)
 	if(!..())
 		return
 	playsound(src, 'sound/weapons/blade_unsheath.ogg', 20)
 
-/obj/item/storage/belt/rapier/update_icon_state()
+/obj/item/storage/belt/sheath/update_icon_state()
 	if(length(contents))
-		icon_state = "[icon_state]-rapier"
-		item_state = "[item_state]-rapier"
+		icon_state = "[icon_state]-sword"
+		item_state = "[item_state]-sword"
 	else
 		icon_state = initial(icon_state)
 		item_state = initial(item_state)
 	if(isliving(loc))
 		var/mob/living/L = loc
 		L.update_inv_belt()
+
+/obj/item/storage/belt/sheath/saber
+	name = "saber sheath"
+	desc = "Can hold sabers."
+	icon_state = "sheath"
+	item_state = "sheath"
+	can_hold = list(/obj/item/melee/saber)
+
+/obj/item/storage/belt/sheath/saber/populate_contents()
+	new /obj/item/melee/saber(src)
+	update_appearance(UPDATE_ICON_STATE)
+
+/obj/item/storage/belt/sheath/snakesfang
+	name = "snakesfang scabbard"
+	desc = "Can hold scimitars."
+	icon_state = "snakesfangsheath"
+	item_state = "snakesfangsheath"
+	can_hold = list(/obj/item/melee/snakesfang)
+
+/obj/item/storage/belt/sheath/snakesfang/populate_contents()
+	new /obj/item/melee/snakesfang(src)
+	update_appearance(UPDATE_ICON_STATE)
+
+/obj/item/storage/belt/sheath/breach_cleaver
+	name = "breach cleaver scabbard"
+	desc = "Can hold massive cleavers."
+	icon_state = "breachcleaversheath"
+	item_state = "breachcleaversheath"
+	can_hold = list(/obj/item/melee/breach_cleaver)
+
+/obj/item/storage/belt/sheath/breach_cleaver/populate_contents()
+	new /obj/item/melee/breach_cleaver(src)
+	update_icon()
 
 // -------------------------------------
 //     Bluespace Belt
@@ -1007,6 +1043,6 @@
 		/obj/item/reagent_containers/drinks/bottle,
 		/obj/item/reagent_containers/drinks/cans,
 		/obj/item/reagent_containers/drinks/shaker,
-		/obj/item/food/snacks,
+		/obj/item/food,
 		/obj/item/reagent_containers/condiment,
 		/obj/item/reagent_containers/glass/beaker)

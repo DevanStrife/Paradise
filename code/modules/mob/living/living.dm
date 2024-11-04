@@ -1,4 +1,4 @@
-/mob/living/Initialize()
+/mob/living/Initialize(mapload)
 	. = ..()
 	var/datum/atom_hud/data/human/medical/advanced/medhud = GLOB.huds[DATA_HUD_MEDICAL_ADVANCED]
 	medhud.add_to_hud(src)
@@ -8,6 +8,9 @@
 	GLOB.mob_living_list += src
 	if(advanced_bullet_dodge_chance)
 		RegisterSignal(src, COMSIG_ATOM_PREHIT, PROC_REF(advanced_bullet_dodge))
+
+	for(var/initial_trait in initial_traits)
+		ADD_TRAIT(src, initial_trait, INNATE_TRAIT)
 
 // Used to determine the forces dependend on the mob size
 // Will only change the force if the force was not set in the mob type itself
@@ -293,26 +296,30 @@
 	if(stat == DEAD)
 		to_chat(src, "<span class='notice'>It's too late, you're already dead!</span>")
 		return
-	if(health >= HEALTH_THRESHOLD_CRIT)
+	if(health >= HEALTH_THRESHOLD_SUCCUMB)
 		to_chat(src, "<span class='warning'>You are unable to succumb to death! This life continues!</span>")
 		return
 
-	var/last_words = tgui_input_text(src, "Do you have any last words?", "Goodnight, Sweet Prince", encode = FALSE)
+	last_words = null // In case we kept some from last time
+	var/final_words = tgui_input_text(src, "Do you have any last words?", "Goodnight, Sweet Prince", encode = FALSE)
 
-	if(isnull(last_words) && cancel_on_no_words)
+	if(isnull(final_words) && cancel_on_no_words)
 		to_chat(src, "<span class='notice'>You decide you aren't quite ready to die.</span>")
 		return
 
 	if(stat == DEAD)
-		// cancel em out if they died while they had the message box up
-		last_words = null
+		return
 
-	if(!isnull(last_words))
+	if(health >= HEALTH_THRESHOLD_SUCCUMB)
+		to_chat(src, "<span class='warning'>You are unable to succumb to death! This life continues!</span>")
+		return
+
+	if(!isnull(final_words))
 		create_log(MISC_LOG, "gave their final words, [last_words]")
-		src.last_words = last_words  // sorry
-		whisper(last_words)
+		last_words = final_words
+		whisper(final_words)
 
-	add_attack_logs(src, src, "[src] has [!isnull(last_words) ? "whispered [p_their()] final words" : "succumbed to death"] with [round(health, 0.1)] points of health!")
+	add_attack_logs(src, src, "[src] has [!isnull(final_words) ? "whispered [p_their()] final words" : "succumbed to death"] with [round(health, 0.1)] points of health!")
 
 	create_log(MISC_LOG, "has succumbed to death with [round(health, 0.1)] points of health")
 	adjustOxyLoss(max(health - HEALTH_THRESHOLD_DEAD, 0))
@@ -322,7 +329,8 @@
 		if(health < HEALTH_THRESHOLD_DEAD)
 			break
 		take_overall_damage(max(5, health - HEALTH_THRESHOLD_DEAD), 0)
-	if(!isnull(last_words))
+
+	if(!isnull(final_words))
 		addtimer(CALLBACK(src, PROC_REF(death)), 1 SECONDS)
 	else
 		death()
@@ -331,7 +339,6 @@
 
 /mob/living/proc/InCritical()
 	return (health < HEALTH_THRESHOLD_CRIT && health > HEALTH_THRESHOLD_DEAD && stat == UNCONSCIOUS)
-
 
 /mob/living/ex_act(severity)
 	..()
@@ -355,6 +362,7 @@
 		return
 	health = maxHealth - getOxyLoss() - getToxLoss() - getFireLoss() - getBruteLoss() - getCloneLoss()
 
+	SEND_SIGNAL(src, COMSIG_LIVING_HEALTH_UPDATE)
 	update_stat("updatehealth([reason])")
 	med_hud_set_health()
 	med_hud_set_status()
@@ -533,7 +541,7 @@
 	on_fire = 0
 	suiciding = 0
 	if(buckled) //Unbuckle the mob and clear the alerts.
-		buckled.unbuckle_mob(src, force = TRUE)
+		unbuckle(force = TRUE)
 
 	if(iscarbon(src))
 		var/mob/living/carbon/C = src
@@ -798,6 +806,10 @@
 	END RESIST PROCS
 *///////////////////////
 
+/// Unbuckle the mob from whatever it is buckled to.
+/mob/living/proc/unbuckle(force)
+	buckled.unbuckle_mob(src, force)
+
 /mob/living/proc/Exhaust()
 	to_chat(src, "<span class='notice'>You're too exhausted to keep going...</span>")
 	Weaken(10 SECONDS)
@@ -815,7 +827,7 @@
 		clear_alert("weightless")
 	else
 		throw_alert("weightless", /atom/movable/screen/alert/weightless)
-	if(!flying)
+	if(!HAS_TRAIT(src, TRAIT_FLYING))
 		float(!has_gravity)
 
 /mob/living/proc/float(on)
@@ -826,8 +838,7 @@
 		fixed = TRUE
 	if(on && !floating && !fixed)
 		animate(src, pixel_y = pixel_y + 2, time = 10, loop = -1)
-		sleep(10)
-		animate(src, pixel_y = pixel_y - 2, time = 10, loop = -1)
+		animate(pixel_y = pixel_y - 2, time = 10, loop = -1)
 		floating = TRUE
 	else if(((!on || fixed) && floating))
 		animate(src, pixel_y = get_standard_pixel_y_offset(), time = 10)
@@ -1002,6 +1013,7 @@
 		return
 	if(SEND_SIGNAL(src, COMSIG_LIVING_TRY_PULL, AM, force) & COMSIG_LIVING_CANCEL_PULL)
 		return FALSE
+
 	// If we're pulling something then drop what we're currently pulling and pull this instead.
 	AM.add_fingerprint(src)
 	if(pulling)
@@ -1056,11 +1068,13 @@
 	amount -= RAD_BACKGROUND_RADIATION // This will always be at least 1 because of how skin protection is calculated
 
 	var/blocked = getarmor(null, RAD)
-
+	if(blocked == INFINITY) // Full protection, go no further.
+		return
 	if(amount > RAD_BURN_THRESHOLD)
 		apply_damage(RAD_BURN_CURVE(amount), BURN, null, blocked)
 
-	apply_effect((amount * RAD_MOB_COEFFICIENT) / max(1, (radiation ** 2) * RAD_OVERDOSE_REDUCTION), IRRADIATE, blocked)
+
+	apply_effect((amount * RAD_MOB_COEFFICIENT) / max(1, (radiation ** 2) * RAD_OVERDOSE_REDUCTION), IRRADIATE, ARMOUR_VALUE_TO_PERCENTAGE(blocked))
 
 /mob/living/proc/fakefireextinguish()
 	return
@@ -1084,8 +1098,6 @@
 				GLOB.dead_mob_list += src
 	. = ..()
 	switch(var_name)
-		if("maxHealth")
-			updatehealth()
 		if("resize")
 			update_transform()
 		if("lighting_alpha")
@@ -1093,13 +1105,17 @@
 		if("advanced_bullet_dodge_chance")
 			UnregisterSignal(src, COMSIG_ATOM_PREHIT)
 			RegisterSignal(src, COMSIG_ATOM_PREHIT, PROC_REF(advanced_bullet_dodge))
+		if("maxHealth")
+			updatehealth("var edit")
+		if("resize")
+			update_transform()
 
 /mob/living/throw_at(atom/target, range, speed, mob/thrower, spin, diagonals_first, datum/callback/callback, force, dodgeable, block_movement)
 	stop_pulling()
 	return ..()
 
 /mob/living/hit_by_thrown_mob(mob/living/C, datum/thrownthing/throwingdatum, damage, mob_hurt, self_hurt)
-	if(C == src || flying || !density)
+	if(C == src || HAS_TRAIT(src, TRAIT_FLYING) || !density)
 		return
 	playsound(src, 'sound/weapons/punch1.ogg', 50, 1)
 	if(mob_hurt)
@@ -1110,8 +1126,15 @@
 		C.adjustBruteLoss(damage)
 		C.Weaken(3 SECONDS)
 	else
-		C.take_organ_damage(damage)
+		var/obj/item/organ/external/affecting = C.get_organ(ran_zone(throwingdatum.target_zone))
+		if(affecting)
+			var/armor_block = C.run_armor_check(affecting, MELEE)
+			C.apply_damage(damage, BRUTE, affecting, armor_block)
+		else
+			C.take_organ_damage(damage)
+
 		C.KnockDown(3 SECONDS)
+
 	C.visible_message("<span class='danger'>[C] crashes into [src], knocking them both over!</span>", "<span class='userdanger'>You violently crash into [src]!</span>")
 
 /**
@@ -1160,3 +1183,7 @@
 	if(istype(mover, /obj/singularity/energy_ball))
 		dust()
 	return ..()
+
+/// Can a mob interact with the apc remotely like a pulse demon, cyborg, or AI?
+/mob/living/proc/can_remote_apc_interface(obj/machinery/power/apc/ourapc)
+	return FALSE

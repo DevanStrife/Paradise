@@ -77,6 +77,19 @@
 	T.flags |= NO_LAVA_GEN
 	..()
 
+/obj/effect/mapping_helpers/lava_magnet
+	name = "lava magnet"
+	icon_state = "lava_magnet"
+	layer = ON_EDGED_TURF_LAYER
+
+/obj/effect/mapping_helpers/lava_magnet/New()
+	. = ..()
+
+	var/turf/T = get_turf(src)
+	if(istype(T) && T.z == level_name_to_num(MINING))
+		var/obj/effect/landmark/river_waypoint/waypoint = new(T)
+		GLOB.river_waypoint_presets += waypoint
+
 /obj/effect/mapping_helpers/airlock
 	layer = DOOR_HELPER_LAYER
 	late = TRUE
@@ -84,18 +97,26 @@
 
 /obj/effect/mapping_helpers/airlock/Initialize(mapload)
 	. = ..()
+
 	if(!mapload)
 		log_world("[src] spawned outside of mapload!")
-		return
+		return INITIALIZE_HINT_QDEL
 
-	if(!(locate(/obj/machinery/door) in get_turf(src)))
-		log_world("[src] failed to find an airlock at [AREACOORD(src)]")
+/obj/effect/mapping_helpers/airlock/LateInitialize()
+	. = ..()
 
+	var/list/valid_airlocks = list()
 	for(var/obj/machinery/door/D in get_turf(src))
 		if(!is_type_in_list(D, blacklist))
-			payload(D)
+			valid_airlocks += D
 
-	return INITIALIZE_HINT_QDEL
+	if(length(valid_airlocks))
+		for(var/obj/machinery/door/D in valid_airlocks)
+			payload(D)
+	else
+		log_world("[src] failed to find any valid airlocks at [AREACOORD(src)]")
+
+	qdel(src)
 
 /obj/effect/mapping_helpers/airlock/proc/payload(obj/machinery/door/airlock/payload)
 	return

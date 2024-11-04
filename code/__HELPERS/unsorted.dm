@@ -20,6 +20,21 @@
 
 	return 0
 
+/*
+* For getting coordinate signs from a direction define. I.E. NORTHWEST is (-1,1), SOUTH is (0,-1)
+* Returns a length 2 list where the first value is the sign of x, and the second is the sign of y
+*/
+/proc/get_signs_from_direction(direction)
+	var/x_sign = 1
+	var/y_sign = 1
+	x_sign = ((direction & EAST) ? 1 : -1)
+	y_sign = ((direction & NORTH) ? 1 : -1)
+	if(DIR_JUST_VERTICAL(direction))
+		x_sign = 0
+	if(DIR_JUST_HORIZONTAL(direction))
+		y_sign = 0
+	return list(x_sign, y_sign)
+
 //Returns the middle-most value
 /proc/dd_range(low, high, num)
 	return max(low,min(high,num))
@@ -183,8 +198,7 @@
 	var/current_y_step = starting_atom.y
 	var/starting_z = starting_atom.z
 
-	var/list/line = list(get_step(starting_atom, 0))//get_turf(atom) is faster than locate(x, y, z) //Get turf isn't defined yet so we use get step
-
+	var/list/line = list(get_turf(starting_atom))
 	var/x_distance = ending_atom.x - current_x_step //x distance
 	var/y_distance = ending_atom.y - current_y_step
 
@@ -1037,19 +1051,25 @@ Returns 1 if the chain up to the area contains the given typepath
 
 
 /proc/parse_zone(zone)
-	if(zone == "r_hand") return "right hand"
-	else if(zone == "l_hand") return "left hand"
-	else if(zone == "l_arm") return "left arm"
-	else if(zone == "r_arm") return "right arm"
-	else if(zone == "l_leg") return "left leg"
-	else if(zone == "r_leg") return "right leg"
-	else if(zone == "l_foot") return "left foot"
-	else if(zone == "r_foot") return "right foot"
-	else if(zone == "l_hand") return "left hand"
-	else if(zone == "r_hand") return "right hand"
-	else if(zone == "l_foot") return "left foot"
-	else if(zone == "r_foot") return "right foot"
-	else return zone
+	switch(zone)
+		if("r_hand")
+			return "right hand"
+		if("l_hand")
+			return "left hand"
+		if("r_arm")
+			return "right arm"
+		if("l_arm")
+			return "left arm"
+		if("r_foot")
+			return "right foot"
+		if("l_foot")
+			return "left foot"
+		if("r_leg")
+			return "right leg"
+		if("l_leg")
+			return "left leg"
+		else
+			return zone
 
 /*
 
@@ -1135,41 +1155,23 @@ Checks if that loc and dir has a item on the wall
 */
 GLOBAL_LIST_INIT(wall_items, typecacheof(list(/obj/machinery/power/apc, /obj/machinery/alarm,
 	/obj/item/radio/intercom, /obj/structure/extinguisher_cabinet, /obj/structure/reagent_dispensers/peppertank,
-	/obj/machinery/status_display, /obj/machinery/requests_console, /obj/machinery/light_switch, /obj/structure/sign,
+	/obj/machinery/status_display, /obj/machinery/requests_console, /obj/structure/sign,
 	/obj/machinery/newscaster, /obj/machinery/firealarm, /obj/structure/noticeboard, /obj/machinery/door_control,
 	/obj/machinery/computer/security/telescreen, /obj/machinery/airlock_controller,
 	/obj/item/storage/secure/safe, /obj/machinery/door_timer, /obj/machinery/flasher, /obj/machinery/keycard_auth,
 	/obj/structure/mirror, /obj/structure/closet/fireaxecabinet, /obj/machinery/computer/security/telescreen/entertainment,
-	/obj/structure/sign, /obj/machinery/barsign)))
+	/obj/structure/sign, /obj/machinery/barsign, /obj/machinery/light, /obj/machinery/light_construct)))
 
 /proc/gotwallitem(loc, dir)
 	for(var/obj/O in loc)
-		if(is_type_in_typecache(O, GLOB.wall_items))
-			//Direction works sometimes
-			if(O.dir == dir)
-				return 1
+		if(is_type_in_typecache(O, GLOB.wall_items) && dir == O.dir)
+			return TRUE
 
-			//Some stuff doesn't use dir properly, so we need to check pixel instead
-			switch(dir)
-				if(SOUTH)
-					if(O.pixel_y > 10)
-						return 1
-				if(NORTH)
-					if(O.pixel_y < -10)
-						return 1
-				if(WEST)
-					if(O.pixel_x > 10)
-						return 1
-				if(EAST)
-					if(O.pixel_x < -10)
-						return 1
-
-	//Some stuff is placed directly on the wallturf (signs)
+	// Some stuff is placed directly on the wallturf (signs)
 	for(var/obj/O in get_step(loc, dir))
 		if(is_type_in_typecache(O, GLOB.wall_items))
-			if(abs(O.pixel_x) <= 10 && abs(O.pixel_y) <= 10)
-				return 1
-	return 0
+			return TRUE
+	return FALSE
 
 /proc/atan2(x, y)
 	if(!x && !y) return 0
@@ -1868,9 +1870,6 @@ GLOBAL_DATUM_INIT(dview_mob, /mob/dview, new)
 			continue
 		. += A
 
-/proc/pass()
-	return
-
 /atom/proc/Shake(pixelshiftx = 15, pixelshifty = 15, duration = 250)
 	var/initialpixelx = pixel_x
 	var/initialpixely = pixel_y
@@ -1921,9 +1920,9 @@ GLOBAL_DATUM_INIT(dview_mob, /mob/dview, new)
 
 /proc/log_connection(ckey, ip, cid, connection_type)
 	ASSERT(connection_type in list(CONNECTION_TYPE_ESTABLISHED, CONNECTION_TYPE_DROPPED_IPINTEL, CONNECTION_TYPE_DROPPED_BANNED, CONNECTION_TYPE_DROPPED_INVALID))
-	var/datum/db_query/query_accesslog = SSdbcore.NewQuery("INSERT INTO connection_log (`datetime`, `ckey`, `ip`, `computerid`, `result`, `server_id`) VALUES(Now(), :ckey, :ip, :cid, :result, :server_id)", list(
+	var/datum/db_query/query_accesslog = SSdbcore.NewQuery("INSERT INTO connection_log (`datetime`, `ckey`, `ip`, `computerid`, `result`, `server_id`) VALUES(Now(), :ckey, INET_ATON(:ip), :cid, :result, :server_id)", list(
 		"ckey" = ckey,
-		"ip" = "[ip ? ip : ""]", // This is important. NULL is not the same as "", and if you directly open the `.dmb` file, you get a NULL IP.
+		"ip" = "[ip ? ip : "127.0.0.1"]",
 		"cid" = cid,
 		"result" = connection_type,
 		"server_id" = GLOB.configuration.system.instance_id
@@ -1965,6 +1964,8 @@ GLOBAL_DATUM_INIT(dview_mob, /mob/dview, new)
 			return "Radio Noise"
 		if(CHANNEL_BOSS_MUSIC)
 			return "Boss Music"
+		if(CHANNEL_SURGERY_SOUNDS)
+			return "Surgery Sounds"
 
 /proc/slot_bitfield_to_slot(input_slot_flags) // Kill off this garbage ASAP; slot flags and clothing flags should be IDENTICAL. GOSH DARN IT. Doesn't work with ears or pockets, either.
 	switch(input_slot_flags)

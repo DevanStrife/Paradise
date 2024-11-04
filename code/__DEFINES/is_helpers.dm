@@ -1,6 +1,8 @@
 // Datums
 #define isdatum(thing) (istype(thing, /datum))
 
+#define isspell(A) (istype(A, /datum/spell))
+
 // Atoms
 #define isatom(A) (isloc(A))
 
@@ -49,6 +51,8 @@
 #define isitem(A) (istype(A, /obj/item))
 
 #define ismachinery(A) (istype(A, /obj/machinery))
+
+#define isairlock(A) (istype(A, /obj/machinery/door))
 
 #define isapc(A) (istype(A, /obj/machinery/power/apc))
 

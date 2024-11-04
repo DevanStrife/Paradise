@@ -97,9 +97,9 @@ GLOBAL_LIST_EMPTY(PDAs)
 
 /obj/item/pda/examine(mob/user)
 	. = ..()
-	. += "<span class='info'><b>Alt-Click</b> [src] to remove its ID card.</span>"
-	. += "<span class='info'><b>Ctrl-Click</b> [src] to remove its pen.</span>"
-	. += "<span class='info'>Use a screwdriver on [src] to reset it.</span>"
+	. += "<span class='notice'><b>Alt-Click</b> [src] to remove its ID card.</span>"
+	. += "<span class='notice'><b>Ctrl-Click</b> [src] to remove its pen.</span>"
+	. += "<span class='notice'>Use a screwdriver on [src] to reset it.</span>"
 
 /obj/item/pda/proc/can_use()
 	if(!ismob(loc))
@@ -160,8 +160,12 @@ GLOBAL_LIST_EMPTY(PDAs)
 	. = ..()
 	if(id)
 		. += image('icons/goonstation/objects/pda_overlay.dmi', id.icon_state)
+
 	if(length(notifying_programs))
-		. += image('icons/obj/pda.dmi', "pda-r")
+		if(icon_state == "pda-library")
+			. += image('icons/obj/pda.dmi', "pda-r-library")
+		else
+			. += image('icons/obj/pda.dmi', "pda-r")
 
 /obj/item/pda/proc/close(mob/user)
 	SStgui.close_uis(src)

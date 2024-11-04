@@ -27,6 +27,8 @@
 	var/obj/item/mod/armor/armor_type_2 = null
 	/// Resistance flags shared across the MOD parts.
 	var/resistance_flags = NONE
+	/// Flag_2 flags to apply to the modsuit parts.
+	var/flag_2_flags = NONE
 	/// Atom flags shared across the MOD parts.
 	var/atom_flags = NONE
 	/// Max heat protection shared across the MOD parts.
@@ -230,6 +232,7 @@
 	default_skin = "advanced"
 	armor_type_1 = /obj/item/mod/armor/mod_theme_advanced
 	resistance_flags = FIRE_PROOF
+	flag_2_flags = RAD_PROTECT_CONTENTS_2
 	max_heat_protection_temperature = FIRE_IMMUNITY_MAX_TEMP_PROTECT
 	complexity_max = DEFAULT_MAX_COMPLEXITY - 3
 	charge_drain = DEFAULT_CHARGE_DRAIN * 1.5
@@ -913,7 +916,7 @@
 		All rights reserved, tampering with suit will void warranty."
 	default_skin = "syndicate"
 	armor_type_1 = /obj/item/mod/armor/mod_theme_syndicate
-
+	flag_2_flags = RAD_PROTECT_CONTENTS_2
 	max_heat_protection_temperature = FIRE_SUIT_MAX_TEMP_PROTECT
 	siemens_coefficient = 0
 	slowdown_inactive = 1
@@ -1001,6 +1004,7 @@
 	default_skin = "elite"
 	armor_type_1 = /obj/item/mod/armor/mod_theme_elite
 	resistance_flags = FIRE_PROOF | ACID_PROOF
+	flag_2_flags = RAD_PROTECT_CONTENTS_2
 	max_heat_protection_temperature = FIRE_IMMUNITY_MAX_TEMP_PROTECT
 	siemens_coefficient = 0
 	slowdown_inactive = 1
@@ -1109,17 +1113,19 @@
 	armor = list(MELEE = 20, BULLET = 5, LASER = 10, ENERGY = 10, BOMB = 50, RAD = 50, FIRE = 150, ACID = 150)
 
 /datum/mod_theme/responsory
-	name = "responsory"
-	desc = "A high-speed rescue suit by Nanotrasen, intended for its' emergency response teams."
-	extended_desc = "A streamlined suit of Nanotrasen design, these sleek black suits are only worn by \
-		elite emergency response personnel to help save the day. While the slim and nimble design of the suit \
-		cuts the ceramics and ablatives in it down, dropping the protection, \
-		it keeps the wearer safe from the harsh void of space while sacrificing no speed whatsoever. \
-		While wearing it you feel an extreme deference to darkness. "
+	name = "\improper 'Ward' responsory"
+	desc = "A high-tech combat modsuit designed and produced by Nanotrasen. Well armored, environmentally sealed, and outfitted with all manner of useful gadgetry. \
+		The pinnacle of corporate security hardware."
+	extended_desc = "A streamlined suit of powered armor produced entirely in-house by the Nanotrasen Corporation, the NA-22 'Ward' rapid response suit is one of the finest combat modsuits available on the market today. \
+		Equipped with a fire-resistant polybenzimidazole bodyglove and lightweight nano-polymer impact panels underneath a steel armored shell, the NA-22 offers reliable protection \
+		while retaining combat mobility. Internally, the NA-22 comes pre-loaded with NTOS-11 on a five-year subscription, which enables unparallelled customization options in conjunction \
+		with the Ward's unusually generous design specifications. Naturally, the NA-22 has a price tag to match its quality, and is thus only found within Nanotrasen's \
+		personal response units, as well as among the wealthiest of Sector PMCs and mercenary groups."
 	default_skin = "responsory"
 	armor_type_1 = /obj/item/mod/armor/mod_theme_responsory
 
 	resistance_flags = FIRE_PROOF
+	flag_2_flags = RAD_PROTECT_CONTENTS_2
 	max_heat_protection_temperature = FIRE_IMMUNITY_MAX_TEMP_PROTECT
 	siemens_coefficient = 0
 	slowdown_inactive = 0.5
@@ -1201,6 +1207,7 @@
 	default_skin = "apocryphal"
 	armor_type_1 = /obj/item/mod/armor/mod_theme_apocryphal
 	resistance_flags = FIRE_PROOF | ACID_PROOF
+	flag_2_flags = RAD_PROTECT_CONTENTS_2
 	ui_theme = "malfunction"
 	max_heat_protection_temperature = FIRE_IMMUNITY_MAX_TEMP_PROTECT
 	siemens_coefficient = 0
@@ -1257,7 +1264,7 @@
 	default_skin = "corporate"
 	armor_type_1 = /obj/item/mod/armor/mod_theme_corporate
 	resistance_flags = FIRE_PROOF | ACID_PROOF
-
+	flag_2_flags = RAD_PROTECT_CONTENTS_2
 	max_heat_protection_temperature = FIRE_IMMUNITY_MAX_TEMP_PROTECT
 	siemens_coefficient = 0
 	slowdown_inactive = 0.5
@@ -1310,7 +1317,7 @@
 	default_skin = "debug"
 	armor_type_1 = /obj/item/mod/armor/mod_theme_debug
 	resistance_flags = FIRE_PROOF | ACID_PROOF
-
+	flag_2_flags = RAD_PROTECT_CONTENTS_2
 	max_heat_protection_temperature = FIRE_SUIT_MAX_TEMP_PROTECT
 	complexity_max = 50
 	siemens_coefficient = 0
@@ -1362,7 +1369,7 @@
 	default_skin = "debug"
 	armor_type_1 = /obj/item/mod/armor/mod_theme_administrative
 	resistance_flags = INDESTRUCTIBLE | LAVA_PROOF | FIRE_PROOF | UNACIDABLE | ACID_PROOF
-
+	flag_2_flags = RAD_PROTECT_CONTENTS_2
 	max_heat_protection_temperature = FIRE_IMMUNITY_MAX_TEMP_PROTECT
 	complexity_max = 1000
 	charge_drain = DEFAULT_CHARGE_DRAIN * 0

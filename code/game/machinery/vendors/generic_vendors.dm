@@ -249,7 +249,6 @@
 					"Dont carry your size? How about you shave off some pounds you fat lazy- *BZZT*")
 
 	products = list(/obj/item/clothing/under/color/black = 10,
-					/obj/item/clothing/under/dress/blackskirt = 10,
 					/obj/item/clothing/under/color/grey = 10,
 					/obj/item/clothing/under/color/white = 10,
 					/obj/item/clothing/under/color/darkred = 10,
@@ -269,11 +268,34 @@
 					/obj/item/clothing/under/color/purple = 10,
 					/obj/item/clothing/under/color/lightpurple = 10,
 					/obj/item/clothing/under/color/pink = 10,
+					/obj/item/clothing/under/dress/blackskirt = 10,
+					/obj/item/clothing/under/color/jumpskirt/black = 10,
+					/obj/item/clothing/under/color/jumpskirt/grey = 10,
+					/obj/item/clothing/under/color/jumpskirt/white = 10,
+					/obj/item/clothing/under/color/jumpskirt/darkred = 10,
+					/obj/item/clothing/under/color/jumpskirt/red = 10,
+					/obj/item/clothing/under/color/jumpskirt/lightred = 10,
+					/obj/item/clothing/under/color/jumpskirt/brown = 10,
+					/obj/item/clothing/under/color/jumpskirt/orange = 10,
+					/obj/item/clothing/under/color/jumpskirt/lightbrown = 10,
+					/obj/item/clothing/under/color/jumpskirt/yellow = 10,
+					/obj/item/clothing/under/color/jumpskirt/yellowgreen = 10,
+					/obj/item/clothing/under/color/jumpskirt/lightgreen = 10,
+					/obj/item/clothing/under/color/jumpskirt/green = 10,
+					/obj/item/clothing/under/color/jumpskirt/aqua = 10,
+					/obj/item/clothing/under/color/jumpskirt/darkblue = 10,
+					/obj/item/clothing/under/color/jumpskirt/blue = 10,
+					/obj/item/clothing/under/color/jumpskirt/lightblue = 10,
+					/obj/item/clothing/under/color/jumpskirt/purple = 10,
+					/obj/item/clothing/under/color/jumpskirt/lightpurple = 10,
+					/obj/item/clothing/under/color/jumpskirt/pink = 10,
+					/obj/item/clothing/under/color/jumpskirt/rainbow = 1,
 					/obj/item/clothing/under/color/rainbow = 1)
 
 	contraband = list(/obj/item/clothing/under/syndicate/tacticool = 5,
 					/obj/item/clothing/under/syndicate/greyman = 5,
-					/obj/item/clothing/under/color/orange/prison = 5)
+					/obj/item/clothing/under/color/orange/prison = 10,
+					/obj/item/clothing/under/color/jumpskirt/orange/prison = 10)
 
 	prices = list(/obj/item/clothing/under/color/black = 30,
 				/obj/item/clothing/under/dress/blackskirt = 30,
@@ -297,8 +319,30 @@
 				/obj/item/clothing/under/color/lightpurple = 50,
 				/obj/item/clothing/under/color/pink = 50,
 				/obj/item/clothing/under/color/rainbow = 100,
+				/obj/item/clothing/under/color/jumpskirt/black = 30,
+				/obj/item/clothing/under/color/jumpskirt/grey = 30,
+				/obj/item/clothing/under/color/jumpskirt/white = 50,
+				/obj/item/clothing/under/color/jumpskirt/darkred = 50,
+				/obj/item/clothing/under/color/jumpskirt/red = 50,
+				/obj/item/clothing/under/color/jumpskirt/lightred = 50,
+				/obj/item/clothing/under/color/jumpskirt/brown = 30,
+				/obj/item/clothing/under/color/jumpskirt/orange = 50,
+				/obj/item/clothing/under/color/jumpskirt/lightbrown = 30,
+				/obj/item/clothing/under/color/jumpskirt/yellow = 50,
+				/obj/item/clothing/under/color/jumpskirt/yellowgreen = 50,
+				/obj/item/clothing/under/color/jumpskirt/lightgreen = 50,
+				/obj/item/clothing/under/color/jumpskirt/green = 50,
+				/obj/item/clothing/under/color/jumpskirt/aqua = 50,
+				/obj/item/clothing/under/color/jumpskirt/darkblue = 50,
+				/obj/item/clothing/under/color/jumpskirt/blue = 50,
+				/obj/item/clothing/under/color/jumpskirt/lightblue = 30,
+				/obj/item/clothing/under/color/jumpskirt/purple = 50,
+				/obj/item/clothing/under/color/jumpskirt/lightpurple = 50,
+				/obj/item/clothing/under/color/jumpskirt/pink = 50,
+				/obj/item/clothing/under/color/jumpskirt/rainbow = 100,
 				/obj/item/clothing/under/syndicate/tacticool = 75,
 				/obj/item/clothing/under/syndicate/greyman = 75,
+				/obj/item/clothing/under/color/jumpskirt/orange/prison = 75,
 				/obj/item/clothing/under/color/orange/prison = 75)
 
 	refill_canister = /obj/item/vending_refill/suitdispenser
@@ -867,9 +911,9 @@
 	icon_off = "nutri"
 	icon_panel = "thin_vendor"
 	category = VENDOR_TYPE_FOOD
-	products = list(/obj/item/food/snacks/tofu = 24,
+	products = list(/obj/item/food/tofu = 24,
 					/obj/item/reagent_containers/drinks/ice = 12,
-					/obj/item/food/snacks/candy/candy_corn = 6)
+					/obj/item/food/candy/candy_corn = 6)
 
 	contraband = list(/obj/item/kitchen/knife = 6,
 					/obj/item/reagent_containers/drinks/coffee = 12,
@@ -919,32 +963,32 @@
 	icon_off = "nutri"
 	icon_panel = "thin_vendor"
 	category = VENDOR_TYPE_FOOD
-	products = list(/obj/item/food/snacks/candy/candybar = 6,
+	products = list(/obj/item/food/candy/candybar = 6,
 					/obj/item/reagent_containers/drinks/dry_ramen = 6,
-					/obj/item/food/snacks/chips = 6,
-					/obj/item/food/snacks/twimsts = 6,
-					/obj/item/food/snacks/sosjerky = 6,
-					/obj/item/food/snacks/no_raisin = 6,
-					/obj/item/food/snacks/pistachios = 6,
-					/obj/item/food/snacks/spacetwinkie = 6,
-					/obj/item/food/snacks/cheesiehonkers = 6,
-					/obj/item/food/snacks/tastybread = 6,
-					/obj/item/food/snacks/stroopwafel = 2)
+					/obj/item/food/chips = 6,
+					/obj/item/food/twimsts = 6,
+					/obj/item/food/sosjerky = 6,
+					/obj/item/food/no_raisin = 6,
+					/obj/item/food/pistachios = 6,
+					/obj/item/food/spacetwinkie = 6,
+					/obj/item/food/cheesiehonkers = 6,
+					/obj/item/food/tastybread = 6,
+					/obj/item/food/stroopwafel = 2)
 
-	contraband = list(/obj/item/food/snacks/syndicake = 6)
+	contraband = list(/obj/item/food/syndicake = 6)
 
-	prices = list(/obj/item/food/snacks/candy/candybar = 64,
+	prices = list(/obj/item/food/candy/candybar = 64,
 				/obj/item/reagent_containers/drinks/dry_ramen = 32,
-				/obj/item/food/snacks/chips = 64,
-				/obj/item/food/snacks/twimsts = 64,
-				/obj/item/food/snacks/sosjerky = 64,
-				/obj/item/food/snacks/no_raisin = 80,
-				/obj/item/food/snacks/pistachios = 80,
-				/obj/item/food/snacks/spacetwinkie = 64,
-				/obj/item/food/snacks/cheesiehonkers = 64,
-				/obj/item/food/snacks/tastybread = 80,
-				/obj/item/food/snacks/stroopwafel = 100,
-				/obj/item/food/snacks/syndicake = 175) //syndicakes are genuinely kind of powerful
+				/obj/item/food/chips = 64,
+				/obj/item/food/twimsts = 64,
+				/obj/item/food/sosjerky = 64,
+				/obj/item/food/no_raisin = 80,
+				/obj/item/food/pistachios = 80,
+				/obj/item/food/spacetwinkie = 64,
+				/obj/item/food/cheesiehonkers = 64,
+				/obj/item/food/tastybread = 80,
+				/obj/item/food/stroopwafel = 100,
+				/obj/item/food/syndicake = 175) //syndicakes are genuinely kind of powerful
 
 	refill_canister = /obj/item/vending_refill/snack
 
@@ -962,19 +1006,19 @@
 	icon_state = "chang"
 	icon_lightmask = "chang"
 	category = VENDOR_TYPE_FOOD
-	products = list(/obj/item/food/snacks/chinese/chowmein = 6,
-					/obj/item/food/snacks/chinese/tao = 6,
-					/obj/item/food/snacks/chinese/sweetsourchickenball = 6,
-					/obj/item/food/snacks/chinese/newdles = 6,
-					/obj/item/food/snacks/chinese/rice = 6,
-					/obj/item/food/snacks/fortunecookie = 6)
+	products = list(/obj/item/food/chinese/chowmein = 6,
+					/obj/item/food/chinese/tao = 6,
+					/obj/item/food/chinese/sweetsourchickenball = 6,
+					/obj/item/food/chinese/newdles = 6,
+					/obj/item/food/chinese/rice = 6,
+					/obj/item/food/fortunecookie = 6)
 
-	prices = list(/obj/item/food/snacks/chinese/chowmein = 125,
-				/obj/item/food/snacks/chinese/tao = 125,
-				/obj/item/food/snacks/chinese/sweetsourchickenball = 125,
-				/obj/item/food/snacks/chinese/newdles = 100,
-				/obj/item/food/snacks/chinese/rice = 100,
-				/obj/item/food/snacks/fortunecookie = 50)
+	prices = list(/obj/item/food/chinese/chowmein = 125,
+				/obj/item/food/chinese/tao = 125,
+				/obj/item/food/chinese/sweetsourchickenball = 125,
+				/obj/item/food/chinese/newdles = 100,
+				/obj/item/food/chinese/rice = 100,
+				/obj/item/food/fortunecookie = 50)
 
 	refill_canister = /obj/item/vending_refill/chinese
 

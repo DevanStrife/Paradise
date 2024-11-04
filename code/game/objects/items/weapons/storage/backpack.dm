@@ -34,15 +34,15 @@
 		for(var/obj/item/I in contents)
 			space_used += I.w_class
 		if(!space_used)
-			. += "<span class='notice'> [src] is empty.</span>"
+			. += "<span class='notice'>[src] is empty.</span>"
 		else if(space_used <= max_combined_w_class * 0.6)
-			. += "<span class='notice'> [src] still has plenty of remaining space.</span>"
+			. += "<span class='notice'>[src] still has plenty of remaining space.</span>"
 		else if(space_used <= max_combined_w_class * 0.8)
-			. += "<span class='notice'> [src] is beginning to run out of space.</span>"
+			. += "<span class='notice'>[src] is beginning to run out of space.</span>"
 		else if(space_used < max_combined_w_class)
-			. += "<span class='notice'> [src] doesn't have much space left.</span>"
+			. += "<span class='notice'>[src] doesn't have much space left.</span>"
 		else
-			. += "<span class='notice'> [src] is full.</span>"
+			. += "<span class='notice'>[src] is full.</span>"
 
 /*
  * Backpack Types
@@ -69,8 +69,15 @@
 		if(response == "Yes")
 			user.visible_message("<span class='warning'>[user] grins as [user.p_they()] begin[user.p_s()] to put a Bag of Holding into a Bag of Holding!</span>", "<span class='warning'>You begin to put the Bag of Holding into the Bag of Holding!</span>")
 			if(do_after(user, 30, target=src))
+				if(GLOB.disable_explosions)
+					if(istype(user))
+						to_chat(user, "<span class='userdanger'>You seem to stuff yourself into the quantum hellscape between the two bags. That wasn't wise.</span>")
+						user.gib()
+
+					return
+
 				investigate_log("has become a singularity. Caused by [user.key]","singulo")
-				user.visible_message("<span class='warning'>[user] erupts in evil laughter as [user.p_they()] put[user.p_s()] the Bag of Holding into another Bag of Holding!</span>", "<span class='warning'>You can't help but laugh wildly as you put the Bag of Holding into another Bag of Holding, complete darkness surrounding you.</span>","<span class='warning'> You hear the sound of scientific evil brewing!</span>")
+				user.visible_message("<span class='warning'>[user] erupts in evil laughter as [user.p_they()] put[user.p_s()] the Bag of Holding into another Bag of Holding!</span>", "<span class='warning'>You can't help but laugh wildly as you put the Bag of Holding into another Bag of Holding, complete darkness surrounding you.</span>","<span class='danger'> You hear the sound of scientific evil brewing!</span>")
 				qdel(W)
 				var/obj/singularity/singulo = new /obj/singularity(get_turf(user))
 				singulo.energy = 300 //To give it a small boost
@@ -116,7 +123,7 @@
 	new /obj/item/radio/headset/headset_service(src)
 	new /obj/item/pda/clown(src)
 	new /obj/item/storage/box/survival(src)
-	new /obj/item/food/snacks/grown/banana(src)
+	new /obj/item/food/grown/banana(src)
 	new /obj/item/stamp/clown(src)
 	new /obj/item/toy/crayon/rainbow(src)
 	new /obj/item/storage/fancy/crayons(src)
@@ -424,7 +431,7 @@
 				slowdown = 1
 			if(antidrop_on_zip)
 				flags ^= NODROP
-			update_icon_state(UPDATE_ICON_STATE)
+			update_icon(UPDATE_ICON_STATE)
 			return
 
 		slowdown = 0
@@ -433,7 +440,7 @@
 			container.hide_from_all() // Hide everything inside the bag too
 		if(antidrop_on_zip)
 			flags |= NODROP
-		update_icon_state(UPDATE_ICON_STATE)
+		update_icon(UPDATE_ICON_STATE)
 
 /obj/item/storage/backpack/duffel/update_icon_state()
 	. = ..()
@@ -752,7 +759,7 @@
 			value += 1
 		if(8)
 			if(prob(25))
-				new /obj/item/food/snacks/grown/nymph_pod(src)
+				new /obj/item/food/grown/nymph_pod(src)
 				new /obj/item/slimepotion/sentience(src)
 			else
 				new /obj/item/paicard(src) //Still useful, not a point useful.
@@ -762,8 +769,8 @@
 			/obj/item/storage/box/syndidonkpockets, // Healing + speed
 			/obj/item/reagent_containers/drinks/bottle/dragonsbreath, // Killing
 			/obj/item/reagent_containers/drinks/bottle/immortality, // Super healing for 20 seconds
-			/obj/item/food/snacks/meatsteak/stimulating, //Healing + stun immunity
-			/obj/item/food/snacks/plum_pie ) // Great healing over long period of time
+			/obj/item/food/meatsteak/stimulating, //Healing + stun immunity
+			/obj/item/food/plum_pie ) // Great healing over long period of time
 	new pickedt(src)
 
 
@@ -793,13 +800,14 @@
 	volume = 5
 	list_reagents = list("adminordrazine" = 5)
 
-/obj/item/food/snacks/meatsteak/stimulating
+/obj/item/food/meatsteak/stimulating
 	name = "stimulating steak"
 	desc = "Stimulate your senses."
 	list_reagents = list("nutriment" = 5, "stimulants" = 25)
 	bitesize = 100
+	goal_difficulty = FOOD_GOAL_SKIP
 
-/obj/item/food/snacks/plum_pie
+/obj/item/food/plum_pie
 	name = "perfect plum pie"
 	desc = "The Jack Horner brand of pie. 2 big thumbs up."
 	icon = 'icons/obj/food/bakedgoods.dmi'
@@ -902,40 +910,40 @@
 //Commander
 /obj/item/storage/backpack/ert/commander
 	name = "emergency response team commander backpack"
-	desc = "A spacious backpack with lots of pockets, worn by the commander of a Nanotrasen Emergency Response Team."
+	desc = "A spacious blue-striped combat backpack with plenty of easily-accessible pockets."
 
 //Security
 /obj/item/storage/backpack/ert/security
 	name = "emergency response team security backpack"
-	desc = "A spacious backpack with lots of pockets, worn by security members of a Nanotrasen Emergency Response Team."
+	desc = "A spacious red-striped combat backpack with plenty of easily-accessible pockets."
 	icon_state = "ert_security"
 
 //Engineering
 /obj/item/storage/backpack/ert/engineer
 	name = "emergency response team engineer backpack"
-	desc = "A spacious backpack with lots of pockets, worn by engineering members of a Nanotrasen Emergency Response Team."
+	desc = "A spacious orange-striped combat backpack with plenty of easily-accessible pockets."
 	icon_state = "ert_engineering"
 
 //Medical
 /obj/item/storage/backpack/ert/medical
 	name = "emergency response team medical backpack"
-	desc = "A spacious backpack with lots of pockets, worn by medical members of a Nanotrasen Emergency Response Team."
+	desc = "A spacious white-striped combat backpack with plenty of easily-accessible pockets."
 	icon_state = "ert_medical"
 
 //Janitorial
 /obj/item/storage/backpack/ert/janitor
 	name = "emergency response team janitor backpack"
-	desc = "A spacious backpack with lots of pockets, worn by janitorial members of a Nanotrasen Emergency Response Team."
+	desc = "A spacious purple-striped combat backpack with plenty of easily-accessible pockets."
 	icon_state = "ert_janitor"
 
 //Solgov
 /obj/item/storage/backpack/ert/solgov
-	name = "\improper TSF marine backpack"
-	desc = "A spacious backpack with lots of pockets, worn by marines of the Trans-Solar Federation."
+	name = "\improper TSF marine rucksack"
+	desc = "A spacious rucksack covered in pouches and pockets, worn by marines of the Trans-Solar Federation."
 	icon_state = "ert_solgov"
 
 /obj/item/storage/backpack/ert/deathsquad
 	name = "Deathsquad backpack"
-	desc = "A spacious backpack with lots of pockets, worn by those working in Special Operations."
+	desc = "A spacious red & black combat rucksack made of lightweight nanomesh. Likely the most intimidating backpack one will ever see."
 	icon_state = "ert_security"
 

@@ -29,7 +29,7 @@
 	/// When the teleporter is upgraded, it can lock onto beacons directly, rather than turfs. This is the variable for it.
 	var/advanced_beacon_locking = FALSE
 
-/obj/machinery/computer/teleporter/Initialize()
+/obj/machinery/computer/teleporter/Initialize(mapload)
 	. = ..()
 	link_power_station()
 	update_icon()
@@ -213,6 +213,8 @@
 		if(!T)
 			continue
 		if(!is_teleport_allowed(T.z) && !R.cc_beacon)
+			continue
+		if(R.wormhole_weaver)
 			continue
 		if(R.syndicate && !emagged)
 			continue
@@ -419,11 +421,6 @@
 		use_power(5000)
 	return
 
-/obj/machinery/teleport/hub/attackby(obj/item/I, mob/user, params)
-	if(exchange_parts(user, I))
-		return
-	return ..()
-
 /obj/machinery/teleport/hub/crowbar_act(mob/user, obj/item/I)
 	if(default_deconstruction_crowbar(user, I))
 		return TRUE
@@ -555,11 +552,6 @@
 	else
 		set_light(0)
 
-/obj/machinery/teleport/perma/attackby(obj/item/I, mob/user, params)
-	if(exchange_parts(user, I))
-		return
-	return ..()
-
 /obj/machinery/teleport/perma/crowbar_act(mob/user, obj/item/I)
 	if(default_deconstruction_crowbar(user, I))
 		return TRUE
@@ -634,16 +626,16 @@
 	return ..()
 
 /obj/machinery/teleport/station/attackby(obj/item/I, mob/user, params)
-	if(exchange_parts(user, I))
-		return
 	if(panel_open && istype(I, /obj/item/circuitboard/teleporter_perma))
 		if(!teleporter_console)
 			to_chat(user, "<span class='caution'>[src] is not linked to a teleporter console.</span>")
 			return
+
 		var/obj/item/circuitboard/teleporter_perma/C = I
 		C.target = teleporter_console.target
 		to_chat(user, "<span class='caution'>You copy the targeting information from [src] to [C].</span>")
 		return
+
 	return ..()
 
 /obj/machinery/teleport/station/crowbar_act(mob/user, obj/item/I)

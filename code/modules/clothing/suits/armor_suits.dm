@@ -248,7 +248,8 @@
 	desc = "An old style captain tunic. Makes you look and feel like you're wearing a cardboard box with arm holes cut in it but looks like it would be great for a wedding... or a funeral."
 	icon_state = "captain_white"
 
-	sprite_sheets = list( //Drask look fine in the regular human version
+	// Drask look fine in the regular human version
+	sprite_sheets = list(
 		"Vox" = 'icons/mob/clothing/species/vox/suit.dmi',
 		"Grey" = 'icons/mob/clothing/species/grey/suit.dmi',
 		"Kidan" = 'icons/mob/clothing/species/kidan/suit.dmi',
@@ -396,6 +397,7 @@
 /obj/item/clothing/suit/armor/reactive
 	name = "reactive armor"
 	desc = "Doesn't seem to do much for some reason."
+	/// Is the armor turned on?
 	var/active = FALSE
 	/// Is the armor disabled, and prevented from reactivating temporarly?
 	var/disabled = FALSE
@@ -427,6 +429,14 @@
 	. = ..()
 	if(cell)
 		. += "<span class='notice'>The armor is [round(cell.percent())]% charged.</span>"
+
+/obj/item/clothing/suit/armor/reactive/examine_more(mob/user)
+	. = ..()
+	. += "Reactive armours are one of the uses that Nanotasen has found for the anomaly cores that can be recovered from the bluespace phenomina that occur in the space in orbit of Lavaland. \
+	The effects of these armours can be unpredictable or undesirable in certain situations, so Nanotrasen advises only activating them when the user is in danger."
+	. += ""
+	. += "Outside of the strange effects caused by the anomaly core, the armour provides no protection against conventional attacks. \
+	Nanotrasen cannot be held liable for injury and/or death due to misuse or proper operation of the reactive armour."
 
 /obj/item/clothing/suit/armor/reactive/attack_self(mob/user)
 	active = !(active)
@@ -702,6 +712,7 @@
 	min_cold_protection_temperature = SPACE_SUIT_MIN_TEMP_PROTECT
 	sprite_sheets = null
 	armor = list(MELEE = 200, BULLET = 200, LASER = 50, ENERGY = 50, BOMB = INFINITY, RAD = INFINITY, FIRE = 450, ACID = 450)
+	flags_2 = RAD_PROTECT_CONTENTS_2
 
 /obj/item/clothing/suit/armor/heavy
 	name = "heavy armor"
@@ -712,6 +723,7 @@
 	w_class = WEIGHT_CLASS_BULKY
 	gas_transfer_coefficient = 0.90
 	flags = THICKMATERIAL
+	flags_2 = RAD_PROTECT_CONTENTS_2
 	body_parts_covered = UPPER_TORSO|LOWER_TORSO|LEGS|FEET|ARMS|HANDS
 	slowdown = 3
 	flags_inv = HIDEGLOVES|HIDESHOES|HIDEJUMPSUIT
@@ -722,6 +734,7 @@
 	body_parts_covered = UPPER_TORSO|LOWER_TORSO|LEGS|FEET|ARMS|HANDS
 	flags_inv = HIDEGLOVES|HIDESHOES|HIDEJUMPSUIT
 	flags = THICKMATERIAL
+	flags_2 = RAD_PROTECT_CONTENTS_2
 	cold_protection = UPPER_TORSO|LOWER_TORSO|LEGS|FEET|ARMS|HANDS
 	heat_protection = UPPER_TORSO|LOWER_TORSO|LEGS|FEET|ARMS|HANDS
 	hide_tail_by_species = list("Vox")
@@ -741,7 +754,7 @@
 //Non-hardsuit ERT armor.
 /obj/item/clothing/suit/armor/vest/ert
 	name = "emergency response team armor"
-	desc = "A set of armor worn by members of the Nanotrasen Emergency Response Team."
+	desc = "A mid-quality protective vest produced by Citadel Armories. Additional polymer paneling over the chest and shoulders offers moderately improved energy protection compared to standard kevlar vests."
 	icon_state = "ertarmor_cmd"
 	item_state = "armor"
 	armor = list(MELEE = 20, BULLET = 20, LASER = 20, ENERGY = 20, BOMB = 10, RAD = 0, FIRE = 50, ACID = 50)
@@ -749,37 +762,37 @@
 //Commander
 /obj/item/clothing/suit/armor/vest/ert/command
 	name = "emergency response team commander armor"
-	desc = "A set of armor worn by the commander of a Nanotrasen Emergency Response Team. Has blue highlights."
+	desc = "A mid-quality protective vest produced by Citadel Armories. Additional polymer paneling over the chest and shoulders offers moderately improved energy protection compared to standard kevlar vests. This one has chipped blue Command insignia on the shoulders."
 
 //Security
 /obj/item/clothing/suit/armor/vest/ert/security
 	name = "emergency response team security armor"
-	desc = "A set of armor worn by security members of the Nanotrasen Emergency Response Team. Has red highlights."
+	desc = "A mid-quality protective vest produced by Citadel Armories. Additional polymer paneling over the chest and shoulders offers moderately improved energy protection compared to standard kevlar vests. This one has chipped red Security insignia on the shoulders."
 	icon_state = "ertarmor_sec"
 
-
+//Paranormal
 /obj/item/clothing/suit/armor/vest/ert/security/paranormal
 	name = "emergency response team paranormal armor"
-	desc = "A set of armor worn by paranormal members of the Nanotrasen Emergency Response Team. Has crusader sigils."
+	desc = "A full suit of medieval plate armor, kitted out in crusader colors. Where the hell did they even find this? There are chipped black insignia on the shoulders."
 	icon_state = "knight_templar"
 	item_state = "knight_templar"
 
 //Engineer
 /obj/item/clothing/suit/armor/vest/ert/engineer
 	name = "emergency response team engineer armor"
-	desc = "A set of armor worn by engineering members of the Nanotrasen Emergency Response Team. Has orange highlights."
+	desc = "A mid-quality protective vest produced by Citadel Armories. Additional polymer paneling over the chest and shoulders offers moderately improved energy protection compared to standard kevlar vests. This one has chipped orange Engineering insignia on the shoulders."
 	icon_state = "ertarmor_eng"
 
 //Medical
 /obj/item/clothing/suit/armor/vest/ert/medical
 	name = "emergency response team medical armor"
-	desc = "A set of armor worn by medical members of the Nanotrasen Emergency Response Team. Has red and white highlights."
+	desc = "A mid-quality protective vest produced by Citadel Armories. Additional polymer paneling over the chest and shoulders offers moderately improved energy protection compared to standard kevlar vests. This one has chipped white Medical insignia on the shoulders."
 	icon_state = "ertarmor_med"
 
 //Janitorial
 /obj/item/clothing/suit/armor/vest/ert/janitor
 	name = "emergency response team janitor armor"
-	desc = "A set of armor worn by janitorial members of the Nanotrasen Emergency Response Team. Has red and white highlights."
+	desc = "A mid-quality protective vest produced by Citadel Armories. Additional polymer paneling over the chest and shoulders offers moderately improved energy protection compared to standard kevlar vests. This one has chipped purple Janitorial insignia on the shoulders."
 	icon_state = "ertarmor_jan"
 
 //same defense as basic sec armor

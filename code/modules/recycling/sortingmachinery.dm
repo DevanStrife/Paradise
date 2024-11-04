@@ -154,16 +154,23 @@
 	. = ..()
 	if(!in_range(A, user))
 		return
+
 	if(!isobj(A))
 		return
-	var/obj/target = A
 
+	var/obj/target = A
 	if(is_type_in_list(target, no_wrap))
 		return
+
+	if(istype(target, /obj/item/stack/packageWrap) && user.a_intent != INTENT_HARM)
+		return
+
 	if(is_type_in_list(A.loc, list(/obj/item/smallDelivery, /obj/structure/bigDelivery)))
 		return
+
 	if(target.anchored)
 		return
+
 	if(target in user)
 		return
 
@@ -171,6 +178,7 @@
 		var/obj/item/O = target
 		if(!use(1))
 			return FALSE
+
 		var/obj/item/smallDelivery/P = new /obj/item/smallDelivery(get_turf(O.loc)) //Aaannd wrap it up!
 		if(!isturf(O.loc))
 			if(user.client)
@@ -198,9 +206,11 @@
 			return FALSE
 		D.init_welded = C.welded
 		C.welded = TRUE
+
 	else if(target.GetComponent(/datum/component/two_handed))
 		to_chat(user, "<span class='notice'>[target] is too unwieldy to wrap effectively.</span>")
 		return FALSE
+
 	else
 		to_chat(user, "<span class='notice'>The object you are trying to wrap is unsuitable for the sorting machinery.</span>")
 		return FALSE
@@ -283,6 +293,19 @@
 
 /obj/machinery/disposal/deliveryChute/update()
 	return
+
+/obj/machinery/disposal/deliveryChute/CanPass(atom/movable/mover, turf/target)
+	// If the mover is a thrownthing passing through space, remove its thrown datum,
+	// ingest it like normal, and mark the chute as not passible.
+	// This prevents the mover from Entering the chute's turf
+	// while also bypassing thrownthing's /finalize, which would
+	// cause damage to the chute.
+	if(mover.throwing && !has_gravity(get_turf(mover)))
+		qdel(mover.throwing)
+		Bumped(mover)
+		return FALSE
+
+	. = ..()
 
 /obj/machinery/disposal/deliveryChute/Bumped(atom/movable/AM) //Go straight into the chute
 	if(isprojectile(AM)	|| isAI(AM) || QDELETED(AM))
@@ -427,7 +450,7 @@
 				to_chat(user, "<span class='notice'>You seal [src], preparing it for delivery.</span>")
 				icon_state = "shippack_sealed"
 				sealed = 1
-				update_desc()
+				update_appearance(UPDATE_DESC)
 	else
 		if(tgui_alert(user, "Do you want to tear up the package?", "Shipping", list("Yes", "No")) == "Yes")
 			to_chat(user, "<span class='notice'>You shred [src].</span>")

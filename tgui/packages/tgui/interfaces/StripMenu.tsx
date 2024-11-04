@@ -4,6 +4,7 @@ import { resolveAsset } from '../assets';
 import { useBackend } from '../backend';
 import { Box, Button, Icon, Stack } from '../components';
 import { Window } from '../layouts';
+import { InfernoNode } from 'inferno';
 
 const ROWS = 5;
 const COLUMNS = 9;
@@ -23,7 +24,7 @@ const getGridSpotKey = (spot: [number, number]): GridSpotKey => {
   return `${spot[0]}/${spot[1]}`;
 };
 
-const CornerText = (props: { align: 'left' | 'right'; children: string }): JSX.Element => {
+const CornerText = (props: { align: 'left' | 'right'; children: string }): InfernoNode => {
   const { align, children } = props;
 
   return (
@@ -89,7 +90,7 @@ const SLOTS: Record<
     displayName: string;
     gridSpot: GridSpotKey;
     image?: string;
-    additionalComponent?: JSX.Element;
+    additionalComponent?: InfernoNode;
   }
 > = {
   eyes: {
@@ -231,7 +232,7 @@ const ALTERNATIVE_SLOTS: Record<
     displayName: string;
     gridSpot: GridSpotKey;
     image?: string;
-    additionalComponent?: JSX.Element;
+    additionalComponent?: InfernoNode;
   }
 > = {
   eyes: {
@@ -422,21 +423,25 @@ export const StripMenu = (props, context) => {
     }
   }
 
+  const get_button_transparency = (item) => {
+    if (item?.cantstrip) {
+      return false;
+    }
+    if (item?.interacting) {
+      return false;
+    }
+    return true;
+  };
+
   const get_button_color = (item) => {
-    if (!item) {
-      return 'translucent';
-    }
-    if (item.cantstrip) {
-      return 'transparent';
-    }
-    if (item.interacting) {
+    if (item?.interacting) {
       return 'average';
     }
-    return 'translucent';
+    return null;
   };
 
   const disable_background_hover = (item) => {
-    if (item && item.cantstrip) {
+    if (item?.cantstrip) {
       return 'transparent';
     }
     return 'none';
@@ -545,6 +550,7 @@ export const StripMenu = (props, context) => {
                             });
                           }}
                           fluid
+                          translucent={get_button_transparency(item)}
                           color={get_button_color(item)}
                           tooltip={tooltip}
                           style={{

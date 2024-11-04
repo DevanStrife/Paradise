@@ -45,17 +45,11 @@
 		else
 			user.adjustBruteLoss(rand(force/2, force))
 		return
-	. = ..()
-
-/obj/item/melee/cultblade/afterattack(atom/target, mob/user, proximity_flag, click_parameters)
-	. = ..()
-	if(!proximity_flag)
-		return
-	if(!isliving(target))
-		return
-	var/mob/living/living_target = target
-	var/datum/status_effect/cult_stun_mark/S = living_target.has_status_effect(STATUS_EFFECT_CULT_STUN)
-	S?.trigger()
+	if(!IS_CULTIST(target))
+		var/datum/status_effect/cult_stun_mark/S = target.has_status_effect(STATUS_EFFECT_CULT_STUN)
+		if(S)
+			S.trigger()
+	..()
 
 /obj/item/melee/cultblade/pickup(mob/living/user)
 	. = ..()
@@ -81,6 +75,7 @@
 	if(thrower && !IS_CULTIST(thrower)) // A couple of objs actually proc throw_at, so we need to make sure that yes, we got tossed by a person before trying to send a message
 		thrower.visible_message("<span class='danger'>The bola glows, and boomarangs back at [thrower]!</span>")
 		throw_impact(thrower)
+		return
 	. = ..()
 
 /obj/item/restraints/legcuffs/bola/cult/throw_impact(atom/hit_atom, datum/thrownthing/throwingdatum)
@@ -329,6 +324,8 @@
 	if(C.pulling)
 		var/atom/movable/pulled = C.pulling
 		var/turf/turf_behind = get_turf(get_step(T, turn(C.dir, 180)))
+		if(SEND_SIGNAL(pulled, COMSIG_MOVABLE_TELEPORTING, turf_behind) & COMPONENT_BLOCK_TELEPORT)
+			return FALSE
 		if(!pulled.anchored) //Item may have been anchored while pulling, and pulling state isn't updated until you move away, so we double check.
 			pulled.forceMove(turf_behind)
 			. = pulled
@@ -343,6 +340,8 @@
 		step(src, pick(GLOB.alldirs))
 		to_chat(user, "<span class='warning'>[src] flickers out of your hands, too eager to move!</span>")
 		return
+	if(SEND_SIGNAL(user, COMSIG_MOVABLE_TELEPORTING, get_turf(user)) & COMPONENT_BLOCK_TELEPORT)
+		return FALSE
 	if(user.holy_check())
 		return
 	var/outer_tele_radius = 9
@@ -573,7 +572,7 @@
 
 /obj/item/cult_spear/Initialize(mapload)
 	. = ..()
-	AddComponent(/datum/component/parry, _stamina_constant = 2, _stamina_coefficient = 0.4, _parryable_attack_types = ALL_ATTACK_TYPES, _parry_cooldown = (5 / 3) SECONDS ) // 0.666667 seconds for 60% uptime.
+	AddComponent(/datum/component/parry, _stamina_constant = 2, _stamina_coefficient = 0.4, _parryable_attack_types = ALL_ATTACK_TYPES, _parry_cooldown = (5 / 3) SECONDS) // 0.666667 seconds for 60% uptime.
 	AddComponent(/datum/component/two_handed, force_wielded = 24, force_unwielded = force, icon_wielded = "[base_icon_state]1")
 
 /obj/item/cult_spear/Destroy()
@@ -586,40 +585,35 @@
 
 /obj/item/cult_spear/throw_impact(atom/hit_atom, datum/thrownthing/throwingdatum)
 	var/turf/T = get_turf(hit_atom)
-	if(!isliving(hit_atom))
-		..()
-		return
-
-	var/mob/living/L = hit_atom
-	if(IS_CULTIST(L))
-		playsound(src, 'sound/weapons/throwtap.ogg', 50)
-		if(!L.restrained() && L.put_in_active_hand(src))
-			L.visible_message("<span class='warning'>[L] catches [src] out of the air!</span>")
-		else
-			L.visible_message("<span class='warning'>[src] bounces off of [L], as if repelled by an unseen force!</span>")
-		return
-
-	if(..())
-		return
-
-	if(L.null_rod_check())
-		return
-	var/datum/status_effect/cult_stun_mark/S = L.has_status_effect(STATUS_EFFECT_CULT_STUN)
-	if(S)
-		S.trigger()
+	if(isliving(hit_atom))
+		var/mob/living/L = hit_atom
+		if(IS_CULTIST(L))
+			playsound(src, 'sound/weapons/throwtap.ogg', 50)
+			if(!L.restrained() && L.put_in_active_hand(src))
+				L.visible_message("<span class='warning'>[L] catches [src] out of the air!</span>")
+			else
+				L.visible_message("<span class='warning'>[src] bounces off of [L], as if repelled by an unseen force!</span>")
+		else if(!..())
+			if(L.null_rod_check())
+				return
+			var/datum/status_effect/cult_stun_mark/S = L.has_status_effect(STATUS_EFFECT_CULT_STUN)
+			if(S)
+				S.trigger()
+			else
+				L.KnockDown(10 SECONDS)
+				L.apply_damage(60, STAMINA)
+				L.apply_status_effect(STATUS_EFFECT_CULT_STUN)
+				L.flash_eyes(1, TRUE)
+				if(issilicon(L))
+					L.emp_act(EMP_HEAVY)
+				else if(iscarbon(L))
+					L.Silence(6 SECONDS)
+					L.Stuttering(16 SECONDS)
+					L.CultSlur(20 SECONDS)
+					L.Jitter(16 SECONDS)
+			break_spear(T)
 	else
-		L.KnockDown(10 SECONDS)
-		L.apply_damage(60, STAMINA)
-		L.apply_status_effect(STATUS_EFFECT_CULT_STUN)
-		L.flash_eyes(1, TRUE)
-		if(issilicon(L))
-			L.emp_act(EMP_HEAVY)
-		else if(iscarbon(L))
-			L.Silence(6 SECONDS)
-			L.Stuttering(16 SECONDS)
-			L.CultSlur(20 SECONDS)
-			L.Jitter(16 SECONDS)
-	break_spear(T)
+		..()
 
 /obj/item/cult_spear/proc/break_spear(turf/T)
 	if(!T)
@@ -631,14 +625,9 @@
 		playsound(T, 'sound/effects/glassbr3.ogg', 100)
 	qdel(src)
 
-/obj/item/cult_spear/afterattack(atom/target, mob/user, proximity_flag, click_parameters)
+/obj/item/cult_spear/attack(mob/living/M, mob/living/user, def_zone)
 	. = ..()
-	if(!proximity_flag)
-		return
-	if(!isliving(target))
-		return
-	var/mob/living/living_target = target
-	var/datum/status_effect/cult_stun_mark/S = living_target.has_status_effect(STATUS_EFFECT_CULT_STUN)
+	var/datum/status_effect/cult_stun_mark/S = M.has_status_effect(STATUS_EFFECT_CULT_STUN)
 	if(S && HAS_TRAIT(src, TRAIT_WIELDED))
 		S.trigger()
 

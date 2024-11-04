@@ -29,6 +29,7 @@
 /datum/surgery_step/extract_bio_chip
 	name = "extract bio-chip"
 	allowed_tools = list(TOOL_HEMOSTAT = 100, TOOL_CROWBAR = 65)
+	preop_sound = 'sound/surgery/hemostat1.ogg'
 	time = 6.4 SECONDS
 	repeatable = TRUE
 	var/obj/item/bio_chip/I = null
@@ -97,7 +98,7 @@
 			qdel(I)
 	else
 		user.visible_message(
-			"<span class='notice'> [user] could not find anything inside [target]'s [affected.name], and pulls \the [tool] out.</span>",
+			"<span class='notice'>[user] could not find anything inside [target]'s [affected.name], and pulls \the [tool] out.</span>",
 			"<span class='notice'>You could not find anything inside [target]'s [affected.name].</span>",
 			chat_message_type = MESSAGE_TYPE_COMBAT
 		)

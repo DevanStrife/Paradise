@@ -1,9 +1,13 @@
-GLOBAL_VAR_INIT(BSACooldown, 0)
-GLOBAL_VAR_INIT(nologevent, 0)
+/// Is admin BSA (damage a user) currently on cooldown?
+GLOBAL_VAR_INIT(BSACooldown, FALSE)
+/// Are we in a no-log event (EORG, highlander, etc)?
+GLOBAL_VAR_INIT(nologevent, FALSE)
+/// Are explosions currently disabled for EORG?
+GLOBAL_VAR_INIT(disable_explosions, FALSE)
 
 ////////////////////////////////
 /proc/message_admins(msg)
-	msg = "<span class=\"admin\"><span class=\"prefix\">ADMIN LOG:</span> <span class=\"message\">[msg]</span></span>"
+	msg = "<span class='admin'><span class='prefix'>ADMIN LOG:</span> <span class='message'>[msg]</span></span>"
 	for(var/client/C in GLOB.admins)
 		if(R_ADMIN & C.holder.rights)
 			if(C.prefs && !(C.prefs.toggles & PREFTOGGLE_CHAT_NO_ADMINLOGS))
@@ -11,7 +15,7 @@ GLOBAL_VAR_INIT(nologevent, 0)
 
 /proc/msg_admin_attack(text, loglevel)
 	if(!GLOB.nologevent)
-		var/rendered = "<span class=\"admin\"><span class=\"prefix\">ATTACK:</span> <span class=\"message\">[text]</span></span>"
+		var/rendered = "<span class='admin'><span class='prefix'>ATTACK:</span> <span class='message'>[text]</span></span>"
 		for(var/client/C in GLOB.admins)
 			if((C.holder.rights & R_ADMIN) && (C.prefs?.atklog <= loglevel))
 				to_chat(C, rendered, MESSAGE_TYPE_ATTACKLOG, confidential = TRUE)
@@ -202,7 +206,7 @@ GLOBAL_VAR_INIT(nologevent, 0)
 					<A href='byond://?_src_=holder;makerobot=[M.UID()]'>Make Robot</A> |
 					<A href='byond://?_src_=holder;makealien=[M.UID()]'>Make Alien</A> |
 					<A href='byond://?_src_=holder;makeslime=[M.UID()]'>Make Slime</A> |
-					<A href='byond://?_src_=holder;makesuper=[M.UID()]'>Make Superhero</A>
+					<A href='byond://?_src_=holder;makesuper=[M.UID()]'>Make Superhero</A> |
 				"}
 
 			//Simple Animals
@@ -405,7 +409,7 @@ GLOBAL_VAR_INIT(nologevent, 0)
 	message_admins("[key_name_admin(usr)] has admin ended the round with message: '[input]'")
 	log_admin("[key_name(usr)] has admin ended the round with message: '[input]'")
 	SSticker.force_ending = TRUE
-	SSticker.event_blackbox(outcome = ROUND_END_FORCED)
+	SSticker.record_biohazard_results()
 	to_chat(world, "<span class='warning'><big><b>[input]</b></big></span>")
 	SSblackbox.record_feedback("tally", "admin_verb", 1, "End Round") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
 	SSticker.mode_result = "admin ended"

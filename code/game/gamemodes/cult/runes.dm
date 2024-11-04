@@ -402,7 +402,7 @@ structure_check() searches for nearby cultist structures required for the invoca
 				to_chat(M, "<span class='cultitalic'>You are now able to construct mirror shields inside the daemon forge.</span>")
 				SSticker.mode.cult_team.mirror_shields_active = TRUE
 		else
-			if(ishuman(offering) && offering.mind?.offstation_role && offering.mind.special_role != SPECIAL_ROLE_ERT) //If you try it on a ghost role, you get nothing
+			if((ishuman(offering) && offering.mind?.offstation_role && offering.mind.special_role != SPECIAL_ROLE_ERT) || HAS_MIND_TRAIT(offering, TRAIT_XENOBIO_SPAWNED_HUMAN)) //If you try it on a ghost role, or an envolved caterpillar/nymph, you get nothing
 				to_chat(M, "<span class='cultlarge'>\"This soul is of no use to either of us.\"</span>")
 				worthless = TRUE
 			else if(ishuman(offering) || isrobot(offering))
@@ -494,6 +494,8 @@ structure_check() searches for nearby cultist structures required for the invoca
 	var/movedsomething = FALSE
 	var/moveuser = FALSE
 	for(var/atom/movable/A in T)
+		if(SEND_SIGNAL(A, COMSIG_MOVABLE_TELEPORTING, target) & COMPONENT_BLOCK_TELEPORT)
+			continue
 		if(ishuman(A))
 			if(A != user) // Teleporting someone else
 				INVOKE_ASYNC(src, PROC_REF(teleport_effect), A, T, target)
@@ -775,6 +777,11 @@ structure_check() searches for nearby cultist structures required for the invoca
 		fail_invoke()
 		log_game("Summon Cultist rune failed - target in away mission")
 		return
+	if(SEND_SIGNAL(cultist_to_summon, COMSIG_MOVABLE_TELEPORTING, get_turf(src)) & COMPONENT_BLOCK_TELEPORT)
+		to_chat(user, "<span class='cultitalic'>[cultist_to_summon] is anchored in bluespace!</span>")
+		fail_invoke()
+		log_game("Summon Cultist rune failed - anchored in bluespace")
+		return
 
 	cultist_to_summon.visible_message("<span class='warning'>[cultist_to_summon] suddenly disappears in a flash of red light!</span>", \
 									"<span class='cultitalic'><b>Overwhelming vertigo consumes you as you are hurled through the air!</b></span>")
@@ -939,6 +946,8 @@ structure_check() searches for nearby cultist structures required for the invoca
 		if(IS_CULTIST(O) || jobban_isbanned(O, ROLE_CULTIST))
 			continue
 		if(!HAS_TRAIT(O, TRAIT_RESPAWNABLE) || QDELETED(src) || QDELETED(O))
+			continue
+		if(!O.mind)
 			continue
 		if(O.mind.current && HAS_TRAIT(O.mind.current, SCRYING))
 			continue

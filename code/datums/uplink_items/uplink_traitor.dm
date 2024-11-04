@@ -4,7 +4,6 @@
 
 /datum/uplink_item/jobspecific
 	category = "Job Specific Tools"
-	can_discount = FALSE
 	excludefrom = list(UPLINK_TYPE_NUCLEAR, UPLINK_TYPE_SST) // Stops the job specific category appearing for nukies
 
 //Clown
@@ -238,7 +237,7 @@
 //Roboticist
 /datum/uplink_item/jobspecific/syndiemmi
 	name = "Syndicate MMI"
-	desc = "A syndicate developed man-machine-interface which will mindslave any brain inserted into it, for as long as it's in. Cyborgs made with this MMI will be permanently slaved to you but otherwise function normally."
+	desc = "A syndicate developed man-machine-interface which will mindslave any brain inserted into it, for as long as it's inside. Cyborgs made with this MMI will be permanently slaved to you, but will appear to have a normal set of laws and be synchronised to the station AI, if present. Provides immunity to remote detonation and allows overriding lockdowns if the cyborg is not also emagged. It can also be inserted into a mech, but will not fit inside an AI core."
 	reference = "SMMI"
 	item = /obj/item/mmi/syndie
 	cost = 10
@@ -333,13 +332,12 @@
 
 /datum/uplink_item/species_restricted
 	category = "Species Specific Gear"
-	can_discount = FALSE
 	excludefrom = list(UPLINK_TYPE_NUCLEAR, UPLINK_TYPE_SST) // Stops the job specific category appearing for nukies
 
 //skrell
 /datum/uplink_item/species_restricted/lovepen
 	name = "Aggression Suppression Pen"
-	desc = "A syringe disguised as a functional pen which is filled with a potent aggression supressing chemical. The pen holds four doses of the mixture and it cannot be refilled."
+	desc = "A hypospray disguised as a functional pen which is filled with a potent aggression suppressing chemical. The pen holds four doses of the mixture which slowly regenerates over time, but cannot be refilled."
 	reference = "LP"
 	item = /obj/item/pen/sleepy/love
 	cost = 20
@@ -405,6 +403,16 @@
 	cost = 25
 	species = list("Drask")
 	surplus = 0
+
+// Unathi
+/datum/uplink_item/species_restricted/breach_cleaver
+	name = "Breach Cleaver"
+	desc = "This massive blade harkens back to the wars on Moghes. Wielding it imbues you with the unquenchable desire for martial prowess. \
+	Requires two hands to be wielded. Comes in a scabbard. Has different effects based on intent."
+	reference = "CLV"
+	item = /obj/item/storage/belt/sheath/breach_cleaver
+	cost = 65 // Incredibly strong melee weapon on par with a chainsaw.
+	species = list("Unathi")
 
 // -------------------------------------
 // ITEMS BLACKLISTED FROM NUCLEAR AGENTS
@@ -663,11 +671,11 @@
 	var/crate_value = 250
 	uses_special_spawn = TRUE
 
-/datum/uplink_item/bundles_TC/surplus_crate/spawn_item(turf/loc, obj/item/uplink/U)
+/datum/uplink_item/bundles_TC/surplus_crate/spawn_item(turf/loc, obj/item/uplink/U, mob/user)
 	if(..() != UPLINK_SPECIAL_SPAWNING)
 		return FALSE
 
-	new /obj/structure/closet/crate/surplus(loc, U, crate_value, cost)
+	new /obj/structure/closet/crate/surplus(loc, U, crate_value, cost, user)
 
 // -----------------------------------
 // PRICES OVERRIDEN FOR NUCLEAR AGENTS
@@ -692,7 +700,6 @@
 	cost = 40
 	excludefrom = list(UPLINK_TYPE_NUCLEAR, UPLINK_TYPE_SST)
 	surplus = 0
-	can_discount = FALSE
 	hijack_only = TRUE
 
 /datum/uplink_item/explosives/emp_bomb
@@ -716,11 +723,10 @@
 	desc = "A box of two (2) grenades that cause large plasma fires. Can be used to deny access to a large area. Most useful if you have an atmospherics hardsuit."
 	reference = "APG"
 	item = /obj/item/storage/box/syndie_kit/atmosfiregrenades
-	hijack_only = TRUE
 	cost = 50
 	excludefrom = list(UPLINK_TYPE_NUCLEAR, UPLINK_TYPE_SST)
 	surplus = 0
-	can_discount = FALSE
+	hijack_only = TRUE
 
 /datum/uplink_item/stealthy_tools/chameleon
 	name = "Chameleon Kit"

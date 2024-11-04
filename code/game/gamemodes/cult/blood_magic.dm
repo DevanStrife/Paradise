@@ -188,7 +188,7 @@
 		return
 	owner.visible_message("<span class='warning'>[owner]'s body flashes a bright blue!</span>", \
 						"<span class='cultitalic'>You speak the cursed words, channeling an electromagnetic pulse from your body.</span>")
-	owner.emp_act(2)
+	owner.emp_act(EMP_LIGHT)
 	INVOKE_ASYNC(GLOBAL_PROC, GLOBAL_PROC_REF(empulse), owner, 2, 5, TRUE, "cult")
 	owner.whisper(invocation)
 	charges--
@@ -388,7 +388,7 @@
 
 /obj/item/melee/blood_magic/Initialize(mapload, spell)
 	. = ..()
-	if(has_source)
+	if(spell && has_source)
 		source = spell
 		uses = source.charges
 		health_cost = source.health_cost
@@ -418,11 +418,6 @@
 		uses = 0
 		qdel(src)
 		return
-	if(ishuman(M))
-		var/mob/living/carbon/human/H = M
-		if(H.check_shields(src, 0, "[user]'s [name]", MELEE_ATTACK))
-			playsound(M, 'sound/weapons/genhit.ogg', 50, TRUE)
-			return TRUE
 	add_attack_logs(user, M, "used a cult spell ([src]) on")
 	M.lastattacker = user.real_name
 
@@ -542,6 +537,8 @@
 
 	var/turf/origin = get_turf(teleportee)
 	var/turf/destination = get_turf(actual_selected_rune)
+	if(SEND_SIGNAL(target, COMSIG_MOVABLE_TELEPORTING, destination) & COMPONENT_BLOCK_TELEPORT)
+		return
 	INVOKE_ASYNC(actual_selected_rune, TYPE_PROC_REF(/obj/effect/rune, teleport_effect), teleportee, origin, destination)
 
 	if(is_mining_level(user.z) && !is_mining_level(destination.z)) //No effect if you stay on lavaland
@@ -571,11 +568,10 @@
 		return
 	if(iscarbon(target) && proximity)
 		var/mob/living/carbon/C = target
-		if(C.canBeHandcuffed() || C.get_arm_ignore())
-			CuffAttack(C, user)
-		else
+		if(!(C.has_left_hand() || C.has_right_hand()))
 			user.visible_message("<span class='cultitalic'>This victim doesn't have enough arms to complete the restraint!</span>")
 			return
+		CuffAttack(C, user)
 		source.UpdateButtons()
 		..()
 

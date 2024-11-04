@@ -45,6 +45,7 @@
 #define SPECIAL_ROLE_SYNDICATE_DEATHSQUAD "Syndicate Commando"
 #define SPECIAL_ROLE_TRAITOR "Traitor"
 #define SPECIAL_ROLE_VAMPIRE "Vampire"
+#define SPECIAL_ROLE_MIND_FLAYER "Mind Flayer"
 #define SPECIAL_ROLE_VAMPIRE_THRALL "Vampire Thrall"
 #define SPECIAL_ROLE_WIZARD "Wizard"
 #define SPECIAL_ROLE_WIZARD_APPRENTICE "Wizard Apprentice"
@@ -55,6 +56,7 @@
 #define SPECIAL_ROLE_XENOMORPH_SENTINEL "Xenomorph Sentinel"
 #define SPECIAL_ROLE_XENOMORPH_LARVA "Xenomorph Larva"
 #define SPECIAL_ROLE_ZOMBIE "Zombie"
+#define SPECIAL_ROLE_TOURIST "Tourist"
 #define SPECIAL_ROLE_EVENTMISC "Event Role"
 
 // Constants used by code which checks the status of nuclear blasts during a

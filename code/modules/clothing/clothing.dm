@@ -38,7 +38,6 @@
 	var/cooldown = 0
 	var/species_disguise = null
 	var/magical = FALSE
-	var/dyeable = FALSE
 	/// Do we block AI tracking?
 	var/blockTracking
 	w_class = WEIGHT_CLASS_SMALL
@@ -138,7 +137,10 @@
 /obj/item/clothing/proc/catch_fire() //Called in handle_fire()
 	return
 
-//Ears: currently only used for headsets and earmuffs
+//////////////////////////////
+// MARK: EARS
+//////////////////////////////
+// Currently only used for headsets and earmuffs.
 /obj/item/clothing/ears
 	name = "ears"
 	w_class = WEIGHT_CLASS_TINY
@@ -201,8 +203,9 @@
 	icon_state = O.icon_state
 	dir = O.dir
 
-
-//Glasses
+//////////////////////////////
+// MARK: GLASSES
+//////////////////////////////
 /obj/item/clothing/glasses
 	name = "glasses"
 	icon = 'icons/obj/clothing/glasses.dmi'
@@ -238,7 +241,7 @@
 
 /obj/item/clothing/glasses/examine(mob/user)
 	. = ..()
-	. += "<span class='info'>You can <b>Alt-Click</b> [src] to adjust if it fits over or under your mask.</span>"
+	. += "<span class='notice'>You can <b>Alt-Click</b> [src] to adjust if it fits over or under your mask.</span>"
 
 /obj/item/clothing/glasses/AltClick(mob/living/carbon/human/user)
 	if(user.stat || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED) || !Adjacent(user) || !istype(user))
@@ -249,7 +252,9 @@
 		user.update_inv_glasses()
 	to_chat(user, "<span class='notice'>You adjust [src] to be worn [over_mask ? "over" : "under"] a mask.</span>")
 
-//Gloves
+//////////////////////////////
+// MARK: GLOVES
+//////////////////////////////
 /obj/item/clothing/gloves
 	name = "gloves"
 	///Carn: for grammarically correct text-parsing
@@ -260,20 +265,24 @@
 	body_parts_covered = HANDS
 	slot_flags = SLOT_FLAG_GLOVES
 	attack_verb = list("challenged")
+	strip_delay = 2 SECONDS
+	put_on_delay = 4 SECONDS
+	dyeing_key = DYE_REGISTRY_GLOVES
+
 	var/transfer_prints = FALSE
 	///Master pickpocket?
 	var/pickpocket = FALSE
 	var/clipped = FALSE
 	///Do they protect the wearer from poison ink?
 	var/safe_from_poison = FALSE
-	strip_delay = 20
-	put_on_delay = 40
+
 	///Amount of times touching something with these gloves will spill blood on it
 	var/transfer_blood = 0
 
 	sprite_sheets = list(
 		"Vox" = 'icons/mob/clothing/species/vox/gloves.dmi',
-		"Drask" = 'icons/mob/clothing/species/drask/gloves.dmi'
+		"Drask" = 'icons/mob/clothing/species/drask/gloves.dmi',
+		"Kidan" = 'icons/mob/clothing/species/kidan/gloves.dmi'
 		)
 
 // Called just before an attack_hand(), in mob/UnarmedAttack()
@@ -295,6 +304,9 @@
 	else
 		return ..()
 
+//////////////////////////////
+// MARK: SUIT SENSORS
+//////////////////////////////
 /**
  * Tries to turn the sensors off. Returns TRUE if it succeeds
  */
@@ -305,21 +317,30 @@
 	return TRUE
 
 /obj/item/clothing/under/proc/set_sensors(mob/user)
-	if(!user.Adjacent(src) || !ishuman(user) || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED))
+	if(!user.Adjacent(src))
+		to_chat(user, "<span class='warning'>You are too far away!</span>")
 		return
+
+	if(!isrobot(user) && (!ishuman(user) || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED)))
+		to_chat(user, "<span class='warning'>You can't use your hands!</span>")
+		return
+
 	if(has_sensor >= 2)
-		to_chat(user, "The controls are locked.")
+		to_chat(user, "<span class='warning'>The controls are locked.</span>")
 		return
+
 	if(has_sensor <= SUIT_SENSOR_OFF)
-		to_chat(user, "This suit does not have any sensors.")
+		to_chat(user, "<span class='warning'>This suit does not have any sensors.</span>")
 		return
 
 	var/list/modes = list("Off", "Binary sensors", "Vitals tracker", "Tracking beacon")
 	var/switchMode = tgui_input_list(user, "Select a sensor mode:", "Suit Sensor Mode", modes, modes[sensor_mode + 1])
+	// If they walk away after the menu is already open.
 	if(!user.Adjacent(src))
 		to_chat(user, "<span class='warning'>You have moved too far away!</span>")
 		return
-	if(!ishuman(user) || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED))
+		// If your hands get lopped off or cuffed after the menu is open.
+	if(!isrobot(user) && (!ishuman(user) || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED)))
 		to_chat(user, "<span class='warning'>You can't use your hands!</span>")
 		return
 	if(!switchMode)
@@ -331,7 +352,7 @@
 			if(SUIT_SENSOR_OFF)
 				to_chat(user, "You disable your suit's remote sensing equipment.")
 			if(SUIT_SENSOR_BINARY)
-				to_chat(user, "Your suit will now report whether you are live or dead.")
+				to_chat(user, "Your suit will now report whether you are alive or dead.")
 			if(SUIT_SENSOR_VITAL)
 				to_chat(user, "Your suit will now report your vital lifesigns.")
 			if(SUIT_SENSOR_TRACKING)
@@ -340,8 +361,9 @@
 			var/mob/living/carbon/human/H = user
 			if(H.w_uniform == src)
 				H.update_suit_sensors()
+		return
 
-	else if(ismob(loc))
+	if(ismob(loc))
 		switch(sensor_mode)
 			if(SUIT_SENSOR_OFF)
 				for(var/mob/V in viewers(user, 1))
@@ -363,7 +385,9 @@
 /obj/item/clothing/under/AltClick(mob/user)
 	set_sensors(user)
 
-//Head
+//////////////////////////////
+// MARK: HEAD
+//////////////////////////////
 /obj/item/clothing/head
 	name = "head"
 	icon = 'icons/obj/clothing/hats.dmi'
@@ -375,20 +399,166 @@
 	var/vision_flags = 0
 	var/see_in_dark = 0
 	var/lighting_alpha
+	/// the head clothing that this item may be attached to.
+	var/obj/item/clothing/under/has_under = null
+	/// the attached hats to this hat.
+	var/list/attached_hats = list()
+	/// if this hat can have hats placed on top of it.
+	var/can_have_hats = FALSE
+	/// if this hat can be a hat of a hat. Hat^2
+	var/can_be_hat = TRUE
 
 /obj/item/clothing/head/update_icon_state()
 	if(..())
 		item_state = "[replacetext("[item_state]", "_up", "")][up ? "_up" : ""]"
 
-//Mask
+/obj/item/clothing/head/AltShiftClick(mob/user)
+	if(user.stat || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED) || !Adjacent(user))
+		return
+	if(!length(attached_hats))
+		return
+	var/obj/item/clothing/head/hat
+	if(length(attached_hats) > 1)
+		var/pick = radial_menu_helper(usr, src, attached_hats, custom_check = FALSE, require_near = TRUE)
+		if(!pick || !istype(pick, /obj/item/clothing/head) || !Adjacent(usr))
+			return
+		hat = pick
+	else
+		hat = attached_hats[1]
+	remove_hat(user, hat)
+
+/obj/item/clothing/head/Destroy()
+	if(is_equipped())
+		var/mob/M = loc
+		for(var/obj/item/clothing/head/H as anything in attached_hats)
+			H.on_removed(M)
+	else
+		for(var/obj/item/clothing/head/H as anything in attached_hats)
+			H.forceMove(get_turf(src))
+	attached_hats = null
+	return ..()
+
+/obj/item/clothing/head/dropped(mob/user, silent)
+	..()
+	if(!ishuman(user))
+		return
+	var/mob/living/carbon/human/H = user
+	if(H.get_item_by_slot(SLOT_HUD_HEAD) == src)
+		for(var/obj/item/clothing/head/hat as anything in attached_hats)
+			hat.attached_unequip()
+
+/obj/item/clothing/head/examine(mob/user)
+	. = ..()
+	for(var/obj/item/clothing/head/hat as anything in attached_hats)
+		. += "\A [hat] is placed neatly on top."
+
+//when user attached a hat to H (another hat)
+/obj/item/clothing/head/proc/on_attached(obj/item/clothing/head/H, mob/user as mob)
+	if(!istype(H))
+		return
+	has_under = H
+	forceMove(has_under)
+	has_under.overlays += item_state
+	has_under.actions += actions
+
+	for(var/datum/action/A in actions)
+		if(has_under.is_equipped())
+			var/mob/M = has_under.loc
+			A.Grant(M)
+
+	if(user)
+		to_chat(user, "<span class='notice'>You attach [src] to [has_under].</span>")
+	add_fingerprint(user)
+
+/obj/item/clothing/head/proc/on_removed(mob/user)
+	if(!has_under)
+		return
+	has_under.overlays -= icon_state
+	has_under.actions -= actions
+
+	for(var/datum/action/A in actions)
+		if(ismob(has_under.loc))
+			var/mob/M = has_under.loc
+			A.Remove(M)
+
+	has_under = null
+	if(user)
+		user.put_in_hands(src)
+		add_fingerprint(user)
+
+/obj/item/clothing/head/proc/detach_hat(obj/item/clothing/head/hat, mob/user)
+	attached_hats -= hat
+	hat.on_removed(user)
+	if(ishuman(loc))
+		var/mob/living/carbon/human/H = loc
+		H.update_inv_head()
+
+/obj/item/clothing/head/proc/remove_hat(mob/user, obj/item/clothing/head/hat)
+	if(!(hat in attached_hats))
+		return
+	if(!isliving(user))
+		return
+	if(user.incapacitated())
+		return
+	if(!Adjacent(user))
+		return
+	detach_hat(hat, user)
+	to_chat(user, "<span class='notice'>You remove [hat] from [src].</span>")
+
+/obj/item/clothing/head/proc/attached_unequip(mob/user) // If we need to do something special when clothing is removed from the user
+	return
+
+/obj/item/clothing/head/proc/attached_equip(mob/user) // If we need to do something special when clothing is removed from the user
+	return
+
+/*
+  * # can_attach_hat
+  *
+  * Arguments:
+  * * Hat - The clothing/head object being checked. MUST BE TYPE /obj/item/clothing/head
+*/
+/obj/item/clothing/head/proc/can_attach_hat(obj/item/clothing/head/hat)
+	return length(attached_hats) < 1 && can_have_hats && hat.can_be_hat // this hat already has a hat or cannot be a hat of a hat!
+
+/obj/item/clothing/head/proc/attach_hat(obj/item/clothing/head/hat, mob/user, unequip = FALSE)
+	if(can_attach_hat(hat))
+		if(unequip && !user.unEquip(hat)) // Make absolutely sure this hat is removed from hands
+			return FALSE
+
+		attached_hats += hat
+		hat.on_attached(src, user)
+
+		if(ishuman(loc))
+			var/mob/living/carbon/human/H = loc
+			H.update_inv_head()
+
+		return TRUE
+	else if(hat.has_under)
+		return FALSE
+	else
+		to_chat(user, "<span class='notice'>You cannot place [hat] ontop of [src].</span>")
+
+	return FALSE
+
+/obj/item/clothing/head/attackby(obj/item/I, mob/user, params)
+	if(istype(I, /obj/item/clothing/head) && can_have_hats)
+		attach_hat(I, user, TRUE)
+
+	return ..()
+
+//////////////////////////////
+// MARK: MASK
+//////////////////////////////
 /obj/item/clothing/mask
 	name = "mask"
 	icon = 'icons/obj/clothing/masks.dmi'
 	body_parts_covered = HEAD
 	slot_flags = SLOT_FLAG_MASK
+	strip_delay = 4 SECONDS
+	put_on_delay = 4 SECONDS
+	dyeable = FALSE
+
 	var/adjusted_flags = null
-	strip_delay = 40
-	put_on_delay = 40
 
 //Proc that moves gas/breath masks out of the way
 /obj/item/clothing/mask/proc/adjustmask(mob/user)
@@ -461,24 +631,19 @@
 /obj/item/clothing/mask/proc/change_speech_verb()
 	return
 
-//Shoes
+//////////////////////////////
+// MARK: SHOES
+//////////////////////////////
 /obj/item/clothing/shoes
 	name = "shoes"
 	icon = 'icons/obj/clothing/shoes.dmi'
 	desc = "Comfortable-looking shoes."
 	gender = PLURAL //Carn: for grammatically correct text-parsing
-	var/chained = FALSE
-	var/can_cut_open = FALSE
-	var/cut_open = FALSE
-	var/no_slip = FALSE
-	var/knife_slot = FALSE
-	var/obj/item/kitchen/knife/combat/hidden_blade
 
 	body_parts_covered = FEET
 	slot_flags = SLOT_FLAG_FEET
-
-	var/blood_state = BLOOD_STATE_NOT_BLOODY
-	var/list/bloody_shoes = list(BLOOD_STATE_HUMAN = 0, BLOOD_STATE_XENO = 0, BLOOD_STATE_NOT_BLOODY = 0, BLOOD_BASE_ALPHA = BLOODY_FOOTPRINT_BASE_ALPHA)
+	dyeable = TRUE
+	dyeing_key = DYE_REGISTRY_SHOES
 
 	permeability_coefficient = 0.50
 	slowdown = SHOES_SLOWDOWN
@@ -486,7 +651,20 @@
 	sprite_sheets = list(
 		"Vox" = 'icons/mob/clothing/species/vox/shoes.dmi',
 		"Drask" = 'icons/mob/clothing/species/drask/shoes.dmi'
-		)
+	)
+
+	var/chained = FALSE
+	var/can_cut_open = FALSE
+	var/cut_open = FALSE
+	var/no_slip = FALSE
+	var/knife_slot = FALSE
+	var/obj/item/kitchen/knife/combat/hidden_blade
+
+
+	var/blood_state = BLOOD_STATE_NOT_BLOODY
+	var/list/bloody_shoes = list(BLOOD_STATE_HUMAN = 0, BLOOD_STATE_XENO = 0, BLOOD_STATE_NOT_BLOODY = 0, BLOOD_BASE_ALPHA = BLOODY_FOOTPRINT_BASE_ALPHA)
+
+
 
 /obj/item/clothing/shoes/equipped(mob/user, slot)
 	. = ..()
@@ -587,16 +765,20 @@
 		if(hidden_blade)
 			. += "<span class='notice'>Your boot has a [hidden_blade.name] hidden inside of it!</span>"
 
-//Suit
+//////////////////////////////
+// MARK: SUIT
+//////////////////////////////
 /obj/item/clothing/suit
 	name = "suit"
 	icon = 'icons/obj/clothing/suits.dmi'
-	var/fire_resist = T0C+100
 	allowed = list(/obj/item/tank/internals/emergency_oxygen)
 	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, RAD = 0, FIRE = 0, ACID = 0)
 	drop_sound = 'sound/items/handling/cloth_drop.ogg'
 	pickup_sound =  'sound/items/handling/cloth_pickup.ogg'
 	slot_flags = SLOT_FLAG_OCLOTHING
+	dyeable = FALSE
+
+	var/fire_resist = T0C + 100
 	var/blood_overlay_type = "suit"
 	var/suit_toggled = FALSE
 	var/suit_adjusted = FALSE
@@ -607,6 +789,7 @@
 	var/max_suit_w = WEIGHT_CLASS_BULKY
 	///How long to break out of the suits
 	var/breakouttime
+
 
 /obj/item/clothing/suit/Initialize(mapload)
 	. = ..()
@@ -736,7 +919,9 @@
 	user.visible_message("<span class='danger'>[user] manages to [break_restraints ? "break" : "remove"] [src]!</span>", "<span class='notice'>You successfully [break_restraints ? "break" : "remove"] [src].</span>")
 	user.unEquip(src)
 
-//Spacesuit
+//////////////////////////////
+// MARK: SPACE SUIT
+//////////////////////////////
 //Note: Everything in modules/clothing/spacesuits should have the entire suit grouped together.
 //      Meaning the the suit is defined directly after the corrisponding helmet. Just like below!
 /obj/item/clothing/head/helmet/space
@@ -759,7 +944,6 @@
 	put_on_delay = 50
 	resistance_flags = NONE
 	dog_fashion = null
-
 
 /obj/item/clothing/suit/space
 	name = "space suit"
@@ -787,7 +971,9 @@
 		"Vox" = 'icons/mob/clothing/species/vox/suit.dmi'
 		)
 
-//Under clothing
+//////////////////////////////
+// MARK: UNDER CLOTHES
+//////////////////////////////
 /obj/item/clothing/under
 	icon = 'icons/obj/clothing/under/misc.dmi'
 	name = "under"
@@ -798,6 +984,7 @@
 	equip_sound = 'sound/items/equip/jumpsuit_equip.ogg'
 	drop_sound = 'sound/items/handling/cloth_drop.ogg'
 	pickup_sound =  'sound/items/handling/cloth_pickup.ogg'
+	dyeing_key = DYE_REGISTRY_UNDER
 
 	sprite_sheets = list(
 		"Vox" = 'icons/mob/clothing/species/vox/under/misc.dmi',
@@ -932,15 +1119,15 @@
 			if(SUIT_SENSOR_TRACKING)
 				. += "Its vital tracker and tracking beacon appear to be enabled."
 		if(has_sensor == 1)
-			. += "<span class='info'>Alt-click to toggle the sensors mode.</span>"
+			. += "<span class='notice'>Alt-click to toggle the sensors mode.</span>"
 	else
 		. += "This suit does not have any sensors."
 
 	if(length(accessories))
 		for(var/obj/item/clothing/accessory/A in accessories)
 			. += "\A [A] is attached to it."
-	. += "<span class='info'>Alt-Shift-Click to remove an accessory.</span>"
-	. += "<span class='info'>Ctrl-Shift-Click to roll down this jumpsuit.</span>"
+	. += "<span class='notice'>Alt-Shift-Click to remove an accessory.</span>"
+	. += "<span class='notice'>Ctrl-Shift-Click to roll down this jumpsuit.</span>"
 
 
 /obj/item/clothing/under/CtrlShiftClick(mob/living/carbon/human/user)

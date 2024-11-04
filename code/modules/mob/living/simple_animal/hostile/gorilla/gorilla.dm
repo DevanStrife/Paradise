@@ -9,7 +9,7 @@
 	speak_chance = 80
 	maxHealth = 220
 	health = 220
-	butcher_results = list(/obj/item/food/snacks/meat/slab/gorilla = 4)
+	butcher_results = list(/obj/item/food/meat/slab/gorilla = 4)
 	response_help = "prods"
 	response_disarm = "challenges"
 	response_harm = "thumps"
@@ -43,7 +43,7 @@
 	/// Chance of doing the throw or stamina damage, along with the flat damage amount
 	var/throw_onhit = 50
 
-/mob/living/simple_animal/hostile/gorilla/Initialize()
+/mob/living/simple_animal/hostile/gorilla/Initialize(mapload)
 	. = ..()
 	var/datum/action/innate/gorilla/gorilla_toggle/toggle = new
 	toggle.Grant(src)

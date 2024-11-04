@@ -5,7 +5,7 @@
 	icon_state = "seed-poppy"
 	species = "poppy"
 	plantname = "Poppy Plants"
-	product = /obj/item/food/snacks/grown/poppy
+	product = /obj/item/food/grown/poppy
 	endurance = 10
 	maturation = 8
 	yield = 6
@@ -17,7 +17,7 @@
 	mutatelist = list(/obj/item/seeds/poppy/geranium, /obj/item/seeds/poppy/lily)
 	reagents_add = list("bicaridine" = 0.2, "plantmatter" = 0.05)
 
-/obj/item/food/snacks/grown/poppy
+/obj/item/food/grown/poppy
 	seed = /obj/item/seeds/poppy
 	name = "poppy"
 	desc = "Long-used as a symbol of rest, peace, and death."
@@ -37,10 +37,10 @@
 	plantname = "Lily Plants"
 	icon_grow = "lily-grow"
 	icon_dead = "lily-dead"
-	product = /obj/item/food/snacks/grown/lily
-	mutatelist = list()
+	product = /obj/item/food/grown/lily
+	mutatelist = list(/obj/item/seeds/poppy/lily/trumpet)
 
-/obj/item/food/snacks/grown/lily
+/obj/item/food/grown/lily
 	seed = /obj/item/seeds/poppy/lily
 	name = "lily"
 	desc = "A beautiful white flower."
@@ -51,6 +51,36 @@
 	filling_color = "#C7BBAD"
 	distill_reagent = "vermouth"
 
+//Spaceman's Trumpet
+
+/obj/item/seeds/poppy/lily/trumpet
+	name = "pack of spaceman's trumpet seeds"
+	desc = "A plant sculped by extensive genetic engineering. The spaceman's trumpet is said to bear no resemblance to its wild ancestors. Inside NT AgriSci circles it is better known as NTPW-0372."
+	icon_state = "seed-trumpet"
+	species = "spacemanstrumpet"
+	plantname = "Spaceman's Trumpet Plant"
+	product = /obj/item/food/grown/trumpet
+	lifespan = 80
+	production = 5
+	endurance = 10
+	maturation = 12
+	yield = 4
+	potency = 20
+	growthstages = 4
+	weed_rate = 2
+	weed_chance = 10
+	growing_icon = 'icons/obj/hydroponics/growing_flowers.dmi'
+	icon_grow = "spacemanstrumpet-grow"
+	icon_dead = "spacemanstrumpet-dead"
+	mutatelist = null
+	reagents_add = list(/datum/reagent/consumable/nutriment = 0.05)
+
+/obj/item/food/grown/trumpet
+	seed = /obj/item/seeds/poppy/lily/trumpet
+	name = "spaceman's trumpet"
+	desc = "A vivid flower that smells faintly of freshly cut grass. Touching the flower seems to stain the skin some time after contact, yet most other surfaces seem to be unaffected by this phenomenon."
+	icon_state = "spacemanstrumpet"
+
 // Geranium
 /obj/item/seeds/poppy/geranium
 	name = "pack of geranium seeds"
@@ -60,10 +90,10 @@
 	plantname = "Geranium Plants"
 	icon_grow = "geranium-grow"
 	icon_dead = "geranium-dead"
-	product = /obj/item/food/snacks/grown/geranium
+	product = /obj/item/food/grown/geranium
 	mutatelist = list()
 
-/obj/item/food/snacks/grown/geranium
+/obj/item/food/grown/geranium
 	seed = /obj/item/seeds/poppy/geranium
 	name = "geranium"
 	desc = "A beautiful purple flower."
@@ -81,7 +111,7 @@
 	icon_state = "seed-harebell"
 	species = "harebell"
 	plantname = "Harebells"
-	product = /obj/item/food/snacks/grown/harebell
+	product = /obj/item/food/grown/harebell
 	lifespan = 100
 	endurance = 20
 	maturation = 7
@@ -93,7 +123,7 @@
 	growing_icon = 'icons/obj/hydroponics/growing_flowers.dmi'
 	reagents_add = list("plantmatter" = 0.04)
 
-/obj/item/food/snacks/grown/harebell
+/obj/item/food/grown/harebell
 	seed = /obj/item/seeds/harebell
 	name = "harebell"
 	desc = "\"I'll sweeten thy sad grave: thou shalt not lack the flower that's like thy face, pale primrose, nor the azured hare-bell, like thy veins; no, nor the leaf of eglantine, whom not to slander, out-sweeten'd not thy breath.\""
@@ -150,12 +180,12 @@
 	plantname = "Moonflowers"
 	icon_grow = "moonflower-grow"
 	icon_dead = "sunflower-dead"
-	product = /obj/item/food/snacks/grown/moonflower
+	product = /obj/item/food/grown/moonflower
 	mutatelist = list()
 	reagents_add = list("moonshine" = 0.2, "vitamin" = 0.02, "plantmatter" = 0.02)
 	rarity = 15
 
-/obj/item/food/snacks/grown/moonflower
+/obj/item/food/grown/moonflower
 	seed = /obj/item/seeds/sunflower/moonflower
 	name = "moonflower"
 	desc = "Store in a location at least 50 yards away from werewolves."

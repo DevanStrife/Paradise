@@ -74,6 +74,8 @@
 	if(ismob(AM) && AM.stat == CONSCIOUS)
 		to_chat(user, "<span class='warning'>You can't get the [src] to stick to [AM]! Perhaps if [AM] was asleep or dead you could attach it?</span>")
 		return
+	if(isstorage(AM) || ismodcontrol(AM))
+		return ..() //Let us not have people c4 themselfs. Especially with a now 1.5 second do_after
 	if(isobserver(AM))
 		to_chat(user, "<span class='warning'>Your hand just phases through [AM]!</span>")
 		return
@@ -90,7 +92,7 @@
 			log_game("[key_name(user)] planted [name] on [target.name] at ([target.x],[target.y],[target.z]) with [det_time] second fuse")
 
 		plastic_overlay.layer = HIGH_OBJ_LAYER
-		if(isturf(target) || istype(target, /obj/machinery/door))
+		if(isturf(target) || isairlock(target))
 			plastic_overlay_target = new /obj/effect/plastic(get_turf(user))
 		else
 			plastic_overlay_target = target

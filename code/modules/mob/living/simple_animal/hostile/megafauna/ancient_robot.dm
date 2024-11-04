@@ -240,7 +240,7 @@ Difficulty: Hard
 	. = ..()
 	var/newcolor = rgb(241, 137, 172)
 	add_atom_colour(newcolor, TEMPORARY_COLOUR_PRIORITY)
-	beam_it_up()
+	addtimer(CALLBACK(src, PROC_REF(beam_it_up)), 0)
 
 /obj/effect/vetus_laser/ex_act(severity)
 	return
@@ -600,8 +600,8 @@ Difficulty: Hard
 			if(mode == VORTEX)
 				var/turf/T = get_turf(src)
 				for(var/atom/A in T)
-					A.ex_act(3) //Body is immune to explosions of this strength.
-				T.ex_act(3)
+					A.ex_act(EXPLODE_LIGHT) //Body is immune to explosions of this strength.
+				T.ex_act(EXPLODE_LIGHT)
 			if(mode == CRYO)
 				var/turf/simulated/S = get_turf(src)
 				S.MakeSlippery(TURF_WET_ICE, enraged ? rand(25, 35 SECONDS) : rand(10, 20 SECONDS))
@@ -631,7 +631,6 @@ Difficulty: Hard
 	weather_immunities = list("lava","ash")
 	atmos_requirements = list("min_oxy" = 0, "max_oxy" = 0, "min_tox" = 0, "max_tox" = 0, "min_co2" = 0, "max_co2" = 0, "min_n2" = 0, "max_n2" = 0)
 	minbodytemp = 0
-	flying = TRUE
 	check_friendly_fire = 1
 	ranged = TRUE
 	projectilesound = 'sound/weapons/gunshots/gunshot.ogg'
@@ -652,6 +651,7 @@ Difficulty: Hard
 	ranged_ignores_vision = TRUE
 	stat_attack = UNCONSCIOUS
 	maxbodytemp = INFINITY
+	initial_traits = list(TRAIT_FLYING)
 	var/range = 3
 	var/mob/living/simple_animal/hostile/megafauna/ancient_robot/core = null
 	var/fake_max_hp = 300

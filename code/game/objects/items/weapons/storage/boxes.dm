@@ -320,6 +320,8 @@
 	desc = "A full set of labelled components for assembling an R&D setup with. There are wordless picrographs of how to assemble everything on the back."
 
 /obj/item/storage/box/large/rnd_parts/populate_contents()
+	new /obj/item/circuitboard/rnd_network_controller(src)
+	new /obj/item/circuitboard/rdserver(src)
 	new /obj/item/circuitboard/rdconsole(src)
 	new /obj/item/circuitboard/protolathe(src)
 	new /obj/item/circuitboard/destructive_analyzer(src)
@@ -332,6 +334,7 @@
 	new /obj/item/stock_parts/matter_bin(src)
 	new /obj/item/stock_parts/matter_bin(src)
 	new /obj/item/stock_parts/scanning_module(src)
+	new /obj/item/stock_parts/scanning_module(src)
 	new /obj/item/stock_parts/micro_laser(src)
 	new /obj/item/reagent_containers/glass/beaker(src)
 	new /obj/item/reagent_containers/glass/beaker(src)
@@ -340,6 +343,32 @@
 	new /obj/item/stack/sheet/glass/fifty(src)
 	new /obj/item/stack/sheet/metal/fifty(src)
 	new /obj/item/stack/cable_coil(src)
+	new /obj/item/stack/cable_coil(src)
+
+/obj/item/storage/box/large/glowstick/emergency
+	name = "emergency glowstick box"
+	desc = "A large box filled to the brim with cheap emergency glowsticks."
+
+/obj/item/storage/box/large/glowstick/emergency/populate_contents()
+	for(var/i in 1 to 15)
+		new /obj/item/flashlight/flare/glowstick/emergency(src)
+
+/obj/item/storage/box/glowstick/premium
+	name = "premium glowstick box"
+	desc = "A box filled with high-quality military surplus glowsticks."
+
+/obj/item/storage/box/glowstick/premium/populate_contents()
+	for(var/i in 1 to 5)
+		new /obj/item/flashlight/flare/glowstick(src)
+
+/obj/item/storage/box/flares
+	name = "emergency flare box"
+	desc = "A box full of magnesium signal flares."
+
+/obj/item/storage/box/flares/populate_contents()
+	for(var/i in 1 to 5)
+		new /obj/item/flashlight/flare(src)
+
 
 //////////////////
 /* Monkey Boxes */
@@ -349,46 +378,52 @@
 	desc = "Drymate brand monkey cubes. Just add water!"
 	icon_state = "monkey_box"
 	storage_slots = 7
-	can_hold = list(/obj/item/food/snacks/monkeycube)
-	var/monkey_cube_type = /obj/item/food/snacks/monkeycube
+	can_hold = list(/obj/item/food/monkeycube)
+	var/monkey_cube_type = /obj/item/food/monkeycube
 
 /obj/item/storage/box/monkeycubes/populate_contents()
 	for(var/I in 1 to 5)
 		new monkey_cube_type(src)
 
+/obj/item/storage/box/monkeycubes/obj_destruction(damage_flag)
+	if(damage_flag == ACID || damage_flag == FIRE)
+		for(var/obj/item/food/monkeycube/mkc in contents)
+			mkc.obj_destruction(damage_flag)
+	. = ..()
+
 /obj/item/storage/box/monkeycubes/syndicate
 	desc = "Waffle Co. brand monkey cubes. Just add water and a dash of subterfuge!"
-	monkey_cube_type = /obj/item/food/snacks/monkeycube/syndicate
+	monkey_cube_type = /obj/item/food/monkeycube/syndicate
 
 /obj/item/storage/box/monkeycubes/farwacubes
 	name = "farwa cube box"
 	desc = "Drymate brand farwa cubes. Just add water!"
 	icon_state = "farwa_box"
-	monkey_cube_type = /obj/item/food/snacks/monkeycube/farwacube
+	monkey_cube_type = /obj/item/food/monkeycube/farwacube
 
 /obj/item/storage/box/monkeycubes/stokcubes
 	name = "stok cube box"
 	desc = "Drymate brand stok cubes. Just add water!"
 	icon_state = "stok_box"
-	monkey_cube_type = /obj/item/food/snacks/monkeycube/stokcube
+	monkey_cube_type = /obj/item/food/monkeycube/stokcube
 
 /obj/item/storage/box/monkeycubes/neaeracubes
 	name = "neaera cube box"
 	desc = "Drymate brand neaera cubes. Just add water!"
 	icon_state = "neaera_box"
-	monkey_cube_type = /obj/item/food/snacks/monkeycube/neaeracube
+	monkey_cube_type = /obj/item/food/monkeycube/neaeracube
 
 /obj/item/storage/box/monkeycubes/wolpincubes
 	name = "wolpin cube box"
 	desc = "Drymate brand wolpin cubes. Just add water!"
 	icon_state = "wolpin_box"
-	monkey_cube_type = /obj/item/food/snacks/monkeycube/wolpincube
+	monkey_cube_type = /obj/item/food/monkeycube/wolpincube
 
 /obj/item/storage/box/monkeycubes/nian_worme_cubes
 	name = "nian worme cube box"
 	desc = "Nian Trade Guild brand worme cubes. Just add water!"
 	icon_state = "nian_worme_box"
-	monkey_cube_type = /obj/item/food/snacks/monkeycube/nian_wormecube
+	monkey_cube_type = /obj/item/food/monkeycube/nian_wormecube
 
 ///////////////////
 /* Medical Boxes */
@@ -668,77 +703,99 @@
 ////////////////
 /* Ammo Boxes */
 ////////////////
-/obj/item/storage/box/slug
-	name = "ammunition box (Slug)"
-	desc = "A small box capable of holding seven shotgun shells."
-	icon_state = "slug_box"
 
-/obj/item/storage/box/slug/populate_contents()
-	for(var/I in 1 to 7)
-		new /obj/item/ammo_casing/shotgun(src)
+/obj/item/storage/fancy/shell
+	icon = 'icons/obj/shell_boxes.dmi'
+	storage_slots = 8
+	appearance_flags = parent_type::appearance_flags | KEEP_TOGETHER
+	can_hold = list(/obj/item/ammo_casing/shotgun)
+	/// What shell do we fill the box with
+	var/shell_type
 
-/obj/item/storage/box/buck
-	name = "ammunition box (Buckshot)"
-	desc = "A small box capable of holding seven shotgun shells."
-	icon_state = "buckshot_box"
+/obj/item/storage/fancy/shell/fancy_storage_examine(mob/user)
+	. = list()
+	if(!length(contents))
+		. += "There are no shells in the box."
+		return
 
-/obj/item/storage/box/buck/populate_contents()
-	for(var/I in 1 to 7)
-		new /obj/item/ammo_casing/shotgun/buckshot(src)
+	var/list/shell_list = list() // Associated list of all shells in the box
+	for(var/obj/item/ammo_casing/shotgun/shell as anything in contents)
+		shell_list[shell.name] += 1
 
-/obj/item/storage/box/dragonsbreath
-	name = "ammunition box (Dragonsbreath)"
-	desc = "A small box capable of holding seven shotgun shells."
-	icon_state = "dragonsbreath_box"
+	for(var/thing as anything in shell_list)
+		if(shell_list[thing] == 1)
+			. += "There is one [thing] in the box."
+		else
+			. += "There are [shell_list[thing]] [thing]s in the box."
 
-/obj/item/storage/box/dragonsbreath/populate_contents()
-	for(var/I in 1 to 7)
-		new /obj/item/ammo_casing/shotgun/incendiary/dragonsbreath(src)
+/obj/item/storage/fancy/shell/update_icon_state()
+	icon_state = "open"
 
-/obj/item/storage/box/stun
-	name = "ammunition box (Stun shells)"
-	desc = "A small box capable of holding seven shotgun shells."
-	icon_state = "stun_box"
+/obj/item/storage/fancy/shell/populate_contents()
+	if(!shell_type)
+		return
+	for(var/i in 1 to storage_slots)
+		new shell_type(src)
 
-/obj/item/storage/box/stun/populate_contents()
-	for(var/I in 1 to 7)
-		new /obj/item/ammo_casing/shotgun/stunslug(src)
+/obj/item/storage/fancy/shell/update_overlays()
+	. = ..()
+	var/list/cached_contents = contents
+	for(var/index in 1 to length(cached_contents))
+		var/obj/shell = cached_contents[index]
+		var/image/I = image(icon, src, initial(shell.icon_state))
+		I.pixel_x = 3 * (round((index - 1) / 2))
+		I.pixel_y = -4 * ((index + 1) % 2)
+		. += I
 
-/obj/item/storage/box/beanbag
-	name = "ammunition box (Beanbag shells)"
-	desc = "A small box capable of holding seven shotgun shells."
-	icon_state = "beanbag_box"
+	. += "shell_box_front" // need to add another overlay to prevent from other overlays from showing on top
 
-/obj/item/storage/box/beanbag/populate_contents()
-	for(var/I in 1 to 7)
-		new /obj/item/ammo_casing/shotgun/beanbag(src)
-
-/obj/item/storage/box/rubbershot
-	name = "ammunition box (Rubbershot shells)"
-	desc = "A small box capable of holding seven shotgun shells."
-	icon_state = "rubbershot_box"
-
-/obj/item/storage/box/rubbershot/populate_contents()
-	for(var/I in 1 to 7)
-		new /obj/item/ammo_casing/shotgun/rubbershot(src)
-
-/obj/item/storage/box/tranquilizer
+/obj/item/storage/fancy/shell/tranquilizer
 	name = "ammunition box (Tranquilizer darts)"
 	desc = "A small box capable of holding seven shotgun shells."
-	icon_state = "tranq_box"
+	icon_state = "tranqbox"
+	shell_type = /obj/item/ammo_casing/shotgun/tranquilizer
 
-/obj/item/storage/box/tranquilizer/populate_contents()
-	for(var/I in 1 to 7)
-		new /obj/item/ammo_casing/shotgun/tranquilizer(src)
+/obj/item/storage/fancy/shell/slug
+	name = "ammunition box (Slug)"
+	desc = "A small box capable of holding seven shotgun shells."
+	icon_state = "slugbox"
+	shell_type = /obj/item/ammo_casing/shotgun
 
-/obj/item/storage/box/holy
+/obj/item/storage/fancy/shell/buck
+	name = "ammunition box (Buckshot)"
+	desc = "A small box capable of holding seven shotgun shells."
+	icon_state = "buckbox"
+	shell_type = /obj/item/ammo_casing/shotgun/buckshot
+
+/obj/item/storage/fancy/shell/dragonsbreath
+	name = "ammunition box (Dragonsbreath)"
+	desc = "A small box capable of holding seven shotgun shells."
+	icon_state = "dragonsbox"
+	shell_type = /obj/item/ammo_casing/shotgun/incendiary/dragonsbreath
+
+/obj/item/storage/fancy/shell/stun
+	name = "ammunition box (Stun shells)"
+	desc = "A small box capable of holding seven shotgun shells."
+	icon_state = "stunbox"
+	shell_type = /obj/item/ammo_casing/shotgun/stunslug
+
+/obj/item/storage/fancy/shell/beanbag
+	name = "ammunition box (Beanbag shells)"
+	desc = "A small box capable of holding seven shotgun shells."
+	icon_state = "beanbox"
+	shell_type = /obj/item/ammo_casing/shotgun/beanbag
+
+/obj/item/storage/fancy/shell/rubbershot
+	name = "ammunition box (Rubbershot shells)"
+	desc = "A small box capable of holding seven shotgun shells."
+	icon_state = "rubberbox"
+	shell_type = /obj/item/ammo_casing/shotgun/rubbershot
+
+/obj/item/storage/fancy/shell/holy
 	name = "ammunition box (Holy Water darts)"
 	desc = "A small box capable of holding seven shotgun shells."
-	icon_state = "hshell_box"
-
-/obj/item/storage/box/holy/populate_contents()
-	for(var/I in 1 to 7)
-		new /obj/item/ammo_casing/shotgun/holy(src)
+	icon_state = "holybox"
+	shell_type = /obj/item/ammo_casing/shotgun/holy
 
 ////////////////
 /* Donk Boxes */
@@ -749,14 +806,14 @@
 	icon_state = "donk_box"
 	storage_slots = 6
 	can_hold = list(
-		/obj/item/food/snacks/donkpocket,
-		/obj/item/food/snacks/warmdonkpocket,
-		/obj/item/food/snacks/warmdonkpocket_weak,
-		/obj/item/food/snacks/syndidonkpocket)
+		/obj/item/food/donkpocket,
+		/obj/item/food/warmdonkpocket,
+		/obj/item/food/warmdonkpocket_weak,
+		/obj/item/food/syndidonkpocket)
 
 /obj/item/storage/box/donkpockets/populate_contents()
 	for(var/I in 1 to 6)
-		new /obj/item/food/snacks/donkpocket(src)
+		new /obj/item/food/donkpocket(src)
 
 /obj/item/storage/box/donkpockets/empty/populate_contents()
 	return
@@ -768,7 +825,7 @@
 
 /obj/item/storage/box/syndidonkpockets/populate_contents()
 	for(var/I in 1 to 6)
-		new /obj/item/food/snacks/syndidonkpocket(src)
+		new /obj/item/food/syndidonkpocket(src)
 
 ////////////////
 /* Misc Boxes */
@@ -1088,6 +1145,7 @@
 	new /obj/item/circuitboard/destructive_analyzer(src)
 	new /obj/item/circuitboard/circuit_imprinter(src)
 	new /obj/item/circuitboard/rdconsole/public(src)
+	new /obj/item/circuitboard/rnd_network_controller(src)
 
 /obj/item/storage/box/stockparts
 	display_contents_with_number = TRUE

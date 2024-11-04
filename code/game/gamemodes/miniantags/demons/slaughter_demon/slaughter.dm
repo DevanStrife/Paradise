@@ -197,7 +197,7 @@
 	if(!msg)
 		return
 	log_say("(SLAUGHTER to [key_name(choice)]) [msg]", usr)
-	to_chat(usr, "<span class='info'><b>You whisper to [choice]: </b>[msg]</span>")
+	to_chat(usr, "<span class='notice'><b>You whisper to [choice]: </b>[msg]</span>")
 	to_chat(choice, "<span class='deadsay'><b>Suddenly a strange, demonic voice resonates in your head... </b></span><i><span class='danger'> [msg]</span></I>")
 	for(var/mob/dead/observer/G in GLOB.player_list)
 		G.show_message("<i>Demonic message from <b>[usr]</b> ([ghost_follow_link(usr, ghost=G)]) to <b>[choice]</b> ([ghost_follow_link(choice, ghost=G)]): [msg]</i>")
@@ -212,7 +212,7 @@
 	icon = 'icons/obj/surgery.dmi'
 	icon_state = "demon_heart"
 	origin_tech = "combat=5;biotech=7"
-	organ_datums = list(/datum/organ/heart/always_beating)
+	organ_datums = list(/datum/organ/heart/always_beating, /datum/organ/battery)
 
 /obj/item/organ/internal/heart/demon/update_icon_state()
 	return //always beating visually
