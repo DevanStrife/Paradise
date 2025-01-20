@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <base href="../" />
+    <link rel="stylesheet" href="dmdoc.css" />
+    <title>&#x2F;mob&#x2F;living - Paradise Station 13</title>
+</head>
+<body>
+<header>
+    <a href="index.html">Paradise Station 13</a> -
+    <a href="index.html#modules">Modules</a> -
+    <a href="index.html#types">Types</a>
+ &mdash; <a href="mob/living.html#var">Var Details</a> - <a href="mob/living.html#proc">Proc Details</a></header>
+<main>
+<h1>living <aside>/<a href="mob.html">mob</a>/<a href="mob/living.html">living</a></aside>
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/modules/admin/verbs/freeze.dm#L27">
+        <img src="git.png" width="16" height="16" title="code&#x2F;modules&#x2F;admin&#x2F;verbs&#x2F;freeze.dm 27"/></a></h1>
+
+<p>mob freeze procs</p><table class="summary" cellspacing="0"><tr><td colspan="2"><h2>Vars</h2></td></tr>
+            <tr><th><a href="mob/living.html#var/admin_prev_sleeping">admin_prev_sleeping</a></th><td>Used for keeping track of previous sleeping value with admin freeze.</td></tr>
+            <tr><th><a href="mob/living.html#var/flags_2">flags_2</a></th><td>Flag to enable these making trees semi-transparent if behind them</td></tr>
+            <tr><th><a href="mob/living.html#var/frozen">frozen</a></th><td>Used for preventing attacks on admin-frozen mobs.</td></tr>
+            <tr><th><a href="mob/living.html#var/lying_angle">lying_angle</a></th><td>Number of degrees of rotation of a mob. 0 means no rotation, up-side facing NORTH. 90 means up-side rotated to face EAST, and so on.</td></tr>
+            <tr><th><a href="mob/living.html#var/resting">resting</a></th><td>if a mob is choosing to lay down</td></tr><tr><td colspan="2"><h2>Procs</h2></td></tr>
+            <tr><th><a href="mob/living.html#proc/AdjustConfused">AdjustConfused</a></th><td>Sets <a href="datum/status_effect.html" title="/datum/status_effect">confusion</a> to current amount + given, clamped between lower and higher bounds.</td></tr>
+            <tr><th><a href="mob/living.html#proc/AdjustDizzy">AdjustDizzy</a></th><td>Sets <a href="datum/status_effect.html" title="/datum/status_effect">dizziness</a> to current amount + given, clamped between lower and higher bounds.</td></tr>
+            <tr><th><a href="mob/living.html#proc/AdjustDrowsy">AdjustDrowsy</a></th><td>Sets <a href="datum/status_effect.html" title="/datum/status_effect">drowsiness</a> to current amount + given, clamped between lower and higher bounds.</td></tr>
+            <tr><th><a href="mob/living.html#proc/AdjustDrunk">AdjustDrunk</a></th><td>Sets <a href="datum/status_effect.html" title="/datum/status_effect">drunkenness</a> to current amount + given, clamped between lower and higher bounds.</td></tr>
+            <tr><th><a href="mob/living.html#proc/AdjustSleeping">AdjustSleeping</a></th><td>used for admin freezing.</td></tr>
+            <tr><th><a href="mob/living.html#proc/Confused">Confused</a></th><td>Sets <a href="datum/status_effect.html" title="/datum/status_effect">confusion</a> if it's higher than current.</td></tr>
+            <tr><th><a href="mob/living.html#proc/Dizzy">Dizzy</a></th><td>Sets <a href="datum/status_effect.html" title="/datum/status_effect">dizziness</a> if it's higher than current.</td></tr>
+            <tr><th><a href="mob/living.html#proc/Drowsy">Drowsy</a></th><td>Sets <a href="datum/status_effect.html" title="/datum/status_effect">drowsiness</a> if it's higher than current.</td></tr>
+            <tr><th><a href="mob/living.html#proc/Drunk">Drunk</a></th><td>Sets <a href="datum/status_effect.html" title="/datum/status_effect">drunkenness</a> if it's higher than current.</td></tr>
+            <tr><th><a href="mob/living.html#proc/IsFrozen">IsFrozen</a></th><td>FROZEN</td></tr>
+            <tr><th><a href="mob/living.html#proc/SetConfused">SetConfused</a></th><td>Sets <a href="datum/status_effect.html" title="/datum/status_effect">confusion</a> if it's higher than zero.</td></tr>
+            <tr><th><a href="mob/living.html#proc/SetDizzy">SetDizzy</a></th><td>Sets <a href="datum/status_effect.html" title="/datum/status_effect">dizziness</a> if it's higher than zero.</td></tr>
+            <tr><th><a href="mob/living.html#proc/SetDrowsy">SetDrowsy</a></th><td>Sets <a href="datum/status_effect.html" title="/datum/status_effect">drowsiness</a> if it's higher than zero.</td></tr>
+            <tr><th><a href="mob/living.html#proc/SetDrunk">SetDrunk</a></th><td>Sets <a href="datum/status_effect.html" title="/datum/status_effect">drunkenness</a> if it's higher than zero.</td></tr>
+            <tr><th><a href="mob/living.html#proc/add_stun_absorption">add_stun_absorption</a></th><td>STUN ABSORPTION</td></tr>
+            <tr><th><a href="mob/living.html#proc/apply_status_effect">apply_status_effect</a></th><td>Applies a given status effect to this mob, returning the effect if it was successful or null otherwise</td></tr>
+            <tr><th><a href="mob/living.html#proc/electrocute_act">electrocute_act</a></th><td>As the name suggests, this should be called to apply electric shocks.</td></tr>
+            <tr><th><a href="mob/living.html#proc/get_confusion">get_confusion</a></th><td>Returns current amount of <a href="datum/status_effect.html" title="/datum/status_effect">confusion</a>, 0 if none.</td></tr>
+            <tr><th><a href="mob/living.html#proc/get_dizziness">get_dizziness</a></th><td>Returns current amount of <a href="datum/status_effect.html" title="/datum/status_effect">dizziness</a>, 0 if none.</td></tr>
+            <tr><th><a href="mob/living.html#proc/get_drowsiness">get_drowsiness</a></th><td>Returns current amount of <a href="datum/status_effect.html" title="/datum/status_effect">drowsiness</a>, 0 if none.</td></tr>
+            <tr><th><a href="mob/living.html#proc/get_drunkenness">get_drunkenness</a></th><td>Returns current amount of <a href="datum/status_effect.html" title="/datum/status_effect">drunkenness</a>, 0 if none.</td></tr>
+            <tr><th><a href="mob/living.html#proc/get_strip_slot_name_override">get_strip_slot_name_override</a></th><td>Returns the name override, if any, for the slot somebody is trying to strip</td></tr>
+            <tr><th><a href="mob/living.html#proc/grant_guardian_actions">grant_guardian_actions</a></th><td>Grants all existing <code>/datum/action/guardian</code> type actions to the src mob.</td></tr>
+            <tr><th><a href="mob/living.html#proc/handle_fire">handle_fire</a></th><td>Burns a mob and slowly puts the fires out. Returns TRUE if the mob is on fire</td></tr>
+            <tr><th><a href="mob/living.html#proc/has_status_effect">has_status_effect</a></th><td>Returns the effect if the mob calling the proc owns the given status effect, or null otherwise</td></tr>
+            <tr><th><a href="mob/living.html#proc/has_status_effect_list">has_status_effect_list</a></th><td>Returns a list of effects with matching IDs that the mod owns; use for effects there can be multiple of</td></tr>
+            <tr><th><a href="mob/living.html#proc/on_fakedeath_trait_gain">on_fakedeath_trait_gain</a></th><td>Called when [TRAIT_FAKEDEATH] is added to the mob.</td></tr>
+            <tr><th><a href="mob/living.html#proc/on_fakedeath_trait_loss">on_fakedeath_trait_loss</a></th><td>Called when [TRAIT_FAKEDEATH] is removed from the mob.</td></tr>
+            <tr><th><a href="mob/living.html#proc/on_floored_trait_gain">on_floored_trait_gain</a></th><td>Called when <a href="code/__HELPERS/traits.html#define/TRAIT_FLOORED" title="TRAIT_FLOORED">TRAIT_FLOORED</a> is added to the mob.</td></tr>
+            <tr><th><a href="mob/living.html#proc/on_floored_trait_loss">on_floored_trait_loss</a></th><td>Called when <a href="code/__HELPERS/traits.html#define/TRAIT_FLOORED" title="TRAIT_FLOORED">TRAIT_FLOORED</a> is removed from the mob.</td></tr>
+            <tr><th><a href="mob/living.html#proc/on_handsblocked_trait_gain">on_handsblocked_trait_gain</a></th><td>Called when <a href="code/__HELPERS/traits.html#define/TRAIT_HANDS_BLOCKED" title="TRAIT_HANDS_BLOCKED">TRAIT_HANDS_BLOCKED</a> is added to the mob.</td></tr>
+            <tr><th><a href="mob/living.html#proc/on_handsblocked_trait_loss">on_handsblocked_trait_loss</a></th><td>Called when <a href="code/__HELPERS/traits.html#define/TRAIT_HANDS_BLOCKED" title="TRAIT_HANDS_BLOCKED">TRAIT_HANDS_BLOCKED</a> is removed from the mob.</td></tr>
+            <tr><th><a href="mob/living.html#proc/on_immobilized_trait_gain">on_immobilized_trait_gain</a></th><td>Called when <a href="code/__HELPERS/traits.html#define/TRAIT_IMMOBILIZED" title="TRAIT_IMMOBILIZED">TRAIT_IMMOBILIZED</a> is added to the mob.</td></tr>
+            <tr><th><a href="mob/living.html#proc/on_immobilized_trait_loss">on_immobilized_trait_loss</a></th><td>Called when <a href="code/__HELPERS/traits.html#define/TRAIT_IMMOBILIZED" title="TRAIT_IMMOBILIZED">TRAIT_IMMOBILIZED</a> is removed from the mob.</td></tr>
+            <tr><th><a href="mob/living.html#proc/on_knockedout_trait_gain">on_knockedout_trait_gain</a></th><td>Called when <a href="code/__HELPERS/traits.html#define/TRAIT_KNOCKEDOUT" title="TRAIT_KNOCKEDOUT">TRAIT_KNOCKEDOUT</a> is added to the mob.</td></tr>
+            <tr><th><a href="mob/living.html#proc/on_knockedout_trait_loss">on_knockedout_trait_loss</a></th><td>Called when <a href="code/__HELPERS/traits.html#define/TRAIT_KNOCKEDOUT" title="TRAIT_KNOCKEDOUT">TRAIT_KNOCKEDOUT</a> is removed from the mob.</td></tr>
+            <tr><th><a href="mob/living.html#proc/on_pull_blocked_trait_gain">on_pull_blocked_trait_gain</a></th><td>Called when <a href="code/__HELPERS/traits.html#define/TRAIT_CANNOT_PULL" title="TRAIT_CANNOT_PULL">TRAIT_CANNOT_PULL</a> is added to the mob.</td></tr>
+            <tr><th><a href="mob/living.html#proc/on_pull_blocked_trait_loss">on_pull_blocked_trait_loss</a></th><td>Called when <a href="code/__HELPERS/traits.html#define/TRAIT_CANNOT_PULL" title="TRAIT_CANNOT_PULL">TRAIT_CANNOT_PULL</a> is removed from the mob.</td></tr>
+            <tr><th><a href="mob/living.html#proc/on_restrained_trait_gain">on_restrained_trait_gain</a></th><td>Called when <a href="code/__HELPERS/traits.html#define/TRAIT_RESTRAINED" title="TRAIT_RESTRAINED">TRAIT_RESTRAINED</a> is added to the mob.</td></tr>
+            <tr><th><a href="mob/living.html#proc/on_restrained_trait_loss">on_restrained_trait_loss</a></th><td>Called when <a href="code/__HELPERS/traits.html#define/TRAIT_RESTRAINED" title="TRAIT_RESTRAINED">TRAIT_RESTRAINED</a> is removed from the mob.</td></tr>
+            <tr><th><a href="mob/living.html#proc/on_ui_blocked_trait_gain">on_ui_blocked_trait_gain</a></th><td>Called when <a href="code/__HELPERS/traits.html#define/TRAIT_UI_BLOCKED" title="TRAIT_UI_BLOCKED">TRAIT_UI_BLOCKED</a> is added to the mob.</td></tr>
+            <tr><th><a href="mob/living.html#proc/on_ui_blocked_trait_loss">on_ui_blocked_trait_loss</a></th><td>Called when <a href="code/__HELPERS/traits.html#define/TRAIT_UI_BLOCKED" title="TRAIT_UI_BLOCKED">TRAIT_UI_BLOCKED</a> is removed from the mob.</td></tr>
+            <tr><th><a href="mob/living.html#proc/register_init_signals">register_init_signals</a></th><td>Called on <a href="mob/living.html" title="/mob/living">/mob/living/Initialize(mapload)</a>, for the mob to register to relevant signals.</td></tr>
+            <tr><th><a href="mob/living.html#proc/remove_guardian_actions">remove_guardian_actions</a></th><td>Removes all <code>/datum/action/guardian</code> type actions from the src mob.</td></tr>
+            <tr><th><a href="mob/living.html#proc/remove_status_effect">remove_status_effect</a></th><td>Removes all of a given status effect from this mob, returning TRUE if at least one was removed</td></tr>
+            <tr><th><a href="mob/living.html#proc/set_lying_angle">set_lying_angle</a></th><td>Changes the inclination angle of a mob, used by humans and others to differentiate between standing up and prone positions.</td></tr>
+            <tr><th><a href="mob/living.html#proc/shared_living_ui_distance">shared_living_ui_distance</a></th><td>public</td></tr>
+            <tr><th><a href="mob/living.html#proc/transfer_blood_to">transfer_blood_to</a></th><td>BLOOD TRANSFERS</td></tr></table>
+    <h2 id="var">Var Details</h2><h3 id="var/admin_prev_sleeping"><aside class="declaration">var </aside>admin_prev_sleeping
+            <aside>&ndash; </aside>
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/modules/admin/verbs/freeze.dm#L31">
+        <img src="git.png" width="16" height="16" title="code&#x2F;modules&#x2F;admin&#x2F;verbs&#x2F;freeze.dm 31"/></a></h3>
+        <p>Used for keeping track of previous sleeping value with admin freeze.</p><h3 id="var/flags_2">flags_2
+            <aside>&ndash; </aside>
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/modules/admin/verbs/freeze.dm#L33">
+        <img src="git.png" width="16" height="16" title="code&#x2F;modules&#x2F;admin&#x2F;verbs&#x2F;freeze.dm 33"/></a></h3>
+        <p>Flag to enable these making trees semi-transparent if behind them</p><h3 id="var/frozen"><aside class="declaration">var </aside>frozen
+            <aside>&ndash; </aside>
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/modules/admin/verbs/freeze.dm#L29">
+        <img src="git.png" width="16" height="16" title="code&#x2F;modules&#x2F;admin&#x2F;verbs&#x2F;freeze.dm 29"/></a></h3>
+        <p>Used for preventing attacks on admin-frozen mobs.</p><h3 id="var/lying_angle"><aside class="declaration">var </aside>lying_angle
+            <aside>&ndash; </aside>
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/modules/mob/living/living_defines.dm#L77">
+        <img src="git.png" width="16" height="16" title="code&#x2F;modules&#x2F;mob&#x2F;living&#x2F;living_defines.dm 77"/></a></h3>
+        <p>Number of degrees of rotation of a mob. 0 means no rotation, up-side facing NORTH. 90 means up-side rotated to face EAST, and so on.</p><h3 id="var/resting"><aside class="declaration">var </aside>resting
+            <aside>&ndash; </aside>
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/modules/mob/living/living_defines.dm#L79">
+        <img src="git.png" width="16" height="16" title="code&#x2F;modules&#x2F;mob&#x2F;living&#x2F;living_defines.dm 79"/></a></h3>
+        <p>if a mob is choosing to lay down</p><h2 id="proc">Proc Details</h2><h3 id="proc/AdjustConfused"><aside class="declaration">proc </aside>AdjustConfused<aside>(amount, bound_lower, bound_upper) 
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/modules/mob/living/status_procs.dm#L195">
+        <img src="git.png" width="16" height="16" title="code&#x2F;modules&#x2F;mob&#x2F;living&#x2F;status_procs.dm 195"/></a></aside>
+        </h3>
+        <p>Sets <a href="datum/status_effect.html" title="/datum/status_effect">confusion</a> to current amount + given, clamped between lower and higher bounds.</p>
+<p>Arguments:</p>
+<ul>
+<li>amount - Amount to add. Can be negative to reduce duration.</li>
+<li>bound_lower - Minimum bound to set at least to. Defaults to 0.</li>
+<li>bound_upper - Maximum bound to set up to. Defaults to infinity.</li>
+</ul><h3 id="proc/AdjustDizzy"><aside class="declaration">proc </aside>AdjustDizzy<aside>(amount, bound_lower, bound_upper) 
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/modules/mob/living/status_procs.dm#L226">
+        <img src="git.png" width="16" height="16" title="code&#x2F;modules&#x2F;mob&#x2F;living&#x2F;status_procs.dm 226"/></a></aside>
+        </h3>
+        <p>Sets <a href="datum/status_effect.html" title="/datum/status_effect">dizziness</a> to current amount + given, clamped between lower and higher bounds.</p>
+<p>Arguments:</p>
+<ul>
+<li>amount - Amount to add. Can be negative to reduce duration.</li>
+<li>bound_lower - Minimum bound to set at least to. Defaults to 0.</li>
+<li>bound_upper - Maximum bound to set up to. Defaults to infinity.</li>
+</ul><h3 id="proc/AdjustDrowsy"><aside class="declaration">proc </aside>AdjustDrowsy<aside>(amount, bound_lower, bound_upper) 
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/modules/mob/living/status_procs.dm#L257">
+        <img src="git.png" width="16" height="16" title="code&#x2F;modules&#x2F;mob&#x2F;living&#x2F;status_procs.dm 257"/></a></aside>
+        </h3>
+        <p>Sets <a href="datum/status_effect.html" title="/datum/status_effect">drowsiness</a> to current amount + given, clamped between lower and higher bounds.</p>
+<p>Arguments:</p>
+<ul>
+<li>amount - Amount to add. Can be negative to reduce duration.</li>
+<li>bound_lower - Minimum bound to set at least to. Defaults to 0.</li>
+<li>bound_upper - Maximum bound to set up to. Defaults to infinity.</li>
+</ul><h3 id="proc/AdjustDrunk"><aside class="declaration">proc </aside>AdjustDrunk<aside>(amount, bound_lower, bound_upper) 
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/modules/mob/living/status_procs.dm#L288">
+        <img src="git.png" width="16" height="16" title="code&#x2F;modules&#x2F;mob&#x2F;living&#x2F;status_procs.dm 288"/></a></aside>
+        </h3>
+        <p>Sets <a href="datum/status_effect.html" title="/datum/status_effect">drunkenness</a> to current amount + given, clamped between lower and higher bounds.</p>
+<p>Arguments:</p>
+<ul>
+<li>amount - Amount to add. Can be negative to reduce duration.</li>
+<li>bound_lower - Minimum bound to set at least to. Defaults to 0.</li>
+<li>bound_upper - Maximum bound to set up to. Defaults to infinity.</li>
+</ul><h3 id="proc/AdjustSleeping"><aside class="declaration">proc </aside>AdjustSleeping<aside>(amount, bound_lower, bound_upper) 
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/modules/mob/living/status_procs.dm#L472">
+        <img src="git.png" width="16" height="16" title="code&#x2F;modules&#x2F;mob&#x2F;living&#x2F;status_procs.dm 472"/></a></aside>
+        </h3>
+        <p>used for admin freezing.</p><h3 id="proc/Confused"><aside class="declaration">proc </aside>Confused<aside>(amount) 
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/modules/mob/living/status_procs.dm#L184">
+        <img src="git.png" width="16" height="16" title="code&#x2F;modules&#x2F;mob&#x2F;living&#x2F;status_procs.dm 184"/></a></aside>
+        </h3>
+        <p>Sets <a href="datum/status_effect.html" title="/datum/status_effect">confusion</a> if it's higher than current.</p><h3 id="proc/Dizzy"><aside class="declaration">proc </aside>Dizzy<aside>(amount) 
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/modules/mob/living/status_procs.dm#L215">
+        <img src="git.png" width="16" height="16" title="code&#x2F;modules&#x2F;mob&#x2F;living&#x2F;status_procs.dm 215"/></a></aside>
+        </h3>
+        <p>Sets <a href="datum/status_effect.html" title="/datum/status_effect">dizziness</a> if it's higher than current.</p><h3 id="proc/Drowsy"><aside class="declaration">proc </aside>Drowsy<aside>(amount) 
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/modules/mob/living/status_procs.dm#L246">
+        <img src="git.png" width="16" height="16" title="code&#x2F;modules&#x2F;mob&#x2F;living&#x2F;status_procs.dm 246"/></a></aside>
+        </h3>
+        <p>Sets <a href="datum/status_effect.html" title="/datum/status_effect">drowsiness</a> if it's higher than current.</p><h3 id="proc/Drunk"><aside class="declaration">proc </aside>Drunk<aside>(amount) 
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/modules/mob/living/status_procs.dm#L277">
+        <img src="git.png" width="16" height="16" title="code&#x2F;modules&#x2F;mob&#x2F;living&#x2F;status_procs.dm 277"/></a></aside>
+        </h3>
+        <p>Sets <a href="datum/status_effect.html" title="/datum/status_effect">drunkenness</a> if it's higher than current.</p><h3 id="proc/IsFrozen"><aside class="declaration">proc </aside>IsFrozen<aside>() 
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/modules/mob/living/status_procs.dm#L816">
+        <img src="git.png" width="16" height="16" title="code&#x2F;modules&#x2F;mob&#x2F;living&#x2F;status_procs.dm 816"/></a></aside>
+        </h3>
+        <p>FROZEN</p><h3 id="proc/SetConfused"><aside class="declaration">proc </aside>SetConfused<aside>(amount) 
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/modules/mob/living/status_procs.dm#L178">
+        <img src="git.png" width="16" height="16" title="code&#x2F;modules&#x2F;mob&#x2F;living&#x2F;status_procs.dm 178"/></a></aside>
+        </h3>
+        <p>Sets <a href="datum/status_effect.html" title="/datum/status_effect">confusion</a> if it's higher than zero.</p><h3 id="proc/SetDizzy"><aside class="declaration">proc </aside>SetDizzy<aside>(amount) 
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/modules/mob/living/status_procs.dm#L209">
+        <img src="git.png" width="16" height="16" title="code&#x2F;modules&#x2F;mob&#x2F;living&#x2F;status_procs.dm 209"/></a></aside>
+        </h3>
+        <p>Sets <a href="datum/status_effect.html" title="/datum/status_effect">dizziness</a> if it's higher than zero.</p><h3 id="proc/SetDrowsy"><aside class="declaration">proc </aside>SetDrowsy<aside>(amount) 
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/modules/mob/living/status_procs.dm#L240">
+        <img src="git.png" width="16" height="16" title="code&#x2F;modules&#x2F;mob&#x2F;living&#x2F;status_procs.dm 240"/></a></aside>
+        </h3>
+        <p>Sets <a href="datum/status_effect.html" title="/datum/status_effect">drowsiness</a> if it's higher than zero.</p><h3 id="proc/SetDrunk"><aside class="declaration">proc </aside>SetDrunk<aside>(amount) 
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/modules/mob/living/status_procs.dm#L271">
+        <img src="git.png" width="16" height="16" title="code&#x2F;modules&#x2F;mob&#x2F;living&#x2F;status_procs.dm 271"/></a></aside>
+        </h3>
+        <p>Sets <a href="datum/status_effect.html" title="/datum/status_effect">drunkenness</a> if it's higher than zero.</p><h3 id="proc/add_stun_absorption"><aside class="declaration">proc </aside>add_stun_absorption<aside>(key, duration, priority, message, self_message, examine_message) 
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/modules/mob/living/status_procs.dm#L821">
+        <img src="git.png" width="16" height="16" title="code&#x2F;modules&#x2F;mob&#x2F;living&#x2F;status_procs.dm 821"/></a></aside>
+        </h3>
+        <p>STUN ABSORPTION</p><h3 id="proc/apply_status_effect"><aside class="declaration">proc </aside>apply_status_effect<aside>(effect, ...) 
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/datums/status_effects/status_effect.dm#L109">
+        <img src="git.png" width="16" height="16" title="code&#x2F;datums&#x2F;status_effects&#x2F;status_effect.dm 109"/></a></aside>
+        </h3>
+        <p>Applies a given status effect to this mob, returning the effect if it was successful or null otherwise</p><h3 id="proc/electrocute_act"><aside class="declaration">proc </aside>electrocute_act<aside>(shock_damage, source, siemens_coeff, flags) 
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/modules/mob/living/living_defense.dm#L60">
+        <img src="git.png" width="16" height="16" title="code&#x2F;modules&#x2F;mob&#x2F;living&#x2F;living_defense.dm 60"/></a></aside>
+        </h3>
+        <p>As the name suggests, this should be called to apply electric shocks.</p><h3 id="proc/get_confusion"><aside class="declaration">proc </aside>get_confusion<aside>() 
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/modules/mob/living/status_procs.dm#L172">
+        <img src="git.png" width="16" height="16" title="code&#x2F;modules&#x2F;mob&#x2F;living&#x2F;status_procs.dm 172"/></a></aside>
+        </h3>
+        <p>Returns current amount of <a href="datum/status_effect.html" title="/datum/status_effect">confusion</a>, 0 if none.</p><h3 id="proc/get_dizziness"><aside class="declaration">proc </aside>get_dizziness<aside>() 
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/modules/mob/living/status_procs.dm#L203">
+        <img src="git.png" width="16" height="16" title="code&#x2F;modules&#x2F;mob&#x2F;living&#x2F;status_procs.dm 203"/></a></aside>
+        </h3>
+        <p>Returns current amount of <a href="datum/status_effect.html" title="/datum/status_effect">dizziness</a>, 0 if none.</p><h3 id="proc/get_drowsiness"><aside class="declaration">proc </aside>get_drowsiness<aside>() 
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/modules/mob/living/status_procs.dm#L234">
+        <img src="git.png" width="16" height="16" title="code&#x2F;modules&#x2F;mob&#x2F;living&#x2F;status_procs.dm 234"/></a></aside>
+        </h3>
+        <p>Returns current amount of <a href="datum/status_effect.html" title="/datum/status_effect">drowsiness</a>, 0 if none.</p><h3 id="proc/get_drunkenness"><aside class="declaration">proc </aside>get_drunkenness<aside>() 
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/modules/mob/living/status_procs.dm#L265">
+        <img src="git.png" width="16" height="16" title="code&#x2F;modules&#x2F;mob&#x2F;living&#x2F;status_procs.dm 265"/></a></aside>
+        </h3>
+        <p>Returns current amount of <a href="datum/status_effect.html" title="/datum/status_effect">drunkenness</a>, 0 if none.</p><h3 id="proc/get_strip_slot_name_override"><aside class="declaration">proc </aside>get_strip_slot_name_override<aside>(slot) 
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/modules/mob/living/living.dm#L841">
+        <img src="git.png" width="16" height="16" title="code&#x2F;modules&#x2F;mob&#x2F;living&#x2F;living.dm 841"/></a></aside>
+        </h3>
+        <p>Returns the name override, if any, for the slot somebody is trying to strip</p><h3 id="proc/grant_guardian_actions"><aside class="declaration">proc </aside>grant_guardian_actions<aside>(/<a href="mob.html">mob</a>/<a href="mob/living.html">living</a>/<a href="mob/living/simple_animal.html">simple_animal</a>/<a href="mob/living/simple_animal/hostile.html">hostile</a>/guardian/G) 
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/game/gamemodes/miniantags/guardian/host_actions.dm#L116">
+        <img src="git.png" width="16" height="16" title="code&#x2F;game&#x2F;gamemodes&#x2F;miniantags&#x2F;guardian&#x2F;host_actions.dm 116"/></a></aside>
+        </h3>
+        <p>Grants all existing <code>/datum/action/guardian</code> type actions to the src mob.</p>
+<p>Called whenever the host gains their gauardian.</p><h3 id="proc/handle_fire"><aside class="declaration">proc </aside>handle_fire<aside>() 
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/modules/mob/living/living_defense.dm#L193">
+        <img src="git.png" width="16" height="16" title="code&#x2F;modules&#x2F;mob&#x2F;living&#x2F;living_defense.dm 193"/></a></aside>
+        </h3>
+        <p>Burns a mob and slowly puts the fires out. Returns TRUE if the mob is on fire</p><h3 id="proc/has_status_effect"><aside class="declaration">proc </aside>has_status_effect<aside>(effect) 
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/datums/status_effects/status_effect.dm#L139">
+        <img src="git.png" width="16" height="16" title="code&#x2F;datums&#x2F;status_effects&#x2F;status_effect.dm 139"/></a></aside>
+        </h3>
+        <p>Returns the effect if the mob calling the proc owns the given status effect, or null otherwise</p><h3 id="proc/has_status_effect_list"><aside class="declaration">proc </aside>has_status_effect_list<aside>(effect) 
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/datums/status_effects/status_effect.dm#L148">
+        <img src="git.png" width="16" height="16" title="code&#x2F;datums&#x2F;status_effects&#x2F;status_effect.dm 148"/></a></aside>
+        </h3>
+        <p>Returns a list of effects with matching IDs that the mod owns; use for effects there can be multiple of</p><h3 id="proc/on_fakedeath_trait_gain"><aside class="declaration">proc </aside>on_fakedeath_trait_gain<aside>(/<a href="datum.html">datum</a>/source) 
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/modules/mob/living/init_signals.dm#L128">
+        <img src="git.png" width="16" height="16" title="code&#x2F;modules&#x2F;mob&#x2F;living&#x2F;init_signals.dm 128"/></a></aside>
+        </h3>
+        <p>Called when [TRAIT_FAKEDEATH] is added to the mob.</p><h3 id="proc/on_fakedeath_trait_loss"><aside class="declaration">proc </aside>on_fakedeath_trait_loss<aside>(/<a href="datum.html">datum</a>/source) 
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/modules/mob/living/init_signals.dm#L133">
+        <img src="git.png" width="16" height="16" title="code&#x2F;modules&#x2F;mob&#x2F;living&#x2F;init_signals.dm 133"/></a></aside>
+        </h3>
+        <p>Called when [TRAIT_FAKEDEATH] is removed from the mob.</p><h3 id="proc/on_floored_trait_gain"><aside class="declaration">proc </aside>on_floored_trait_gain<aside>(/<a href="datum.html">datum</a>/source) 
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/modules/mob/living/init_signals.dm#L51">
+        <img src="git.png" width="16" height="16" title="code&#x2F;modules&#x2F;mob&#x2F;living&#x2F;init_signals.dm 51"/></a></aside>
+        </h3>
+        <p>Called when <a href="code/__HELPERS/traits.html#define/TRAIT_FLOORED" title="TRAIT_FLOORED">TRAIT_FLOORED</a> is added to the mob.</p><h3 id="proc/on_floored_trait_loss"><aside class="declaration">proc </aside>on_floored_trait_loss<aside>(/<a href="datum.html">datum</a>/source) 
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/modules/mob/living/init_signals.dm#L62">
+        <img src="git.png" width="16" height="16" title="code&#x2F;modules&#x2F;mob&#x2F;living&#x2F;init_signals.dm 62"/></a></aside>
+        </h3>
+        <p>Called when <a href="code/__HELPERS/traits.html#define/TRAIT_FLOORED" title="TRAIT_FLOORED">TRAIT_FLOORED</a> is removed from the mob.</p><h3 id="proc/on_handsblocked_trait_gain"><aside class="declaration">proc </aside>on_handsblocked_trait_gain<aside>(/<a href="datum.html">datum</a>/source) 
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/modules/mob/living/init_signals.dm#L72">
+        <img src="git.png" width="16" height="16" title="code&#x2F;modules&#x2F;mob&#x2F;living&#x2F;init_signals.dm 72"/></a></aside>
+        </h3>
+        <p>Called when <a href="code/__HELPERS/traits.html#define/TRAIT_HANDS_BLOCKED" title="TRAIT_HANDS_BLOCKED">TRAIT_HANDS_BLOCKED</a> is added to the mob.</p><h3 id="proc/on_handsblocked_trait_loss"><aside class="declaration">proc </aside>on_handsblocked_trait_loss<aside>(/<a href="datum.html">datum</a>/source) 
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/modules/mob/living/init_signals.dm#L84">
+        <img src="git.png" width="16" height="16" title="code&#x2F;modules&#x2F;mob&#x2F;living&#x2F;init_signals.dm 84"/></a></aside>
+        </h3>
+        <p>Called when <a href="code/__HELPERS/traits.html#define/TRAIT_HANDS_BLOCKED" title="TRAIT_HANDS_BLOCKED">TRAIT_HANDS_BLOCKED</a> is removed from the mob.</p><h3 id="proc/on_immobilized_trait_gain"><aside class="declaration">proc </aside>on_immobilized_trait_gain<aside>(/<a href="datum.html">datum</a>/source) 
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/modules/mob/living/init_signals.dm#L40">
+        <img src="git.png" width="16" height="16" title="code&#x2F;modules&#x2F;mob&#x2F;living&#x2F;init_signals.dm 40"/></a></aside>
+        </h3>
+        <p>Called when <a href="code/__HELPERS/traits.html#define/TRAIT_IMMOBILIZED" title="TRAIT_IMMOBILIZED">TRAIT_IMMOBILIZED</a> is added to the mob.</p><h3 id="proc/on_immobilized_trait_loss"><aside class="declaration">proc </aside>on_immobilized_trait_loss<aside>(/<a href="datum.html">datum</a>/source) 
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/modules/mob/living/init_signals.dm#L45">
+        <img src="git.png" width="16" height="16" title="code&#x2F;modules&#x2F;mob&#x2F;living&#x2F;init_signals.dm 45"/></a></aside>
+        </h3>
+        <p>Called when <a href="code/__HELPERS/traits.html#define/TRAIT_IMMOBILIZED" title="TRAIT_IMMOBILIZED">TRAIT_IMMOBILIZED</a> is removed from the mob.</p><h3 id="proc/on_knockedout_trait_gain"><aside class="declaration">proc </aside>on_knockedout_trait_gain<aside>(/<a href="datum.html">datum</a>/source) 
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/modules/mob/living/init_signals.dm#L28">
+        <img src="git.png" width="16" height="16" title="code&#x2F;modules&#x2F;mob&#x2F;living&#x2F;init_signals.dm 28"/></a></aside>
+        </h3>
+        <p>Called when <a href="code/__HELPERS/traits.html#define/TRAIT_KNOCKEDOUT" title="TRAIT_KNOCKEDOUT">TRAIT_KNOCKEDOUT</a> is added to the mob.</p><h3 id="proc/on_knockedout_trait_loss"><aside class="declaration">proc </aside>on_knockedout_trait_loss<aside>(/<a href="datum.html">datum</a>/source) 
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/modules/mob/living/init_signals.dm#L34">
+        <img src="git.png" width="16" height="16" title="code&#x2F;modules&#x2F;mob&#x2F;living&#x2F;init_signals.dm 34"/></a></aside>
+        </h3>
+        <p>Called when <a href="code/__HELPERS/traits.html#define/TRAIT_KNOCKEDOUT" title="TRAIT_KNOCKEDOUT">TRAIT_KNOCKEDOUT</a> is removed from the mob.</p><h3 id="proc/on_pull_blocked_trait_gain"><aside class="declaration">proc </aside>on_pull_blocked_trait_gain<aside>(/<a href="datum.html">datum</a>/source) 
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/modules/mob/living/init_signals.dm#L106">
+        <img src="git.png" width="16" height="16" title="code&#x2F;modules&#x2F;mob&#x2F;living&#x2F;init_signals.dm 106"/></a></aside>
+        </h3>
+        <p>Called when <a href="code/__HELPERS/traits.html#define/TRAIT_CANNOT_PULL" title="TRAIT_CANNOT_PULL">TRAIT_CANNOT_PULL</a> is added to the mob.</p><h3 id="proc/on_pull_blocked_trait_loss"><aside class="declaration">proc </aside>on_pull_blocked_trait_loss<aside>(/<a href="datum.html">datum</a>/source) 
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/modules/mob/living/init_signals.dm#L113">
+        <img src="git.png" width="16" height="16" title="code&#x2F;modules&#x2F;mob&#x2F;living&#x2F;init_signals.dm 113"/></a></aside>
+        </h3>
+        <p>Called when <a href="code/__HELPERS/traits.html#define/TRAIT_CANNOT_PULL" title="TRAIT_CANNOT_PULL">TRAIT_CANNOT_PULL</a> is removed from the mob.</p><h3 id="proc/on_restrained_trait_gain"><aside class="declaration">proc </aside>on_restrained_trait_gain<aside>(/<a href="datum.html">datum</a>/source) 
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/modules/mob/living/init_signals.dm#L118">
+        <img src="git.png" width="16" height="16" title="code&#x2F;modules&#x2F;mob&#x2F;living&#x2F;init_signals.dm 118"/></a></aside>
+        </h3>
+        <p>Called when <a href="code/__HELPERS/traits.html#define/TRAIT_RESTRAINED" title="TRAIT_RESTRAINED">TRAIT_RESTRAINED</a> is added to the mob.</p><h3 id="proc/on_restrained_trait_loss"><aside class="declaration">proc </aside>on_restrained_trait_loss<aside>(/<a href="datum.html">datum</a>/source) 
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/modules/mob/living/init_signals.dm#L123">
+        <img src="git.png" width="16" height="16" title="code&#x2F;modules&#x2F;mob&#x2F;living&#x2F;init_signals.dm 123"/></a></aside>
+        </h3>
+        <p>Called when <a href="code/__HELPERS/traits.html#define/TRAIT_RESTRAINED" title="TRAIT_RESTRAINED">TRAIT_RESTRAINED</a> is removed from the mob.</p><h3 id="proc/on_ui_blocked_trait_gain"><aside class="declaration">proc </aside>on_ui_blocked_trait_gain<aside>(/<a href="datum.html">datum</a>/source) 
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/modules/mob/living/init_signals.dm#L94">
+        <img src="git.png" width="16" height="16" title="code&#x2F;modules&#x2F;mob&#x2F;living&#x2F;init_signals.dm 94"/></a></aside>
+        </h3>
+        <p>Called when <a href="code/__HELPERS/traits.html#define/TRAIT_UI_BLOCKED" title="TRAIT_UI_BLOCKED">TRAIT_UI_BLOCKED</a> is added to the mob.</p><h3 id="proc/on_ui_blocked_trait_loss"><aside class="declaration">proc </aside>on_ui_blocked_trait_loss<aside>(/<a href="datum.html">datum</a>/source) 
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/modules/mob/living/init_signals.dm#L100">
+        <img src="git.png" width="16" height="16" title="code&#x2F;modules&#x2F;mob&#x2F;living&#x2F;init_signals.dm 100"/></a></aside>
+        </h3>
+        <p>Called when <a href="code/__HELPERS/traits.html#define/TRAIT_UI_BLOCKED" title="TRAIT_UI_BLOCKED">TRAIT_UI_BLOCKED</a> is removed from the mob.</p><h3 id="proc/register_init_signals"><aside class="declaration">proc </aside>register_init_signals<aside>() 
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/modules/mob/living/init_signals.dm#L2">
+        <img src="git.png" width="16" height="16" title="code&#x2F;modules&#x2F;mob&#x2F;living&#x2F;init_signals.dm 2"/></a></aside>
+        </h3>
+        <p>Called on <a href="mob/living.html" title="/mob/living">/mob/living/Initialize(mapload)</a>, for the mob to register to relevant signals.</p><h3 id="proc/remove_guardian_actions"><aside class="declaration">proc </aside>remove_guardian_actions<aside>() 
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/game/gamemodes/miniantags/guardian/host_actions.dm#L128">
+        <img src="git.png" width="16" height="16" title="code&#x2F;game&#x2F;gamemodes&#x2F;miniantags&#x2F;guardian&#x2F;host_actions.dm 128"/></a></aside>
+        </h3>
+        <p>Removes all <code>/datum/action/guardian</code> type actions from the src mob.</p>
+<p>Called whenever the host loses their guardian.</p><h3 id="proc/remove_status_effect"><aside class="declaration">proc </aside>remove_status_effect<aside>(effect, ...) 
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/datums/status_effects/status_effect.dm#L128">
+        <img src="git.png" width="16" height="16" title="code&#x2F;datums&#x2F;status_effects&#x2F;status_effect.dm 128"/></a></aside>
+        </h3>
+        <p>Removes all of a given status effect from this mob, returning TRUE if at least one was removed</p><h3 id="proc/set_lying_angle"><aside class="declaration">proc </aside>set_lying_angle<aside>(new_lying) 
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/modules/mob/living/status_procs.dm#L157">
+        <img src="git.png" width="16" height="16" title="code&#x2F;modules&#x2F;mob&#x2F;living&#x2F;status_procs.dm 157"/></a></aside>
+        </h3>
+        <p>Changes the inclination angle of a mob, used by humans and others to differentiate between standing up and prone positions.</p>
+<p>In BYOND-angles 0 is NORTH, 90 is EAST, 180 is SOUTH and 270 is WEST.
+This usually means that 0 is standing up, 90 and 270 are horizontal positions to right and left respectively, and 180 is upside-down.
+Mobs that do now follow these conventions due to unusual sprites should require a special handling or redefinition of this proc, due to the density and layer changes.
+The return of this proc is the previous value of the modified lying_angle if a change was successful (might include zero), or null if no change was made.</p><h3 id="proc/shared_living_ui_distance"><aside class="declaration">proc </aside>shared_living_ui_distance<aside>(/<a href="atom.html">atom</a>/<a href="atom/movable.html">movable</a>/src_object, viewcheck) 
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/modules/tgui/states.dm#L102">
+        <img src="git.png" width="16" height="16" title="code&#x2F;modules&#x2F;tgui&#x2F;states.dm 102"/></a></aside>
+        </h3>
+        <p>public</p>
+<p>Distance versus interaction check.</p>
+<p>required src_object atom/movable The object which owns the UI.</p>
+<p>return UI_state The state of the UI.</p><h3 id="proc/transfer_blood_to"><aside class="declaration">proc </aside>transfer_blood_to<aside>(/<a href="atom.html">atom</a>/<a href="atom/movable.html">movable</a>/AM, amount, forced) 
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/modules/surgery/organs/blood.dm#L140">
+        <img src="git.png" width="16" height="16" title="code&#x2F;modules&#x2F;surgery&#x2F;organs&#x2F;blood.dm 140"/></a></aside>
+        </h3>
+        <p>BLOOD TRANSFERS</p></main>
+<footer>
+    paradise.dme
+    <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/tree/279ee1dc12aa363582e93c154c87183707ee9e61">279ee1d</a>
+        (master) &mdash; <a href="https://github.com/SpaceManiac/SpacemanDMM/blob/master/src/dmdoc/README.md">dmdoc 1.4.1</a></footer>
+</body>
+</html>

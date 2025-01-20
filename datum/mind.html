@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <base href="../" />
+    <link rel="stylesheet" href="dmdoc.css" />
+    <title>&#x2F;datum&#x2F;mind - Paradise Station 13</title>
+</head>
+<body>
+<header>
+    <a href="index.html">Paradise Station 13</a> -
+    <a href="index.html#modules">Modules</a> -
+    <a href="index.html#types">Types</a>
+ &mdash; <a href="datum/mind.html#var">Var Details</a> - <a href="datum/mind.html#proc">Proc Details</a></header>
+<main>
+<h1>mind <aside>/<a href="datum.html">datum</a>/<a href="datum/mind.html">mind</a></aside>
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/datums/mind.dm#L22">
+        <img src="git.png" width="16" height="16" title="code&#x2F;datums&#x2F;mind.dm 22"/></a></h1>
+
+<table class="summary" cellspacing="0"><tr><td colspan="2"><h2>Vars</h2></td></tr>
+            <tr><th><a href="datum/mind.html#var/original_mob_UID">original_mob_UID</a></th><td>The original mob's UID. Used for example to see if a silicon with antag status is actually malf. Or just an antag put in a borg</td></tr>
+            <tr><th><a href="datum/mind.html#var/original_mob_name">original_mob_name</a></th><td>The original mob's name. Used in Dchat messages</td></tr><tr><td colspan="2"><h2>Procs</h2></td></tr>
+            <tr><th><a href="datum/mind.html#proc/Topic">Topic</a></th><td>Impanted</td></tr>
+            <tr><th><a href="datum/mind.html#proc/add_antag_datum">add_antag_datum</a></th><td>Create and/or add the <code>datum_type_or_instance</code> antag datum to the src mind.</td></tr>
+            <tr><th><a href="datum/mind.html#proc/get_all_objectives">get_all_objectives</a></th><td>Gets every objective this mind owns, including all of those from any antag datums they have, and returns them as a list.</td></tr>
+            <tr><th><a href="datum/mind.html#proc/has_antag_datum">has_antag_datum</a></th><td>Returns an antag datum instance if the src mind has the specified <code>datum_type</code>. Returns <code>null</code> otherwise.</td></tr>
+            <tr><th><a href="datum/mind.html#proc/memory_edit_nuclear">memory_edit_nuclear</a></th><td>Enthralled</td></tr>
+            <tr><th><a href="datum/mind.html#proc/remove_all_antag_datums">remove_all_antag_datums</a></th><td>Removes all antag datums from the src mind.</td></tr>
+            <tr><th><a href="datum/mind.html#proc/remove_antag_datum">remove_antag_datum</a></th><td>Remove the specified <code>datum_type</code> antag datum from the src mind.</td></tr>
+            <tr><th><a href="datum/mind.html#proc/remove_objective">remove_objective</a></th><td>Completely remove the given objective from the src mind and it's antag datums.</td></tr></table>
+    <h2 id="var">Var Details</h2><h3 id="var/original_mob_UID"><aside class="declaration">var </aside>original_mob_UID
+            <aside>&ndash; </aside>
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/datums/mind.dm#L27">
+        <img src="git.png" width="16" height="16" title="code&#x2F;datums&#x2F;mind.dm 27"/></a></h3>
+        <p>The original mob's UID. Used for example to see if a silicon with antag status is actually malf. Or just an antag put in a borg</p><h3 id="var/original_mob_name"><aside class="declaration">var </aside>original_mob_name
+            <aside>&ndash; </aside>
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/datums/mind.dm#L29">
+        <img src="git.png" width="16" height="16" title="code&#x2F;datums&#x2F;mind.dm 29"/></a></h3>
+        <p>The original mob's name. Used in Dchat messages</p><h2 id="proc">Proc Details</h2><h3 id="proc/Topic">Topic<aside>(href, href_list) 
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/datums/mind.dm#L547">
+        <img src="git.png" width="16" height="16" title="code&#x2F;datums&#x2F;mind.dm 547"/></a></aside>
+        </h3>
+        <p>Impanted</p>
+<p>REVOLUTION</p>
+<p>WIZARD</p>
+<p>CHANGELING</p>
+<p>VAMPIRE</p>
+<p>NUCLEAR</p>
+<p>Abductors</p>
+<p>TRAITOR</p>
+<p>CULT</p>
+<p>SILICON</p><h3 id="proc/add_antag_datum"><aside class="declaration">proc </aside>add_antag_datum<aside>(datum_type_or_instance, /<a href="datum.html">datum</a>/team/team) 
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/datums/mind.dm#L1504">
+        <img src="git.png" width="16" height="16" title="code&#x2F;datums&#x2F;mind.dm 1504"/></a></aside>
+        </h3>
+        <p>Create and/or add the <code>datum_type_or_instance</code> antag datum to the src mind.</p>
+<p>Arguments:</p>
+<ul>
+<li>datum_type - an antag datum typepath or instance</li>
+<li>datum/team/team - the antag team that the src mind should join, if any</li>
+</ul><h3 id="proc/get_all_objectives"><aside class="declaration">proc </aside>get_all_objectives<aside>() 
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/datums/mind.dm#L203">
+        <img src="git.png" width="16" height="16" title="code&#x2F;datums&#x2F;mind.dm 203"/></a></aside>
+        </h3>
+        <p>Gets every objective this mind owns, including all of those from any antag datums they have, and returns them as a list.</p><h3 id="proc/has_antag_datum"><aside class="declaration">proc </aside>has_antag_datum<aside>(datum_type, check_subtypes) 
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/datums/mind.dm#L1549">
+        <img src="git.png" width="16" height="16" title="code&#x2F;datums&#x2F;mind.dm 1549"/></a></aside>
+        </h3>
+        <p>Returns an antag datum instance if the src mind has the specified <code>datum_type</code>. Returns <code>null</code> otherwise.</p>
+<p>Arguments:</p>
+<ul>
+<li>datum_type - an antag datum typepath</li>
+<li>check_subtypes - TRUE if this proc will consider subtypes of <code>datum_type</code> as valid. FALSE if only the exact same type should be considered.</li>
+</ul><h3 id="proc/memory_edit_nuclear"><aside class="declaration">proc </aside>memory_edit_nuclear<aside>(/<a href="mob.html">mob</a>/<a href="mob/living.html">living</a>/<a href="mob/living/carbon.html">carbon</a>/<a href="mob/living/carbon/human.html">human</a>/H) 
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/datums/mind.dm#L338">
+        <img src="git.png" width="16" height="16" title="code&#x2F;datums&#x2F;mind.dm 338"/></a></aside>
+        </h3>
+        <p>Enthralled</p><h3 id="proc/remove_all_antag_datums"><aside class="declaration">proc </aside>remove_all_antag_datums<aside>() 
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/datums/mind.dm#L1539">
+        <img src="git.png" width="16" height="16" title="code&#x2F;datums&#x2F;mind.dm 1539"/></a></aside>
+        </h3>
+        <p>Removes all antag datums from the src mind.</p><h3 id="proc/remove_antag_datum"><aside class="declaration">proc </aside>remove_antag_datum<aside>(datum_type) 
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/datums/mind.dm#L1531">
+        <img src="git.png" width="16" height="16" title="code&#x2F;datums&#x2F;mind.dm 1531"/></a></aside>
+        </h3>
+        <p>Remove the specified <code>datum_type</code> antag datum from the src mind.</p>
+<p>Arguments:</p>
+<ul>
+<li>datum_type - an antag datum typepath</li>
+</ul><h3 id="proc/remove_objective"><aside class="declaration">proc </aside>remove_objective<aside>(/<a href="datum.html">datum</a>/<a href="datum/objective.html">objective</a>/O) 
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/datums/mind.dm#L219">
+        <img src="git.png" width="16" height="16" title="code&#x2F;datums&#x2F;mind.dm 219"/></a></aside>
+        </h3>
+        <p>Completely remove the given objective from the src mind and it's antag datums.</p></main>
+<footer>
+    paradise.dme
+    <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/tree/279ee1dc12aa363582e93c154c87183707ee9e61">279ee1d</a>
+        (master) &mdash; <a href="https://github.com/SpaceManiac/SpacemanDMM/blob/master/src/dmdoc/README.md">dmdoc 1.4.1</a></footer>
+</body>
+</html>

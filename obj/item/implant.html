@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <base href="../../" />
+    <link rel="stylesheet" href="dmdoc.css" />
+    <title>&#x2F;obj&#x2F;item&#x2F;implant - Paradise Station 13</title>
+</head>
+<body>
+<header>
+    <a href="index.html">Paradise Station 13</a> -
+    <a href="index.html#modules">Modules</a> -
+    <a href="index.html#types">Types</a>
+ &mdash; <a href="obj/item/implant.html#var">Var Details</a> - <a href="obj/item/implant.html#proc">Proc Details</a></header>
+<main>
+<h1>Implants <aside>/<a href="obj.html">obj</a>/<a href="obj/item.html">item</a>/<a href="obj/item/implant.html">implant</a></aside>
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/game/objects/items/weapons/implants/implant.dm#L26">
+        <img src="git.png" width="16" height="16" title="code&#x2F;game&#x2F;objects&#x2F;items&#x2F;weapons&#x2F;implants&#x2F;implant.dm 26"/></a></h1>
+
+<p>Code for implants that can be inserted into a person and have some sort of passive or triggered action.</p><table class="summary" cellspacing="0"><tr><td colspan="2"><h2>Vars</h2></td></tr>
+            <tr><th><a href="obj/item/implant.html#var/activated">activated</a></th><td>How the implant is activated.</td></tr>
+            <tr><th><a href="obj/item/implant.html#var/allow_multiple">allow_multiple</a></th><td>Whether multiple implants of this same type can be inserted into someone.</td></tr>
+            <tr><th><a href="obj/item/implant.html#var/has_triggered_on_death">has_triggered_on_death</a></th><td>Whether this implant has already triggered on death or not, to prevent it firing multiple times.</td></tr>
+            <tr><th><a href="obj/item/implant.html#var/imp_in">imp_in</a></th><td>Who the implant is inside of.</td></tr>
+            <tr><th><a href="obj/item/implant.html#var/implant_data">implant_data</a></th><td>the implant_fluff datum attached to this implant, purely cosmetic &quot;lore&quot; information</td></tr>
+            <tr><th><a href="obj/item/implant.html#var/implant_state">implant_state</a></th><td>which implant overlay should be used for implant cases. This should point to a state in implants.dmi</td></tr>
+            <tr><th><a href="obj/item/implant.html#var/implanted">implanted</a></th><td>Whether the implant is implanted. Null if it's never been inserted, TRUE if it's currently inside someone, or FALSE if it's been removed.</td></tr>
+            <tr><th><a href="obj/item/implant.html#var/trigger_causes">trigger_causes</a></th><td>What type of action will trigger this emote. Bitfield of IMPLANT_EMOTE_* defines.</td></tr>
+            <tr><th><a href="obj/item/implant.html#var/trigger_emotes">trigger_emotes</a></th><td>List of emote keys that activate this implant when used.</td></tr>
+            <tr><th><a href="obj/item/implant.html#var/uses">uses</a></th><td>Amount of times that the implant can be triggered by the user. If the implant can't be used, it can't be inserted.</td></tr><tr><td colspan="2"><h2>Procs</h2></td></tr>
+            <tr><th><a href="obj/item/implant.html#proc/implant">implant</a></th><td>Try to implant ourselves into a mob.</td></tr>
+            <tr><th><a href="obj/item/implant.html#proc/removed">removed</a></th><td>Clean up when an implant is removed.</td></tr>
+            <tr><th><a href="obj/item/implant.html#proc/set_trigger">set_trigger</a></th><td>Set the emote that will trigger the implant.</td></tr></table>
+    <h2 id="var">Var Details</h2><h3 id="var/activated"><aside class="declaration">var </aside>activated
+            <aside>&ndash; </aside>
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/game/objects/items/weapons/implants/implant.dm#L38">
+        <img src="git.png" width="16" height="16" title="code&#x2F;game&#x2F;objects&#x2F;items&#x2F;weapons&#x2F;implants&#x2F;implant.dm 38"/></a></h3>
+        <p>How the implant is activated.</p><h3 id="var/allow_multiple"><aside class="declaration">var </aside>allow_multiple
+            <aside>&ndash; </aside>
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/game/objects/items/weapons/implants/implant.dm#L45">
+        <img src="git.png" width="16" height="16" title="code&#x2F;game&#x2F;objects&#x2F;items&#x2F;weapons&#x2F;implants&#x2F;implant.dm 45"/></a></h3>
+        <p>Whether multiple implants of this same type can be inserted into someone.</p><h3 id="var/has_triggered_on_death"><aside class="declaration">var </aside>has_triggered_on_death
+            <aside>&ndash; </aside>
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/game/objects/items/weapons/implants/implant.dm#L54">
+        <img src="git.png" width="16" height="16" title="code&#x2F;game&#x2F;objects&#x2F;items&#x2F;weapons&#x2F;implants&#x2F;implant.dm 54"/></a></h3>
+        <p>Whether this implant has already triggered on death or not, to prevent it firing multiple times.</p><h3 id="var/imp_in"><aside class="declaration">var </aside>imp_in
+            <aside>&ndash; /<a href="mob.html">mob</a>/<a href="mob/living.html">living</a></aside>
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/game/objects/items/weapons/implants/implant.dm#L42">
+        <img src="git.png" width="16" height="16" title="code&#x2F;game&#x2F;objects&#x2F;items&#x2F;weapons&#x2F;implants&#x2F;implant.dm 42"/></a></h3>
+        <p>Who the implant is inside of.</p><h3 id="var/implant_data"><aside class="declaration">var </aside>implant_data
+            <aside>&ndash; /<a href="datum.html">datum</a>/implant_fluff</aside>
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/game/objects/items/weapons/implants/implant.dm#L57">
+        <img src="git.png" width="16" height="16" title="code&#x2F;game&#x2F;objects&#x2F;items&#x2F;weapons&#x2F;implants&#x2F;implant.dm 57"/></a></h3>
+        <p>the implant_fluff datum attached to this implant, purely cosmetic &quot;lore&quot; information</p><h3 id="var/implant_state"><aside class="declaration">var </aside>implant_state
+            <aside>&ndash; </aside>
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/game/objects/items/weapons/implants/implant.dm#L36">
+        <img src="git.png" width="16" height="16" title="code&#x2F;game&#x2F;objects&#x2F;items&#x2F;weapons&#x2F;implants&#x2F;implant.dm 36"/></a></h3>
+        <p>which implant overlay should be used for implant cases. This should point to a state in implants.dmi</p><h3 id="var/implanted"><aside class="declaration">var </aside>implanted
+            <aside>&ndash; </aside>
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/game/objects/items/weapons/implants/implant.dm#L40">
+        <img src="git.png" width="16" height="16" title="code&#x2F;game&#x2F;objects&#x2F;items&#x2F;weapons&#x2F;implants&#x2F;implant.dm 40"/></a></h3>
+        <p>Whether the implant is implanted. Null if it's never been inserted, TRUE if it's currently inside someone, or FALSE if it's been removed.</p><h3 id="var/trigger_causes"><aside class="declaration">var </aside>trigger_causes
+            <aside>&ndash; </aside>
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/game/objects/items/weapons/implants/implant.dm#L52">
+        <img src="git.png" width="16" height="16" title="code&#x2F;game&#x2F;objects&#x2F;items&#x2F;weapons&#x2F;implants&#x2F;implant.dm 52"/></a></h3>
+        <p>What type of action will trigger this emote. Bitfield of IMPLANT_EMOTE_* defines.</p><h3 id="var/trigger_emotes"><aside class="declaration">var </aside>trigger_emotes
+            <aside>&ndash; /list</aside>
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/game/objects/items/weapons/implants/implant.dm#L50">
+        <img src="git.png" width="16" height="16" title="code&#x2F;game&#x2F;objects&#x2F;items&#x2F;weapons&#x2F;implants&#x2F;implant.dm 50"/></a></h3>
+        <p>List of emote keys that activate this implant when used.</p><h3 id="var/uses"><aside class="declaration">var </aside>uses
+            <aside>&ndash; </aside>
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/game/objects/items/weapons/implants/implant.dm#L47">
+        <img src="git.png" width="16" height="16" title="code&#x2F;game&#x2F;objects&#x2F;items&#x2F;weapons&#x2F;implants&#x2F;implant.dm 47"/></a></h3>
+        <p>Amount of times that the implant can be triggered by the user. If the implant can't be used, it can't be inserted.</p><h2 id="proc">Proc Details</h2><h3 id="proc/implant"><aside class="declaration">proc </aside>implant<aside>(/<a href="mob.html">mob</a>/source, /<a href="mob.html">mob</a>/user) 
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/game/objects/items/weapons/implants/implant.dm#L161">
+        <img src="git.png" width="16" height="16" title="code&#x2F;game&#x2F;objects&#x2F;items&#x2F;weapons&#x2F;implants&#x2F;implant.dm 161"/></a></aside>
+        </h3>
+        <p>Try to implant ourselves into a mob.</p>
+<ul>
+<li>source - The person the implant is being administered to.</li>
+<li>user - The person who is doing the implanting.</li>
+</ul>
+<p>Returns
+1 if the implant injects successfully
+-1 if the implant fails to inject
+0 if there's no room for the implant.</p><h3 id="proc/removed"><aside class="declaration">proc </aside>removed<aside>(/<a href="mob.html">mob</a>/source) 
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/game/objects/items/weapons/implants/implant.dm#L205">
+        <img src="git.png" width="16" height="16" title="code&#x2F;game&#x2F;objects&#x2F;items&#x2F;weapons&#x2F;implants&#x2F;implant.dm 205"/></a></aside>
+        </h3>
+        <p>Clean up when an implant is removed.</p>
+<ul>
+<li>source - the user who the implant was removed from.</li>
+</ul><h3 id="proc/set_trigger"><aside class="declaration">proc </aside>set_trigger<aside>(/<a href="mob.html">mob</a>/user, emote_key, on_implant, silent) 
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/game/objects/items/weapons/implants/implant.dm#L80">
+        <img src="git.png" width="16" height="16" title="code&#x2F;game&#x2F;objects&#x2F;items&#x2F;weapons&#x2F;implants&#x2F;implant.dm 80"/></a></aside>
+        </h3>
+        <p>Set the emote that will trigger the implant.</p>
+<ul>
+<li>user - User who is trying to associate the implant to themselves.</li>
+<li>emote_key - Key of the emote that should trigger the implant.</li>
+<li>on_implant - Whether this proc is being called during the implantation of the implant.</li>
+<li>silent - If true, the user won't get any to_chat messages if an implantation fails.</li>
+</ul></main>
+<footer>
+    paradise.dme
+    <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/tree/279ee1dc12aa363582e93c154c87183707ee9e61">279ee1d</a>
+        (master) &mdash; <a href="https://github.com/SpaceManiac/SpacemanDMM/blob/master/src/dmdoc/README.md">dmdoc 1.4.1</a></footer>
+</body>
+</html>

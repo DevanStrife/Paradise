@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <base href="../../../" />
+    <link rel="stylesheet" href="dmdoc.css" />
+    <title>&#x2F;datum&#x2F;component&#x2F;proximity_monitor&#x2F;advanced - Paradise Station 13</title>
+</head>
+<body>
+<header>
+    <a href="index.html">Paradise Station 13</a> -
+    <a href="index.html#modules">Modules</a> -
+    <a href="index.html#types">Types</a>
+ &mdash; <a href="datum/component/proximity_monitor/advanced.html#var">Var Details</a> - <a href="datum/component/proximity_monitor/advanced.html#proc">Proc Details</a></header>
+<main>
+<h1>Advanced Proximity Monitor <aside>/<a href="datum.html">datum</a>/<a href="datum/component.html">component</a>/<a href="datum/component/proximity_monitor.html">proximity_monitor</a>/<a href="datum/component/proximity_monitor/advanced.html">advanced</a></aside>
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/datums/components/proximity_monitor.dm#L264">
+        <img src="git.png" width="16" height="16" title="code&#x2F;datums&#x2F;components&#x2F;proximity_monitor.dm 264"/></a></h1>
+
+<p>This component functions similar to the basic version, however it has some extra features:</p>
+<p>First of all, if the field radius is more than 1 tile, you have the option to make a distinction between inner proximity checkers, versus ones along the edge.
+You can specifiy which type of <a href="obj/effect/abstract/proximity_checker.html" title="/obj/effect/abstract/proximity_checker">/obj/effect/abstract/proximity_checker</a> objects you want to use for both inner, and edge checkers.</p>
+<p>Secondly, the advanced proximity monitor has the ability to use processing (the <code>process</code> proc). This is optional however.
+Each proximity checker object can process itself or other things on it's turf as needed. It's up to you on how you want to use it.
+Inner and edge checkers can process thing seperately. You can turn off processing for field checkers and have only edge checkers process, and vice versa.</p><table class="summary" cellspacing="0"><tr><td colspan="2"><h2>Vars</h2></td></tr>
+            <tr><th><a href="datum/component/proximity_monitor/advanced.html#var/edge_checker_type">edge_checker_type</a></th><td>The type of checker object that should be used for the field edges.</td></tr>
+            <tr><th><a href="datum/component/proximity_monitor/advanced.html#var/edge_checkers">edge_checkers</a></th><td>A list of proximity_checkers on the edge of the field.</td></tr>
+            <tr><th><a href="datum/component/proximity_monitor/advanced.html#var/field_checkers">field_checkers</a></th><td>A list of proximity_checkers in the inner field. Excludes checkers on the edge of the field.</td></tr>
+            <tr><th><a href="datum/component/proximity_monitor/advanced.html#var/process_edge_checkers">process_edge_checkers</a></th><td>Should the edge field checkers process things on their tile?</td></tr>
+            <tr><th><a href="datum/component/proximity_monitor/advanced.html#var/process_field_checkers">process_field_checkers</a></th><td>Should the main field checkers process things on their tile?</td></tr>
+            <tr><th><a href="datum/component/proximity_monitor/advanced.html#var/requires_processing">requires_processing</a></th><td>Do any of the proximity_checker objects need to process things sitting on their tile?</td></tr>
+            <tr><th><a href="datum/component/proximity_monitor/advanced.html#var/uses_edge_checkers">uses_edge_checkers</a></th><td>Make a distinction between edge checkers and field checkers seperately.</td></tr><tr><td colspan="2"><h2>Procs</h2></td></tr>
+            <tr><th><a href="datum/component/proximity_monitor/advanced.html#proc/edge_field_canpass">edge_field_canpass</a></th><td>Base proc. Checks if <code>AM</code> can pass the edge field checker.</td></tr>
+            <tr><th><a href="datum/component/proximity_monitor/advanced.html#proc/edge_field_crossed">edge_field_crossed</a></th><td>Base proc. Called when something crosses an edge field checker.</td></tr>
+            <tr><th><a href="datum/component/proximity_monitor/advanced.html#proc/edge_field_uncrossed">edge_field_uncrossed</a></th><td>Base proc. Called when something uncrosses an edge field checker.</td></tr>
+            <tr><th><a href="datum/component/proximity_monitor/advanced.html#proc/inner_field_canpass">inner_field_canpass</a></th><td>Base proc. Checks if <code>AM</code> can pass the inner field checker.</td></tr>
+            <tr><th><a href="datum/component/proximity_monitor/advanced.html#proc/inner_field_crossed">inner_field_crossed</a></th><td>Base proc. Called when something crosses an inner field checker.</td></tr>
+            <tr><th><a href="datum/component/proximity_monitor/advanced.html#proc/inner_field_uncrossed">inner_field_uncrossed</a></th><td>Base proc. Called when something uncrosses an inner field checker.</td></tr>
+            <tr><th><a href="datum/component/proximity_monitor/advanced.html#proc/process_edge_checker">process_edge_checker</a></th><td>Base proc. All processing-related actions associated with edge proximity checkers should go here.</td></tr>
+            <tr><th><a href="datum/component/proximity_monitor/advanced.html#proc/process_inner_checker">process_inner_checker</a></th><td>Base proc. All processing-related actions associated with inner proximity checkers should go here.</td></tr></table>
+    <h2 id="var">Var Details</h2><h3 id="var/edge_checker_type"><aside class="declaration">var </aside>edge_checker_type
+            <aside>&ndash; </aside>
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/datums/components/proximity_monitor.dm#L268">
+        <img src="git.png" width="16" height="16" title="code&#x2F;datums&#x2F;components&#x2F;proximity_monitor.dm 268"/></a></h3>
+        <p>The type of checker object that should be used for the field edges.</p><h3 id="var/edge_checkers"><aside class="declaration">var </aside>edge_checkers
+            <aside>&ndash; /list</aside>
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/datums/components/proximity_monitor.dm#L282">
+        <img src="git.png" width="16" height="16" title="code&#x2F;datums&#x2F;components&#x2F;proximity_monitor.dm 282"/></a></h3>
+        <p>A list of proximity_checkers on the edge of the field.</p><h3 id="var/field_checkers"><aside class="declaration">var </aside>field_checkers
+            <aside>&ndash; /list</aside>
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/datums/components/proximity_monitor.dm#L278">
+        <img src="git.png" width="16" height="16" title="code&#x2F;datums&#x2F;components&#x2F;proximity_monitor.dm 278"/></a></h3>
+        <p>A list of proximity_checkers in the inner field. Excludes checkers on the edge of the field.</p><h3 id="var/process_edge_checkers"><aside class="declaration">var </aside>process_edge_checkers
+            <aside>&ndash; </aside>
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/datums/components/proximity_monitor.dm#L276">
+        <img src="git.png" width="16" height="16" title="code&#x2F;datums&#x2F;components&#x2F;proximity_monitor.dm 276"/></a></h3>
+        <p>Should the edge field checkers process things on their tile?</p><h3 id="var/process_field_checkers"><aside class="declaration">var </aside>process_field_checkers
+            <aside>&ndash; </aside>
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/datums/components/proximity_monitor.dm#L274">
+        <img src="git.png" width="16" height="16" title="code&#x2F;datums&#x2F;components&#x2F;proximity_monitor.dm 274"/></a></h3>
+        <p>Should the main field checkers process things on their tile?</p><h3 id="var/requires_processing"><aside class="declaration">var </aside>requires_processing
+            <aside>&ndash; </aside>
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/datums/components/proximity_monitor.dm#L272">
+        <img src="git.png" width="16" height="16" title="code&#x2F;datums&#x2F;components&#x2F;proximity_monitor.dm 272"/></a></h3>
+        <p>Do any of the proximity_checker objects need to process things sitting on their tile?</p><h3 id="var/uses_edge_checkers"><aside class="declaration">var </aside>uses_edge_checkers
+            <aside>&ndash; </aside>
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/datums/components/proximity_monitor.dm#L270">
+        <img src="git.png" width="16" height="16" title="code&#x2F;datums&#x2F;components&#x2F;proximity_monitor.dm 270"/></a></h3>
+        <p>Make a distinction between edge checkers and field checkers seperately.</p><h2 id="proc">Proc Details</h2><h3 id="proc/edge_field_canpass"><aside class="declaration">proc </aside>edge_field_canpass<aside>(/<a href="atom.html">atom</a>/<a href="atom/movable.html">movable</a>/AM, /<a href="obj.html">obj</a>/<a href="obj/effect/abstract/proximity_checker.html">effect/abstract/proximity_checker</a>/<a href="obj/effect/abstract/proximity_checker/advanced.html">advanced</a>/edge_field/F, /<a href="turf.html">turf</a>/entering) 
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/datums/components/proximity_monitor.dm#L393">
+        <img src="git.png" width="16" height="16" title="code&#x2F;datums&#x2F;components&#x2F;proximity_monitor.dm 393"/></a></aside>
+        </h3>
+        <p>Base proc. Checks if <code>AM</code> can pass the edge field checker.</p>
+<p>Arguments:</p>
+<ul>
+<li>atom/movable/AM - the atom trying to pass the edge field checker object</li>
+<li>obj/effect/abstract/proximity_checker/advanced/edge_field/F - the proximity checker object <code>AM</code> is trying to pass</li>
+<li>turf/entering - the turf <code>AM</code> is entering from</li>
+</ul><h3 id="proc/edge_field_crossed"><aside class="declaration">proc </aside>edge_field_crossed<aside>(/<a href="atom.html">atom</a>/<a href="atom/movable.html">movable</a>/AM, /<a href="obj.html">obj</a>/<a href="obj/effect/abstract/proximity_checker.html">effect/abstract/proximity_checker</a>/<a href="obj/effect/abstract/proximity_checker/advanced.html">advanced</a>/edge_field/F) 
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/datums/components/proximity_monitor.dm#L403">
+        <img src="git.png" width="16" height="16" title="code&#x2F;datums&#x2F;components&#x2F;proximity_monitor.dm 403"/></a></aside>
+        </h3>
+        <p>Base proc. Called when something crosses an edge field checker.</p>
+<p>Arguments:</p>
+<ul>
+<li>atom/movable/AM - the atom crossing the edge field checker object</li>
+<li>obj/effect/abstract/proximity_checker/advanced/edge_field/F - the proximity checker object <code>AM</code> getting crossed</li>
+</ul><h3 id="proc/edge_field_uncrossed"><aside class="declaration">proc </aside>edge_field_uncrossed<aside>(/<a href="atom.html">atom</a>/<a href="atom/movable.html">movable</a>/AM, /<a href="obj.html">obj</a>/<a href="obj/effect/abstract/proximity_checker.html">effect/abstract/proximity_checker</a>/<a href="obj/effect/abstract/proximity_checker/advanced.html">advanced</a>/edge_field/F) 
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/datums/components/proximity_monitor.dm#L413">
+        <img src="git.png" width="16" height="16" title="code&#x2F;datums&#x2F;components&#x2F;proximity_monitor.dm 413"/></a></aside>
+        </h3>
+        <p>Base proc. Called when something uncrosses an edge field checker.</p>
+<p>Arguments:</p>
+<ul>
+<li>atom/movable/AM - the atom uncrossing the edge field checker object</li>
+<li>obj/effect/abstract/proximity_checker/advanced/edge_field/F - the proximity checker object <code>AM</code> getting uncrossed</li>
+</ul><h3 id="proc/inner_field_canpass"><aside class="declaration">proc </aside>inner_field_canpass<aside>(/<a href="atom.html">atom</a>/<a href="atom/movable.html">movable</a>/AM, /<a href="obj.html">obj</a>/<a href="obj/effect/abstract/proximity_checker.html">effect/abstract/proximity_checker</a>/<a href="obj/effect/abstract/proximity_checker/advanced.html">advanced</a>/inner_field/F, /<a href="turf.html">turf</a>/entering) 
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/datums/components/proximity_monitor.dm#L362">
+        <img src="git.png" width="16" height="16" title="code&#x2F;datums&#x2F;components&#x2F;proximity_monitor.dm 362"/></a></aside>
+        </h3>
+        <p>Base proc. Checks if <code>AM</code> can pass the inner field checker.</p>
+<p>Arguments:</p>
+<ul>
+<li>atom/movable/AM - the atom trying to pass the inner field checker object</li>
+<li>obj/effect/abstract/proximity_checker/advanced/inner_field/F - the proximity checker object <code>AM</code> is trying to pass</li>
+<li>turf/entering - the turf <code>AM</code> is entering from</li>
+</ul><h3 id="proc/inner_field_crossed"><aside class="declaration">proc </aside>inner_field_crossed<aside>(/<a href="atom.html">atom</a>/<a href="atom/movable.html">movable</a>/AM, /<a href="obj.html">obj</a>/<a href="obj/effect/abstract/proximity_checker.html">effect/abstract/proximity_checker</a>/<a href="obj/effect/abstract/proximity_checker/advanced.html">advanced</a>/inner_field/F) 
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/datums/components/proximity_monitor.dm#L372">
+        <img src="git.png" width="16" height="16" title="code&#x2F;datums&#x2F;components&#x2F;proximity_monitor.dm 372"/></a></aside>
+        </h3>
+        <p>Base proc. Called when something crosses an inner field checker.</p>
+<p>Arguments:</p>
+<ul>
+<li>atom/movable/AM - the atom crossing the inner field checker object</li>
+<li>obj/effect/abstract/proximity_checker/advanced/inner_field/F - the proximity checker object <code>AM</code> getting crossed</li>
+</ul><h3 id="proc/inner_field_uncrossed"><aside class="declaration">proc </aside>inner_field_uncrossed<aside>(/<a href="atom.html">atom</a>/<a href="atom/movable.html">movable</a>/AM, /<a href="obj.html">obj</a>/<a href="obj/effect/abstract/proximity_checker.html">effect/abstract/proximity_checker</a>/<a href="obj/effect/abstract/proximity_checker/advanced.html">advanced</a>/inner_field/F) 
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/datums/components/proximity_monitor.dm#L382">
+        <img src="git.png" width="16" height="16" title="code&#x2F;datums&#x2F;components&#x2F;proximity_monitor.dm 382"/></a></aside>
+        </h3>
+        <p>Base proc. Called when something uncrosses an inner field checker.</p>
+<p>Arguments:</p>
+<ul>
+<li>atom/movable/AM - the atom uncrossing the inner field checker object</li>
+<li>obj/effect/abstract/proximity_checker/advanced/inner_field/F - the proximity checker object <code>AM</code> getting uncrossed</li>
+</ul><h3 id="proc/process_edge_checker"><aside class="declaration">proc </aside>process_edge_checker<aside>(/<a href="obj.html">obj</a>/<a href="obj/effect/abstract/proximity_checker.html">effect/abstract/proximity_checker</a>/<a href="obj/effect/abstract/proximity_checker/advanced.html">advanced</a>/edge_field/F) 
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/datums/components/proximity_monitor.dm#L351">
+        <img src="git.png" width="16" height="16" title="code&#x2F;datums&#x2F;components&#x2F;proximity_monitor.dm 351"/></a></aside>
+        </h3>
+        <p>Base proc. All processing-related actions associated with edge proximity checkers should go here.</p>
+<p>Arguments:</p>
+<ul>
+<li>obj/effect/abstract/proximity_checker/advanced/edge_field/F - the proximity checker to process</li>
+</ul><h3 id="proc/process_inner_checker"><aside class="declaration">proc </aside>process_inner_checker<aside>(/<a href="obj.html">obj</a>/<a href="obj/effect/abstract/proximity_checker.html">effect/abstract/proximity_checker</a>/<a href="obj/effect/abstract/proximity_checker/advanced.html">advanced</a>/inner_field/F) 
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/datums/components/proximity_monitor.dm#L342">
+        <img src="git.png" width="16" height="16" title="code&#x2F;datums&#x2F;components&#x2F;proximity_monitor.dm 342"/></a></aside>
+        </h3>
+        <p>Base proc. All processing-related actions associated with inner proximity checkers should go here.</p>
+<p>Arguments:</p>
+<ul>
+<li>obj/effect/abstract/proximity_checker/advanced/inner_field/F - the proximity checker to process</li>
+</ul></main>
+<footer>
+    paradise.dme
+    <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/tree/279ee1dc12aa363582e93c154c87183707ee9e61">279ee1d</a>
+        (master) &mdash; <a href="https://github.com/SpaceManiac/SpacemanDMM/blob/master/src/dmdoc/README.md">dmdoc 1.4.1</a></footer>
+</body>
+</html>

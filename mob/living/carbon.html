@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <base href="../../" />
+    <link rel="stylesheet" href="dmdoc.css" />
+    <title>&#x2F;mob&#x2F;living&#x2F;carbon - Paradise Station 13</title>
+</head>
+<body>
+<header>
+    <a href="index.html">Paradise Station 13</a> -
+    <a href="index.html#modules">Modules</a> -
+    <a href="index.html#types">Types</a>
+ &mdash; <a href="mob/living/carbon.html#proc">Proc Details</a></header>
+<main>
+<h1>carbon <aside>/<a href="mob.html">mob</a>/<a href="mob/living.html">living</a>/<a href="mob/living/carbon.html">carbon</a></aside>
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/modules/mob/living/carbon/carbon_defines.dm#L1">
+        <img src="git.png" width="16" height="16" title="code&#x2F;modules&#x2F;mob&#x2F;living&#x2F;carbon&#x2F;carbon_defines.dm 1"/></a></h1>
+
+<table class="summary" cellspacing="0"><tr><td colspan="2"><h2>Procs</h2></td></tr>
+            <tr><th><a href="mob/living/carbon.html#proc/dream">dream</a></th><td>DREAMS</td></tr>
+            <tr><th><a href="mob/living/carbon.html#proc/electrocute_act">electrocute_act</a></th><td>Adds to the parent by also adding functionality to propagate shocks through pulling and doing some fluff effects.</td></tr>
+            <tr><th><a href="mob/living/carbon.html#proc/has_virus">has_virus</a></th><td>Whether a virus worthy displaying on the HUD is present.</td></tr>
+            <tr><th><a href="mob/living/carbon.html#proc/is_in_crit">is_in_crit</a></th><td>Medical HUD! Basic mode needs suit sensors on.
+Whether the carbon mob is currently in crit.</td></tr>
+            <tr><th><a href="mob/living/carbon.html#proc/pat_out">pat_out</a></th><td>Handles patting out a fire on someone.</td></tr>
+            <tr><th><a href="mob/living/carbon.html#proc/secondary_shock">secondary_shock</a></th><td>Called slightly after electrocute act to reduce jittering and apply a secondary knockdown.</td></tr>
+            <tr><th><a href="mob/living/carbon.html#proc/toggle_give">toggle_give</a></th><td>Toggles the <a href="datum/click_intercept/give.html" title="/datum/click_intercept/give">/datum/click_intercept/give</a> on or off for the src mob.</td></tr>
+            <tr><th><a href="mob/living/carbon.html#proc/update_suit_sensors">update_suit_sensors</a></th><td>HOOKS</td></tr></table><h2 id="proc">Proc Details</h2><h3 id="proc/dream"><aside class="declaration">proc </aside>dream<aside>() 
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/modules/flufftext/Dreaming.dm#L4">
+        <img src="git.png" width="16" height="16" title="code&#x2F;modules&#x2F;flufftext&#x2F;Dreaming.dm 4"/></a></aside>
+        </h3>
+        <p>DREAMS</p><h3 id="proc/electrocute_act"><aside class="parent"><a title="/mob/living" href="mob/living.html#proc/electrocute_act">&uarr;</a></aside>electrocute_act<aside>(shock_damage, source, siemens_coeff, flags) 
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/modules/mob/living/carbon/carbon.dm#L144">
+        <img src="git.png" width="16" height="16" title="code&#x2F;modules&#x2F;mob&#x2F;living&#x2F;carbon&#x2F;carbon.dm 144"/></a></aside>
+        </h3>
+        <p>Adds to the parent by also adding functionality to propagate shocks through pulling and doing some fluff effects.</p><h3 id="proc/has_virus"><aside class="declaration">proc </aside>has_virus<aside>() 
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/game/data_huds.dm#L94">
+        <img src="git.png" width="16" height="16" title="code&#x2F;game&#x2F;data_huds.dm 94"/></a></aside>
+        </h3>
+        <p>Whether a virus worthy displaying on the HUD is present.</p><h3 id="proc/is_in_crit"><aside class="declaration">proc </aside>is_in_crit<aside>() 
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/game/data_huds.dm#L77">
+        <img src="git.png" width="16" height="16" title="code&#x2F;game&#x2F;data_huds.dm 77"/></a></aside>
+        </h3>
+        <p>Medical HUD! Basic mode needs suit sensors on.
+Whether the carbon mob is currently in crit.</p><h3 id="proc/pat_out"><aside class="declaration">proc </aside>pat_out<aside>(/<a href="mob.html">mob</a>/<a href="mob/living.html">living</a>/target) 
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/modules/mob/living/carbon/carbon.dm#L272">
+        <img src="git.png" width="16" height="16" title="code&#x2F;modules&#x2F;mob&#x2F;living&#x2F;carbon&#x2F;carbon.dm 272"/></a></aside>
+        </h3>
+        <p>Handles patting out a fire on someone.</p>
+<p>Removes 0.5 fire stacks per pat, with a 30% chance of the user burning their hand if they don't have adequate heat resistance.
+Arguments:</p>
+<ul>
+<li>src - The mob doing the patting</li>
+<li>target - The mob who is currently on fire</li>
+</ul><h3 id="proc/secondary_shock"><aside class="declaration">proc </aside>secondary_shock<aside>(should_stun) 
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/modules/mob/living/carbon/carbon.dm#L175">
+        <img src="git.png" width="16" height="16" title="code&#x2F;modules&#x2F;mob&#x2F;living&#x2F;carbon&#x2F;carbon.dm 175"/></a></aside>
+        </h3>
+        <p>Called slightly after electrocute act to reduce jittering and apply a secondary knockdown.</p><h3 id="proc/toggle_give"><aside class="declaration">verb </aside>toggle_give<aside>() 
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/modules/mob/living/carbon/give.dm#L4">
+        <img src="git.png" width="16" height="16" title="code&#x2F;modules&#x2F;mob&#x2F;living&#x2F;carbon&#x2F;give.dm 4"/></a></aside>
+        </h3>
+        <p>Toggles the <a href="datum/click_intercept/give.html" title="/datum/click_intercept/give">/datum/click_intercept/give</a> on or off for the src mob.</p><h3 id="proc/update_suit_sensors"><aside class="declaration">proc </aside>update_suit_sensors<aside>() 
+        
+    
+            <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/blob/279ee1dc12aa363582e93c154c87183707ee9e61/code/game/data_huds.dm#L164">
+        <img src="git.png" width="16" height="16" title="code&#x2F;game&#x2F;data_huds.dm 164"/></a></aside>
+        </h3>
+        <p>HOOKS</p></main>
+<footer>
+    paradise.dme
+    <a href="https://github.com/DevanStrife/Para-dev-private-test-repo/tree/279ee1dc12aa363582e93c154c87183707ee9e61">279ee1d</a>
+        (master) &mdash; <a href="https://github.com/SpaceManiac/SpacemanDMM/blob/master/src/dmdoc/README.md">dmdoc 1.4.1</a></footer>
+</body>
+</html>
